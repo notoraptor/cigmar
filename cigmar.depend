@@ -1,0 +1,38 @@
+# depslib dependency file v1.0
+1502647986 source:c:\donnees\programmation\cpp\codeblocks\cigmar\main.cpp
+	<iostream>
+	<sstream>
+	<string>
+	"utils.hpp"
+
+1502655793 c:\donnees\programmation\cpp\codeblocks\cigmar\utils.hpp
+	"primitive_types.hpp"
+	"primitive_classes.hpp"
+	"String.hpp"
+
+1502654884 c:\donnees\programmation\cpp\codeblocks\cigmar\primitive_types.hpp
+	<cstdint>
+	<ostream>
+	<string>
+	"primitive_symbols.hpp"
+	"interfaces.hpp"
+
+1502626229 c:\donnees\programmation\cpp\codeblocks\cigmar\primitive_symbols.hpp
+
+1502647986 c:\donnees\programmation\cpp\codeblocks\cigmar\interfaces.hpp
+	<ostream>
+
+1502646126 source:c:\donnees\programmation\cpp\codeblocks\cigmar\utils.cpp
+	"utils.hpp"
+
+1502647812 c:\donnees\programmation\cpp\codeblocks\cigmar\string.hpp
+	<algorithm>
+	<locale>
+	<string>
+	<sstream>
+	<cstring>
+	"interfaces.hpp"
+
+1502655920 c:\donnees\programmation\cpp\codeblocks\cigmar\primitive_classes.hpp
+	<array>
+
