@@ -4,7 +4,7 @@
 class AbstractMap;
 class AbstractSet;
 
-class Array;
+class Array; // -> vector
 class Stack;
 class Queue;
 class LinkedList; // Double linked list.
