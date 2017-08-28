@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 #include <cstring>
-#include "interfaces.hpp"
+#include "primitive/interfaces.hpp"
 
 char to_lower(char c);
 char to_upper(char c);

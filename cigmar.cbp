@@ -12,6 +12,7 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-std=c++11" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
@@ -32,14 +33,17 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="InplaceUnaryFunction.hpp" />
 		<Unit filename="String.hpp" />
-		<Unit filename="interfaces.hpp" />
 		<Unit filename="main.cpp" />
 		<Unit filename="numbers.hpp" />
-		<Unit filename="primitive_classes.hpp" />
-		<Unit filename="primitive_symbols.hpp" />
-		<Unit filename="primitive_types.hpp" />
+		<Unit filename="primitive/classes.hpp" />
+		<Unit filename="primitive/classes/ArrayList.hpp" />
+		<Unit filename="primitive/classes/TreeSet.hpp" />
+		<Unit filename="primitive/classes/array_t.hpp" />
+		<Unit filename="primitive/interfaces.hpp" />
+		<Unit filename="primitive/symbols.hpp" />
+		<Unit filename="primitive/types.hpp" />
+		<Unit filename="primitive/types/pos_t.hpp" />
 		<Unit filename="utils.cpp" />
 		<Unit filename="utils.hpp" />
 		<Extensions>

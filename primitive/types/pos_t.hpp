@@ -1,25 +1,9 @@
-#ifndef CIGMAR_PRIMITIVE_TYPES
-#define CIGMAR_PRIMITIVE_TYPES
+#ifndef CIGMAR_POS_T
+#define CIGMAR_POS_T
 
-#include <cstdint>
-#include <ostream>
 #include <string>
-#include "primitive_symbols.hpp"
-#include "interfaces.hpp"
-
-/// bool
-/// char
-using byte = int8_t;
-using short_t = int16_t;
-using int_t = int32_t;
-using long_t = int64_t;
-using ubyte = uint8_t;
-using ushort = uint16_t;
-using uint = uint32_t;
-using ulong = uint64_t;
-/// float
-/// double
-/// size_t
+#include <ostream>
+#include "../interfaces.hpp"
 
 class pos_t: public Comparable<pos_t>, public Streamable {
 private:
@@ -44,7 +28,4 @@ public:
 	}
 };
 
-std::ostream& operator<<(std::ostream& o, byte b);
-std::ostream& operator<<(std::ostream& o, ubyte b);
-
-#endif // CIGMAR_PRIMITIVE_TYPES
+#endif // CIGMAR_POS_T

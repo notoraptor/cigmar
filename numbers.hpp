@@ -4,7 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <random>
-#include "primitive_classes.hpp"
+#include "primitive/classes.hpp"
 
 namespace numbers {
 
