@@ -6,14 +6,6 @@ using std::cout;
 using std::boolalpha;
 using std::endl;
 
-class CigmarInit {
-public:
-	CigmarInit() {
-		std::cout << std::boolalpha;
-		std::cerr << std::boolalpha;
-	}
-} cigmar_init;
-
 int main() {
 	numbers::rng.seed(3325324192);
 	array_t<unsigned int, 31> arr;

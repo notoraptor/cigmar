@@ -1,12 +1,18 @@
 #include "utils.hpp"
 
+/** Initialization of global symbols and variables. **/
+
 _LAST LAST;
 
+CigmarInit cigmar_init;
+
 namespace numbers {
-RNG rng;
+    RNG rng;
 }
 
 const size_t String::UNKNOWN = std::string::npos;
+
+/** Others définitions. **/
 
 static std::locale loc;
 
