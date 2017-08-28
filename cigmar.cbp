@@ -34,6 +34,7 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="String.hpp" />
+		<Unit filename="init.hpp" />
 		<Unit filename="main.cpp" />
 		<Unit filename="numbers.hpp" />
 		<Unit filename="primitive/classes.hpp" />
