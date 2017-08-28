@@ -32,9 +32,11 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="InplaceUnaryFunction.hpp" />
 		<Unit filename="String.hpp" />
 		<Unit filename="interfaces.hpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="numbers.hpp" />
 		<Unit filename="primitive_classes.hpp" />
 		<Unit filename="primitive_symbols.hpp" />
 		<Unit filename="primitive_types.hpp" />

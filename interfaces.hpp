@@ -2,6 +2,11 @@
 #define CIGMAR_INTERFACES
 
 #include <ostream>
+#include <functional>
+
+#define HASHABLE(C) namespace std { template<> struct hash<C> \
+					{size_t operator()(const C& o) const {return o.hash();}}; \
+					}
 
 template<typename T>
 class Comparable {

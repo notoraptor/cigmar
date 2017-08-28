@@ -26,12 +26,12 @@ private:
 	bool valid;
 	size_t value;
 public:
+	pos_t(): valid(false), value(-1) {}
 	pos_t(size_t v): valid(true), value(v) {}
-	pos_t(_NONE): valid(false), value(-1) {}
 	pos_t(bool ok, size_t v): valid(ok), value(v) {}
 	explicit operator bool() const {return valid;}
 	int compare(const pos_t& other) const override {
-		return value < other.value ? -1 : value - other.value;
+		return (!valid && !other.valid) ? 0 : ( value < other.value ? -1 : value - other.value );
 	}
 	void toStream(std::ostream& o) const override {
 		if (valid)

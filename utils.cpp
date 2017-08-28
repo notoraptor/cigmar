@@ -1,7 +1,10 @@
 #include "utils.hpp"
 
 _LAST LAST;
-_NONE NONE;
+
+namespace numbers {
+RNG rng;
+}
 
 const size_t String::UNKNOWN = std::string::npos;
 

@@ -11,7 +11,7 @@
 char to_lower(char c);
 char to_upper(char c);
 
-class String: public Streamable, public Comparable<String>, public ComparableWith<const char*> {
+class String: public Streamable, public Hashable, public Comparable<String>, public ComparableWith<const char*> {
 private:
 	std::string member;
 public:
@@ -218,6 +218,11 @@ public:
 	void toStream(std::ostream& o) const override {
 		o << member;
 	}
+	size_t hash() const override {
+		return std::hash<std::string>()(member);
+	}
 };
+
+HASHABLE(String);
 
 #endif // CIGMAR_STRING

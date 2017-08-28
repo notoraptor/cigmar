@@ -2,9 +2,7 @@
 #define CIGMAR_PRIMITIVE_SYMBOLS
 
 class _LAST {};
-class _NONE {};
 
 extern _LAST LAST;
-extern _NONE NONE;
 
 #endif // CIGMAR_PRIMITIVE_SYMBOLS
