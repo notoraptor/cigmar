@@ -11,7 +11,7 @@
 char to_lower(char c);
 char to_upper(char c);
 
-class String: public Streamable, public Hashable, public Comparable<String>, public ComparableWith<const char*> {
+class String: public Streamable, public Hashable, public AutoComparable<String>, public Comparable<const char*> {
 private:
 	std::string member;
 public:
@@ -212,7 +212,7 @@ public:
 	int compare(const String& other) const override {
 		return member.compare(other.member);
 	}
-	int compareWith(const char* other) const override {
+	int compare(const char* other) const override {
 		return member.compare(other);
 	}
 	void toStream(std::ostream& o) const override {

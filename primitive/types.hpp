@@ -1,6 +1,5 @@
 #ifndef CIGMAR_PRIMITIVE_TYPES
 #define CIGMAR_PRIMITIVE_TYPES
-
 #include <cstdint>
 #include <ostream>
 #include "symbols.hpp"
@@ -18,6 +17,7 @@ using ulong = uint64_t;
 /// float
 /// double
 /// size_t
+#include "types/pos_t.hpp"
 
 std::ostream& operator<<(std::ostream& o, byte b);
 std::ostream& operator<<(std::ostream& o, ubyte b);

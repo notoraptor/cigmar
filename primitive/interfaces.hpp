@@ -9,7 +9,7 @@
 					}
 
 template<typename T>
-class Comparable {
+class AutoComparable {
 public:
 	virtual int compare(const T& other) const = 0;
 	bool operator==(const T& other) const {return compare(other) == 0;};
@@ -21,9 +21,9 @@ public:
 };
 
 template<typename T>
-class ComparableWith {
+class Comparable {
 public:
-	virtual int compareWith(T other) const = 0;
+	virtual int compare(T other) const = 0;
 };
 
 class Streamable {
@@ -38,11 +38,11 @@ public:
 
 std::ostream& operator<<(std::ostream& o, const Streamable& s);
 
-template<typename T> bool operator==(T a, const ComparableWith<T>& b) {return b.compareWith(a) == 0;};
-template<typename T> bool operator!=(T a, const ComparableWith<T>& b) {return b.compareWith(a) != 0;};
-template<typename T> bool operator<(T a, const ComparableWith<T>& b) {return b.compareWith(a) > 0;};
-template<typename T> bool operator>(T a, const ComparableWith<T>& b) {return b.compareWith(a) < 0;};
-template<typename T> bool operator<=(T a, const ComparableWith<T>& b) {return b.compareWith(a) >= 0;};
-template<typename T> bool operator>=(T a, const ComparableWith<T>& b) {return b.compareWith(a) <= 0;};
+template<typename T> bool operator==(T a, const Comparable<T>& b) {return b.compare(a) == 0;};
+template<typename T> bool operator!=(T a, const Comparable<T>& b) {return b.compare(a) != 0;};
+template<typename T> bool operator<(T a, const Comparable<T>& b) {return b.compare(a) > 0;};
+template<typename T> bool operator>(T a, const Comparable<T>& b) {return b.compare(a) < 0;};
+template<typename T> bool operator<=(T a, const Comparable<T>& b) {return b.compare(a) >= 0;};
+template<typename T> bool operator>=(T a, const Comparable<T>& b) {return b.compare(a) <= 0;};
 
 #endif // CIGMAR_INTERFACES

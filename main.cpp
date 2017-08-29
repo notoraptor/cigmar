@@ -7,18 +7,11 @@ using std::boolalpha;
 using std::endl;
 
 int main() {
-	numbers::rng.seed(3325324192);
-	array_t<unsigned int, 31> arr;
-	numbers::random::normal(arr, 10u, 5u);
-	cout << '[' << arr.length << ']' << endl;
-	for (size_t i = 0; i < arr.length; ++i) {
-		cout << '(' << i << ") " << arr[i] << endl;
-	}
-	TreeSet<unsigned int> set(arr);
-	cout << '{';
-	for (unsigned int x: set) cout << x << ';';
-	cout << '}' << endl;
-	cout << set.contains(20) << endl;
-	cout << "seed: " << numbers::rng.seed() << endl;
+    String s = "Bonjour";
+    String t = "bonsoir";
+    cout << (s < t) << endl;
+    cout << (s >= t) << endl;
+    cout << (s == "Bonjour") << endl;
+    cout << ("Bontour" > s) << endl;
 	return 0;
 }
