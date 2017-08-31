@@ -1,15 +1,19 @@
 #ifndef CIGMAR_STRING
 #define CIGMAR_STRING
 
+#include <iostream>
+
 #include <algorithm>
-#include <locale>
 #include <string>
 #include <sstream>
 #include <cstring>
 #include "primitive/interfaces.hpp"
+#include "primitive/classes/ArrayList.hpp"
 
 char to_lower(char c);
 char to_upper(char c);
+
+// Motion fully-defined.
 
 class String: public Streamable, public Hashable, public AutoComparable<String>, public Comparable<const char*> {
 private:
@@ -42,7 +46,9 @@ public:
 		vlist(o, args...);
 		member = o.str();
 	}
+	String(String&& s) = default;
 
+	String& operator=(String&&) = default;
 	String& operator=(const String& other) {
 		member = other.member;
 		return *this;
@@ -147,6 +153,33 @@ public:
 			}
 		} while(pos != std::string::npos);
 		return *this;
+	}
+	ArrayList<String>&& split(const String& delimiter) const {
+		ArrayList<String> pieces;
+		size_t sep_len = delimiter.member.length();
+		size_t piece_start = 0;
+		size_t next_start = 0;
+		do {
+			next_start = member.find(delimiter.member, piece_start);
+			size_t piece_len = next_start - piece_start;
+			pieces.add(std::move(std::string(member, piece_start, piece_len)));
+			std::cout << pieces[LAST] << std::endl;
+			piece_start = next_start + sep_len;
+		} while (next_start != std::string::npos);
+		return std::move(pieces);
+	}
+	ArrayList<String>&& split(const char* delimiter) const {
+		ArrayList<String> pieces;
+		size_t sep_len = strlen(delimiter);
+		size_t piece_start = 0;
+		size_t next_start = 0;
+		do {
+			next_start = member.find(delimiter, piece_start);
+			pieces.add(std::move(std::string(member, piece_start, next_start - piece_start)));
+			std::cout << pieces[LAST] << std::endl;
+			piece_start = next_start + sep_len;
+		} while (next_start != std::string::npos);
+		return std::move(pieces);
 	}
 	String& lower() {
 		std::transform(member.begin(), member.end(), member.begin(), to_lower);

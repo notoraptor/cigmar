@@ -3,15 +3,13 @@
 #include <string>
 #include "utils.hpp"
 using std::cout;
-using std::boolalpha;
 using std::endl;
 
 int main() {
-    String s = "Bonjour";
-    String t = "bonsoir";
-    cout << (s < t) << endl;
-    cout << (s >= t) << endl;
-    cout << (s == "Bonjour") << endl;
-    cout << ("Bontour" > s) << endl;
+	String s = "Bonjour, mon nom est Steven, j'ai 27 ans et je vis a Montreal.";
+	auto&& x = s.split(",");
+	auto&& y = s.split(" ");
+	cout << "(" << x.size() << ")" << endl << endl;
+	cout << "[" << y.size() << "]" << endl;
 	return 0;
 }

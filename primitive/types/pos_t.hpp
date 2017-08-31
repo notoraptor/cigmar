@@ -138,26 +138,10 @@ public:
 	}
 };
 
-pos_t operator+(size_t a, const pos_t& b) {
-    return b + a;
-}
-pos_t operator-(size_t a, const pos_t& b) {
-    if (b && a > (size_t)b)
-        return pos_t(a - (size_t)b);
-    return pos_t();
-}
-pos_t operator*(size_t a, const pos_t& b) {
-    return b * a;
-}
-pos_t operator/(size_t a, const pos_t& b) {
-    if (b)
-        return pos_t(a / (size_t)b);
-    return pos_t();
-}
-pos_t operator%(size_t a, const pos_t& b) {
-    if (b)
-        return pos_t(a % (size_t)b);
-    return pos_t();
-}
+inline pos_t operator+(size_t a, const pos_t& b);
+inline pos_t operator-(size_t a, const pos_t& b);
+inline pos_t operator*(size_t a, const pos_t& b);
+inline pos_t operator/(size_t a, const pos_t& b);
+inline pos_t operator%(size_t a, const pos_t& b);
 
 #endif // CIGMAR_POS_T

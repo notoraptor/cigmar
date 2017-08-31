@@ -3,6 +3,8 @@
 
 #include <vector>
 
+// Motion fully-defined.
+
 template<typename T>
 class ArrayList {
 private:
@@ -18,8 +20,14 @@ public:
 	template<size_t N> ArrayList(const array_t<T, N>& arr): vec(arr.cbegin(), arr.cend()) {}
 	ArrayList(ArrayList&& moved) = default;
 
+	void operator=(const ArrayList&) = delete;
+	ArrayList& operator=(ArrayList&) = default;
 	ArrayList& add(const T& val) {
 		vec.push_back(val);
+		return *this;
+	}
+	ArrayList& add(T&& val) {
+		vec.push_back(std::move(val));
 		return *this;
 	}
 	ArrayList& insert(size_t pos, const T& val) {
