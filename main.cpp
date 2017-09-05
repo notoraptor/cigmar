@@ -1,77 +1,145 @@
 #include <iostream>
-#include <sstream>
-#include <string>
 #include "utils.hpp"
+#include "unittests.hpp"
 using std::cout;
 using std::endl;
 
-template<typename T>
-class return_t {
-private:
-	T* pointer;
-	bool allocated;
-	bool isarray;
-public:
-	return_t(T* ptr = nullptr, bool todelete = false, bool isarr = false): pointer(ptr), allocated(todelete), isarray(isarr) {}
-	return_t(return_t& other): pointer(other.pointer), allocated(other.allocated), isarray(other.isarray) {
-		other.pointer = nullptr;
-		other.allocated = other.isarray = false;
-	}
-	~return_t() {
-		if (allocated) {
-			if (isarray)
-				delete[] pointer;
-			else
-				delete pointer;
-		}
-	}
-	return_t(return_t&& o): return_t((return_t&)o) {};
-	return_t& operator=(return_t& other) {
-		pointer = other.pointer;
-		allocated = other.allocated;
-		isarray = other.isarray;
-		other.pointer = nullptr;
-		other.allocated = other.isarray = false;
-		return *this;
-	}
-	return_t& operator=(return_t&& o) {
-		return (*this = (return_t&)o);
-	};
-	operator T*() const {return pointer;}
-	T& operator*() {return *pointer;}
-	T* operator->() {return pointer;}
-	T& operator[](size_t pos) {return pointer[pos];}
-public:
-};
+utt_begin(Tests);
 
-template<typename E> return_t<E> transfer(E* o) {return return_t<E>(o, true, false);}
-template<typename E> return_t<E> return_stack(E* o) {return return_t<E>(o, false, false);}
-template<typename E> return_t<E> return_stack(E& o) {return return_t<E>(&o, false, false);}
-template<typename E> return_t<E> return_array(E* arr) {return return_t<E>(arr, false, true);}
-template<typename E> return_t<E> return_newarray(E* arr) {return return_t<E>(arr, true, true);}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& o, const return_t<T>& ret) {
-	o << (T*)ret;
-	return o;
+utt(test_string) {
+	String s = "Bonjour, comment vas-tu ?";
+	String t;
+	utt_assert(s.length() == 25);
+	utt_assert(s[0] == 'B');
+	utt_assert(s[LAST] == '?');
+	utt_assert(s[s.length() - 1] == s[LAST]);
+	utt_assert(s[9] == 'c');
+	utt_assert(s);
+	utt_assert(!t);
+	s.clear();
+	utt_assert(s == t);
+	s = "Salamandar";
+	t = "tyrannosaurus";
+	s.swap(t);
+	utt_assert(s == "tyrannosaurus" && t == "Salamandar");
+	s << " rex";
+	s.insert(0, "The ");
+	s[4] = 'T';
+	utt_assert(s == "The Tyrannosaurus rex");
+	s.replace("Tyrannosaurus", "Parasaurolophus").insert(8, "lititan and the Para") << '.';
+	utt_assert("The Paralititan and the Parasaurolophus rex." == s);
+	String r = "carcharodontosaurus";
+	pos_t p1 = s.indexOf("Paralititan");
+	pos_t p2 = s.lastIndexOf("rex");
+	pos_t p3 = s.indexOf("calamitisaura");
+	utt_assert((bool)p1);
+	utt_assert((bool)p2);
+	utt_assert(!p3);
+	s.replace((size_t)p1, (size_t)(p2 - p1 - 1), r);
+	utt_assert(s == "The carcharodontosaurus rex.");
+	ArrayList<String> p = s.split(" ");
+	ArrayList<String> q = s.split("-");
+	ArrayList<String> n = s.split(" ");
+	utt_assert(p.size() == 3);
+	utt_assert(n.size() == 3);
+	utt_assert(q.size() == 1);
+	utt_assert(q[0] == (s << ""));
+	utt_assert(q[0] == (s << ""));
+	s = "my name is Steven, I am 27, and I live in Montreal, Canada.";
+	s.extractTo(t, 11, 6);
+	utt_assert("Steven" == t);
+	utt_assert(s.substring(19, 7) == "I am 27");
+	ArrayList<String> spaced = s.split(" ");
+	ArrayList<String> commas = s.split(",");
+	utt_assert(spaced.size() == 13);
+	utt_assert(commas.size() == 4);
+	s = "Bonjour";
+	utt_assert(s.toLower() == "bonjour");
+	utt_assert(s.toUpper() == "BONJOUR");
+	utt_assert(("abc"_s << 2 << true << -1.5 << ' ' << false) == "abc2true-1.5 false");
+	utt_assert("abc2true-1.5 false" == String("abc", 2, true, -1.5, ' ', false));
+	s[LAST] = 'l';
+	utt_assert(s == "Bonjoul");
+	s = "Bonjour, comment vas-tu ?";
+	t = "Bonjour";
+	utt_assert(s.startsWith("Bonjour"));
+	utt_assert(s.startsWith(t));
+	utt_assert(s[0] == 'B');
+	t = "tu ?";
+	utt_assert(s.endsWith("tu ?"));
+	utt_assert(s.endsWith(t));
+	utt_assert(s[LAST] == '?');
+	size_t count = 0;
+	for (char c:s) ++count;
+	utt_assert(count == s.length());
+	const String cs(s);
+	count = 0;
+	for (const char& c:cs) ++count;
+	utt_assert(count == cs.length());
+	char buffer[7];
+	utt_assert(s.memout(buffer, 9, 7) == 7);
+	utt_assert(buffer[0] == 'c');
+	utt_assert(buffer[6] == 't');
+	utt_assert(s.extractTo(buffer, 9, 6) == 7);
+	utt_assert(String(buffer) == "commen");
 }
 
-struct Point {
-public:
-	int x;
-	int y;
-	Point(int myx = 0, int myy = 0): x(myx), y(myy) {}
-	~Point() {cout << "deleted Point(" << x << ", " << y << ") at " << this << endl;}
-};
+utt(test_pos_t) {
+	String s = "Bonjour";
+	pos_t p1 = s.indexOf("soir");
+	pos_t p2 = s.lastIndexOf('o');
+	pos_t p3 = s.indexOf('o');
+	pos_t p4 = s.indexOf('t');
+	utt_assert(!p1);
+	utt_assert(!p4);
+	utt_assert(p2);
+	utt_assert(p3);
+	utt_assert(p1 == p4);
+	utt_assert(p2 != p3);
+	utt_assert(p2 != p4);
+	utt_assert(p2 > p3);
+	utt_assert(p3 < p2);
+	utt_assert(p2 == 4);
+	utt_assert(1 == p3);
+	p1 *= 2;
+	++p4;
+	utt_assert(!p1);
+	utt_assert(!p4);
+	--p2;
+	utt_assert(p2);
+	utt_assert(p2 == 3);
+	++p3;
+	p3 *= 3;
+	utt_assert(p3);
+	utt_assert(6 == p3);
+	p3 -= 6;
+	utt_assert(p3);
+	utt_assert(p3 == 0);
+	--p3;
+	utt_assert(!p3);
+	++p3;
+	utt_assert(!p3);
+	p3 = 12;
+	utt_assert(p3);
+	utt_assert(p3 == 12);
+	p3 = 0;
+	utt_assert(p3);
+	utt_assert(0 == p3);
+
+	p3 += p2;
+	p3 -= 1;
+	p3 += p2;
+	utt_assert(p3);
+	utt_assert(p3 == 5);
+	p3 = p1;
+	utt_assert(!p3);
+	p3 = p2;
+	utt_assert(p3 == 3);
+}
+
+utt_end();
 
 int main() {
-	return_t<Point> p = transfer(new Point(12, 17));
-	return_t<Point> q = p;
-	return_t<Point> r;
-	r = q;
-	p = transfer(new Point(-1, 4));
-	cout << p << endl;
-	cout << q << endl;
-	cout << r << endl;
+	Tests()();
 	return 0;
 }

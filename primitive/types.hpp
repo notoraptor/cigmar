@@ -18,6 +18,7 @@ using ulong = uint64_t;
 /// double
 /// size_t
 #include "types/pos_t.hpp"
+#include "types/return_t.hpp"
 
 std::ostream& operator<<(std::ostream& o, byte b);
 std::ostream& operator<<(std::ostream& o, ubyte b);

@@ -1,8 +1,6 @@
 #ifndef CIGMAR_STRING
 #define CIGMAR_STRING
 
-#include <iostream>
-
 #include <algorithm>
 #include <string>
 #include <sstream>
@@ -10,45 +8,48 @@
 #include "primitive/interfaces.hpp"
 #include "primitive/classes/ArrayList.hpp"
 
-char to_lower(char c);
-char to_upper(char c);
-
 // Motion fully-defined.
 
-class String: public Streamable, public Hashable, public AutoComparable<String>, public Comparable<const char*> {
+class String: public Streamable, public Hashable, public Comparable<String> {
 private:
 	std::string member;
 public:
-	static const size_t UNKNOWN;
+	typedef std::string::iterator iterator_t;
+	typedef std::string::const_iterator const_iterator_t;
+	static char to_lower(char c);
+	static char to_upper(char c);
+	static const char endl;
 private:
 	template<typename T, typename... Args>
-	void vlist(std::ostringstream& o, T variable, Args... args) {
+	void concatenate(std::ostringstream& o, T variable, Args... args) {
 		o << variable;
-		vlist(o, args...);
+		concatenate(o, args...);
 	}
 	template<typename... Args>
-	void vlist(std::ostringstream& o, const char* s, Args... args) {
+	void concatenate(std::ostringstream& o, const char* s, Args... args) {
 		o << s;
-		vlist(o, args...);
+		concatenate(o, args...);
 	}
-	void vlist(std::ostringstream& o) {}
+	void concatenate(std::ostringstream& o) {}
 protected:
 public:
 	String(): member() {}
 	String(const char* s): member(s) {}
 	String(const String& s): member(s.member) {}
-	String(const String& s, size_t pos, size_t len = std::string::npos): member() {
-		member.assign(s.member, pos, len);
-	}
+	String(String&& s): member(std::move(s.member)) {}
+	String(const String& s, size_t pos, size_t len = std::string::npos): member(s.member, pos, len) {}
 	template<typename... Args>
 	String(Args... args): member() {
 		std::ostringstream o;
-		vlist(o, args...);
+		o << std::boolalpha;
+		concatenate(o, args...);
 		member = o.str();
 	}
-	String(String&& s) = default;
 
-	String& operator=(String&&) = default;
+	String& operator=(String&& s) {
+		member = std::move(s.member);
+		return *this;
+	};
 	String& operator=(const String& other) {
 		member = other.member;
 		return *this;
@@ -69,14 +70,22 @@ public:
 		member += s;
 		return *this;
 	}
+	String& operator<<(bool val) {
+		member += (val ? "true" : "false");
+		return *this;
+	}
 
 	char& operator[](size_t pos) {return member[pos];}
 	const char& operator[](size_t pos) const {return member[pos];}
 	char& operator[](_LAST) {return member.back();}
 	const char& operator[](_LAST) const {return member.back();}
 
-	explicit operator bool() const {return member.empty();}
+	explicit operator bool() const {return !member.empty();}
 	size_t length() const {return member.length();}
+	iterator_t begin() {return member.begin();}
+	iterator_t end() {return member.end();}
+	const_iterator_t begin() const {return member.begin();}
+	const_iterator_t end() const {return member.end();}
 
 	String& clear() {
 		member.clear();
@@ -154,45 +163,32 @@ public:
 		} while(pos != std::string::npos);
 		return *this;
 	}
-	ArrayList<String>&& split(const String& delimiter) const {
-		ArrayList<String> pieces;
-		size_t sep_len = delimiter.member.length();
-		size_t piece_start = 0;
-		size_t next_start = 0;
-		do {
-			next_start = member.find(delimiter.member, piece_start);
-			size_t piece_len = next_start - piece_start;
-			pieces.add(std::move(std::string(member, piece_start, piece_len)));
-			std::cout << pieces[LAST] << std::endl;
-			piece_start = next_start + sep_len;
-		} while (next_start != std::string::npos);
-		return std::move(pieces);
-	}
-	ArrayList<String>&& split(const char* delimiter) const {
-		ArrayList<String> pieces;
-		size_t sep_len = strlen(delimiter);
-		size_t piece_start = 0;
-		size_t next_start = 0;
-		do {
-			next_start = member.find(delimiter, piece_start);
-			pieces.add(std::move(std::string(member, piece_start, next_start - piece_start)));
-			std::cout << pieces[LAST] << std::endl;
-			piece_start = next_start + sep_len;
-		} while (next_start != std::string::npos);
-		return std::move(pieces);
-	}
 	String& lower() {
-		std::transform(member.begin(), member.end(), member.begin(), to_lower);
+		std::transform(member.begin(), member.end(), member.begin(), String::to_lower);
 		return *this;
 	}
 	String& upper() {
-		std::transform(member.begin(), member.end(), member.begin(), to_upper);
+		std::transform(member.begin(), member.end(), member.begin(), String::to_upper);
 		return *this;
 	}
+	String& extractTo(String& out, size_t pos, size_t len = std::string::npos) {
+		out.member.assign(member, pos, len);
+		return *this;
+	}
+	const String& extractTo(String& out, size_t pos, size_t len = std::string::npos) const {
+		return this->extractTo(out, pos, len);
+	}
+	size_t extractTo(char* out, size_t pos, size_t len = std::string::npos) const {
+		size_t copied = member.copy(out, len, pos);
+		out[copied] = '\0';
+		return copied + 1;
+	}
+	size_t memout(char* out, size_t pos, size_t len = std::string::npos) const {
+		return member.copy(out, len, pos);
+	}
+
 	String toLower() const {
-		String s(*this);
-		s.lower();
-		return s;
+		return String(*this).lower();
 	}
 	String toUpper() const {
 		return String(*this).upper();
@@ -200,19 +196,39 @@ public:
 	String substring(size_t pos, size_t len=std::string::npos) const {
 		return String(*this, pos, len);
 	}
-	String& extractTo(String& out, size_t pos, size_t len = std::string::npos) {
-		out.member.assign(member, pos, len);
-		return *this;
+	return_t<ArrayList<String>> split(const String& delimiter) const {
+		ArrayList<String>* pieces = new ArrayList<String>();
+		size_t sep_len = delimiter.member.length();
+		size_t piece_start = 0;
+		size_t next_start = 0;
+		do {
+			next_start = member.find(delimiter.member, piece_start);
+			size_t piece_len = next_start - piece_start;
+			pieces->add(std::move(String(*this, piece_start, piece_len)));
+			piece_start = next_start + sep_len;
+		} while (next_start != std::string::npos);
+		return transfer(pieces);
 	}
-	const String& extractTo(String& out, size_t pos, size_t len = std::string::npos) const {
-		out.member.assign(member, pos, len);
-		return *this;
+	return_t<ArrayList<String>> split(const char* delimiter) const {
+		ArrayList<String>* pieces = new ArrayList<String>();
+		size_t sep_len = strlen(delimiter);
+		size_t piece_start = 0;
+		size_t next_start = 0;
+		do {
+			next_start = member.find(delimiter, piece_start);
+			pieces->add(std::move(String(*this, piece_start, next_start - piece_start)));
+			piece_start = next_start + sep_len;
+		} while (next_start != std::string::npos);
+		return transfer(pieces);
 	}
 	bool contains(const String& s, size_t start = 0) const {
 		return member.find(s.member, start) != std::string::npos;
 	}
 	bool contains(const char* s, size_t start = 0) const {
 		return member.find(s, start) != std::string::npos;
+	}
+	bool contains(char c, size_t start = 0) const {
+		return member.find(c, start) != std::string::npos;
 	}
 	bool startsWith(const String& s) const {
 		return member.compare(0, s.member.length(), s.member) == 0;
@@ -236,26 +252,38 @@ public:
 	pos_t indexOf(const char* s, size_t start = 0) const {
 		return pos_t::_stringpos(member.find(s, start));
 	}
+	pos_t indexOf(char c, size_t start = 0) const {
+		return pos_t::_stringpos(member.find(c, start));
+	}
 	pos_t lastIndexOf(const String& s, size_t start = std::string::npos) const {
 		return pos_t::_stringpos(member.rfind(s.member, start));
 	}
 	pos_t lastIndexOf(const char* s, size_t start) const {
 		return pos_t::_stringpos(member.rfind(s, start));
 	}
-	int compare(const String& other) const override {
-		return member.compare(other.member);
+	pos_t lastIndexOf(char c, size_t start) const {
+		return pos_t::_stringpos(member.rfind(c, start));
 	}
-	int compare(const char* other) const override {
-		return member.compare(other);
-	}
+
 	void toStream(std::ostream& o) const override {
 		o << member;
 	}
 	size_t hash() const override {
 		return std::hash<std::string>()(member);
 	}
+	int compare(const String& other) const override {
+		return member.compare(other.member);
+	}
+	int compare(const char* other) const {
+		return member.compare(other);
+	}
 };
 
+inline String operator "" _s(const char* s, size_t len) {
+	return String(s);
+}
+
+COMPARABLE(String, const char*);
 HASHABLE(String);
 
 #endif // CIGMAR_STRING

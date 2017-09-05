@@ -1,6 +1,7 @@
 #ifndef CIGMAR_ARRAYLIST
 #define CIGMAR_ARRAYLIST
 
+#include <iostream>
 #include <vector>
 
 // Motion fully-defined.
@@ -15,9 +16,9 @@ public:
 	typedef typename std::vector<T>::const_iterator const_iterator_t;
 
 	ArrayList(): vec() {}
-	ArrayList(const ArrayList& copied): vec(copied.vec) {}
 	ArrayList(size_t n, T val = T()): vec(n, val) {}
 	template<size_t N> ArrayList(const array_t<T, N>& arr): vec(arr.cbegin(), arr.cend()) {}
+	ArrayList(const ArrayList& copied): vec(copied.vec) {}
 	ArrayList(ArrayList&& moved) = default;
 
 	void operator=(const ArrayList&) = delete;
@@ -64,7 +65,7 @@ public:
 	}
 
 	size_t size() const {return vec.size();}
-	operator bool() const {return vec.empty();}
+	explicit operator bool() const {return vec.empty();}
 
 	size_t capacity() const {return vec.capacity();}
 	ArrayList& reserve(size_t n) {vec.reserve(n); return *this;}
@@ -75,8 +76,8 @@ public:
 	T& operator[](_LAST) {return vec.back();}
 	const T& operator[](_LAST) const {return vec.back();}
 
-	operator T*() {return vec.data();}
-	operator const T*() const {return vec.data();}
+	explicit operator T*() {return vec.data();}
+	explicit operator const T*() const {return vec.data();}
 
 	iterator_t begin() {return vec.begin();}
 	iterator_t end() {return vec.end();}

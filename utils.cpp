@@ -11,9 +11,9 @@ namespace numbers {
     RNG rng;
 }
 
-const size_t String::UNKNOWN = std::string::npos;
-
 /** Others définitions. **/
+
+const char String::endl = '\n';
 
 /// Global variables.
 
@@ -34,36 +34,11 @@ std::ostream& operator<<(std::ostream& o, const Streamable& s) {
 	return o;
 };
 
-inline char to_lower(char c) {
+char String::to_lower(char c) {
 	return std::tolower(c, loc);
 }
 
-inline char to_upper(char c) {
+char String::to_upper(char c) {
 	return std::toupper(c, loc);
 }
 
-inline pos_t operator+(size_t a, const pos_t& b) {
-	return b + a;
-}
-
-inline pos_t operator-(size_t a, const pos_t& b) {
-	if (b && a > (size_t)b)
-		return pos_t(a - (size_t)b);
-	return pos_t();
-}
-
-inline pos_t operator*(size_t a, const pos_t& b) {
-	return b * a;
-}
-
-inline pos_t operator/(size_t a, const pos_t& b) {
-	if (b)
-		return pos_t(a / (size_t)b);
-	return pos_t();
-}
-
-inline pos_t operator%(size_t a, const pos_t& b) {
-	if (b)
-		return pos_t(a % (size_t)b);
-	return pos_t();
-}

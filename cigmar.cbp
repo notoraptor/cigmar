@@ -45,6 +45,8 @@
 		<Unit filename="primitive/symbols.hpp" />
 		<Unit filename="primitive/types.hpp" />
 		<Unit filename="primitive/types/pos_t.hpp" />
+		<Unit filename="primitive/types/return_t.hpp" />
+		<Unit filename="unittests.hpp" />
 		<Unit filename="utils.cpp" />
 		<Unit filename="utils.hpp" />
 		<Extensions>
