@@ -15,8 +15,7 @@ private:
 	return_t(T* pointer, bool toDelete, bool isArray):
 		p(pointer), todelete(toDelete), isarray(isArray) {}
 public:
-	return_t(return_t& o):
-		p(o.p), todelete(o.todelete), isarray(o.isarray) {
+	return_t(return_t& o): p(o.p), todelete(o.todelete), isarray(o.isarray) {
 		o.unsafe_reset();
 	}
 	return_t(return_t&& m): return_t((return_t&)m) {}
@@ -37,18 +36,21 @@ public:
 	return_t& operator=(return_t&& m) {
 		return (*this = (return_t&)m);
 	}
-	operator T*() const {return p;}
+	// operator T*() {return p;}
 	// operator T&() {return *p;}
 	operator T&&() {return std::move(*p);}
 	template<typename E> friend return_t<E> from_stack(E& o);
 	template<typename E> friend return_t<E> array_from_stack(E* o);
 	template<typename E> friend return_t<E> transfer(E* o);
 	template<typename E> friend return_t<E> transfer_array(E* o);
+	template<typename E> friend bool check(return_t<E>& r);
 };
 
 template<typename E> return_t<E> from_stack(E& o) {return return_t<E>(&o, false, false);};
 template<typename E> return_t<E> array_from_stack(E* o) {return return_t<E>(o, false, true);};
 template<typename E> return_t<E> transfer(E* o) {return return_t<E>(o, true, false);};
 template<typename E> return_t<E> transfer_array(E* o) {return return_t<E>(o, true, true);};
+
+template<typename E> bool check(return_t<E>& r) {return r.p != nullptr;}
 
 #endif // CIGMAR_RETURN_T

@@ -37,14 +37,13 @@ public:
 	pos_t& operator=(size_t v) {
 		valid = true;
 		value = v;
+		return *this;
 	}
 	pos_t& operator++() {
-        if (valid) {
-            if (value == std::numeric_limits<size_t>::max())
-                valid = false;
-            else
-                ++value;
-        }
+		if (value == std::numeric_limits<size_t>::max())
+			valid = false;
+		else
+			++value;
         return *this;
 	}
 	pos_t operator++(int) {
@@ -53,12 +52,10 @@ public:
         return ret;
 	}
 	pos_t& operator--() {
-        if (valid) {
-            if (value == 0)
-                valid = false;
-            else
-                --value;
-        }
+		if (value == 0)
+			valid = false;
+		else
+			--value;
         return *this;
 	}
 	pos_t operator--(int) {
@@ -67,119 +64,104 @@ public:
         return ret;
 	}
 	pos_t& operator+=(size_t v) {
-		if (valid) {
-			if (value > std::numeric_limits<size_t>::max() - v)
-				valid = false;
-			else
-				value += v;
-		}
+		if (value > std::numeric_limits<size_t>::max() - v)
+			valid = false;
+		else
+			value += v;
         return *this;
 	}
 	pos_t& operator-=(size_t v) {
-		if (valid) {
-			if (value < v)
-				valid = false;
-			else
-				value -= v;
-		}
+		if (value < v)
+			valid = false;
+		else
+			value -= v;
         return *this;
 	}
 	pos_t& operator*=(size_t v) {
-		if (valid) {
-			if (value > std::numeric_limits<size_t>::max() / v)
-				valid = false;
-			else
-				value *= v;
-		}
+		if (value > std::numeric_limits<size_t>::max() / v)
+			valid = false;
+		else
+			value *= v;
         return *this;
 	}
 	pos_t& operator/=(size_t v) {
-        if (valid) value /= v;
+		if (v == 0)
+			valid = false;
+		else
+			value /= v;
         return *this;
 	}
 	pos_t& operator%=(size_t v) {
-        if (valid) value %= v;
+		if (v == 0)
+			valid = false;
+		else
+			value %= v;
         return *this;
 	}
 	pos_t& operator+=(const pos_t& p) {
 		if (valid && p.valid)
 			*this += p.value;
+		else
+			valid = false;
 		return *this;
 	}
 	pos_t& operator-=(const pos_t& p) {
 		if (valid && p.valid)
 			*this -= p.value;
+		else
+			valid = false;
 		return *this;
 	}
 	pos_t& operator*=(const pos_t& p) {
 		if (valid && p.valid)
 			*this *= p.value;
+		else
+			valid = false;
 		return *this;
 	}
 	pos_t& operator/=(const pos_t& p) {
 		if (valid && p.valid)
 			*this /= p.value;
+		else
+			valid = false;
 		return *this;
 	}
 	pos_t& operator%=(const pos_t& p) {
 		if (valid && p.valid)
 			*this %= p.value;
+		else
+			valid = false;
 		return *this;
 	}
 	pos_t operator+(const pos_t& p) const {
-	    if (!valid || !p.valid)
-            return pos_t();
-        pos_t ret = *this;
-        ret += p.value;
-        return ret;
+	    return (pos_t(*this) += p);
 	}
 	pos_t operator-(const pos_t& p) const {
-	    if (!valid || !p.valid)
-            return pos_t();
-        pos_t ret = *this;
-        ret -= p.value;
-        return ret;
+	    return (pos_t(*this) -= p);
 	}
 	pos_t operator*(const pos_t& p) const {
-	    if (!valid || !p.valid)
-            return pos_t();
-        pos_t ret = *this;
-        ret *= p.value;
-        return ret;
+	    return (pos_t(*this) *= p);
 	}
 	pos_t operator/(const pos_t& p) const {
-	    if (!valid || !p.valid)
-            return pos_t();
-        pos_t ret = *this;
-        ret /= p.value;
-        return ret;
+	    return (pos_t(*this) /= p);
 	}
 	pos_t operator%(const pos_t& p) const {
-	    if (!valid || !p.valid)
-            return pos_t();
-        pos_t ret = *this;
-        ret %= p.value;
-        return ret;
+	    return (pos_t(*this) %= p);
 	}
 	pos_t operator+(size_t v) const {
-		if (valid) return (pos_t(*this) += v);
-		return pos_t();
+		return (pos_t(*this) += v);
 	}
 	pos_t operator-(size_t v) const {
-		if (valid) return (pos_t(*this) -= v);
-		return pos_t();
+		return (pos_t(*this) -= v);
 	}
 	pos_t operator*(size_t v) const {
-		if (valid) return (pos_t(*this) *= v);
-		return pos_t();
+		return (pos_t(*this) *= v);
 	}
 	pos_t operator/(size_t v) const {
-		if (valid) return (pos_t(*this) /= v);
-		return pos_t();
+		return (pos_t(*this) /= v);
 	}
 	pos_t operator%(size_t v) const {
-		if (valid) return (pos_t(*this) %= v);
-		return pos_t();
+		return (pos_t(*this) %= v);
 	}
 };
 
@@ -187,22 +169,16 @@ inline pos_t operator+(size_t a, const pos_t& b) {
 	return b + a;
 }
 inline pos_t operator-(size_t a, const pos_t& b) {
-	if (b && a > (size_t)b)
-		return pos_t(a - (size_t)b);
-	return pos_t();
+	return (b && a >= (size_t)b) ? pos_t(a - (size_t)b) : b;
 }
 inline pos_t operator*(size_t a, const pos_t& b) {
 	return b * a;
 }
 inline pos_t operator/(size_t a, const pos_t& b) {
-	if (b)
-		return pos_t(a / (size_t)b);
-	return pos_t();
+	return b ? pos_t(a / (size_t)b) : b;
 }
 inline pos_t operator%(size_t a, const pos_t& b) {
-	if (b)
-		return pos_t(a % (size_t)b);
-	return pos_t();
+	return b ? pos_t(a % (size_t)b) : b;
 }
 
 HASHABLE(pos_t);

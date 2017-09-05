@@ -27,8 +27,8 @@ public:
 
 	T* begin() {return mem;}
 	T* end() {return mem + length;}
-	const T* cbegin() const {return mem;}
-	const T* cend() const {return mem + length;}
+	const T* begin() const {return mem;}
+	const T* end() const {return mem + length;}
 };
 
 #endif // CIGMAR_ARRAY_T

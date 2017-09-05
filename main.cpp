@@ -135,6 +135,36 @@ utt(test_pos_t) {
 	utt_assert(!p3);
 	p3 = p2;
 	utt_assert(p3 == 3);
+	pos_t x = p1 + 6*p2 - p3 -2*p4;
+	utt_assert(!x);
+	x = p2 * p3 + 4*p2 -5*p3 + (p2 + p3) % p2;
+	utt_assert(x);
+	x = p2 - p3;
+	utt_assert(x);
+	x %= 0;
+	utt_assert(!x);
+	x = p2 - 2*p3;
+	utt_assert(!x);
+	x = (4*p3 - 1) / p2;
+	utt_assert(x);
+	utt_assert(3 == x);
+}
+
+utt(test_return_t) {
+	int x = 2;
+	auto a1 = from_stack<int>(x);
+	auto a2 = a1;
+	auto a3 = a2;
+	auto a4 = a3;
+	a2 = a4;
+	utt_assert(!check(a1));
+	utt_assert(check(a2));
+	utt_assert(!check(a3));
+	utt_assert(!check(a4));
+}
+
+utt(test_array_t) {
+	array_t<size_t, 14> r;
 }
 
 utt_end();
