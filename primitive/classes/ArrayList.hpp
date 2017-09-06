@@ -11,18 +11,19 @@ class ArrayList {
 private:
 	std::vector<T> vec;
 public:
+	typedef T dtype;
 	// NB: "typename" here is mandatory.
 	typedef typename std::vector<T>::iterator iterator_t;
 	typedef typename std::vector<T>::const_iterator const_iterator_t;
 
 	ArrayList(): vec() {}
 	ArrayList(size_t n, T val = T()): vec(n, val) {}
-	template<size_t N> ArrayList(const array_t<T, N>& arr): vec(arr.cbegin(), arr.cend()) {}
+	template<size_t N> ArrayList(const array_t<T, N>& arr): vec(arr.begin(), arr.end()) {}
 	ArrayList(const ArrayList& copied): vec(copied.vec) {}
-	ArrayList(ArrayList&& moved) = default;
+	ArrayList(ArrayList&&) = default;
 
 	void operator=(const ArrayList&) = delete;
-	ArrayList& operator=(ArrayList&) = default;
+	ArrayList& operator=(ArrayList&&) = default;
 	ArrayList& add(const T& val) {
 		vec.push_back(val);
 		return *this;

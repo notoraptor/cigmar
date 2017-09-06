@@ -1,6 +1,7 @@
 #ifndef CIGMAR_ARRAY_T
 #define CIGMAR_ARRAY_T
 
+#include <cstring>
 #include "../interfaces/Streamable.hpp"
 
 // Motion fully-defined.
@@ -10,13 +11,20 @@ class array_t: public Streamable {
 private:
 	T mem[N];
 public:
+	typedef T dtype;
 	const size_t length = N;
 public:
 	array_t() {}
+	array_t(T val) {
+		if (val == 0) memset(mem, 0, length * sizeof(T));
+		else for (size_t i = 0; i < length; ++i) mem[i] = val;
+	}
 	array_t(const array_t&) = delete;
 	array_t(array_t&&) = default;
 	void operator=(const array_t&) = delete;
 	array_t& operator=(array_t&&) = default;
+
+	size_t size() const {return length;}
 
 	T& operator[](size_t pos) {return mem[pos];}
 	const T& operator[](size_t pos) const {return mem[pos];}
@@ -24,8 +32,8 @@ public:
 	T& operator[](_LAST) {return mem[length - 1];}
 	const T& operator[](_LAST) const {return mem[length - 1];}
 
-	operator T*() {return mem;}
-	operator const T*() const {return mem;}
+	explicit operator T*() {return mem;}
+	explicit operator const T*() const {return mem;}
 
 	T* begin() {return mem;}
 	T* end() {return mem + length;}

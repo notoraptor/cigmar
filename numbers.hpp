@@ -4,7 +4,9 @@
 #include <iostream>
 #include <chrono>
 #include <random>
+#include <type_traits>
 #include "primitive/classes.hpp"
+#include "primitive/types/return_t.hpp"
 
 namespace numbers {
 
@@ -88,12 +90,50 @@ C& mod(C& arr, T value) {
 	return arr;
 }
 
+template<typename C, typename O = typename C::dtype>
+void sum(C& arr, O& out, bool reset = true) {
+	if (reset) out = 0;
+	for(auto& x: arr) out += x;
+}
+
+template<typename C, typename O = typename C::dtype>
+O sum(C& arr) {
+	O out = 0;
+	for (auto& x: arr) out += x;
+	return out;
+}
+
+template<typename C, typename O = typename C::dtype>
+O prod(C& arr) {
+	O out = 1;
+	for (auto& x: arr) out *= x;
+	return out;
+}
+
 namespace random {
-	template<typename T, size_t N>
-	array_t<T, N>& uniform(array_t<T, N>& arr, T a, T b) {
-		std::uniform_int_distribution<T> distribution(a, b);
-		for (T& x: arr) x = distribution(rng.get());
-		return arr;
+
+	namespace integers {
+
+		template<typename C, typename A, typename B>
+		C& uniform(C& arr, A a, B b) {
+			typedef typename C::dtype dtype;
+			std::uniform_int_distribution<dtype> distribution(a, b);
+			for (dtype& x : arr) x = distribution(rng.get());
+			return arr;
+		}
+
+	}
+
+	namespace reals {
+
+		template<typename C, typename A, typename B>
+		C& uniform(C& arr, A a, B b) {
+			typedef typename C::dtype dtype;
+			std::uniform_real_distribution<dtype> distribution(a, b);
+			for (dtype& x: arr) x = distribution(rng.get());
+			return arr;
+		}
+
 	}
 
 	template<typename T, size_t N>
@@ -105,12 +145,9 @@ namespace random {
 
 	template<typename T, size_t N>
 	array_t<T, N>& normal(array_t<T, N>& arr, double mu, double sigma) {
+		static_assert(std::is_signed<T>{}, "normal distribution is forbidden for signed types, as it may generate negative values.");
 		std::normal_distribution<double> distribution(mu, sigma);
-		for (T& x: arr) {
-			double d = distribution(rng.get());
-			std::cout << d << std::endl;
-			x = (T)d;
-		}
+		for (T& x: arr) x = (T)distribution(rng.get());
 		return arr;
 	}
 }

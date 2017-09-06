@@ -69,12 +69,10 @@ utt(test_string) {
 	utt_assert(s.endsWith("tu ?"));
 	utt_assert(s.endsWith(t));
 	utt_assert(s[LAST] == '?');
-	size_t count = 0;
-	for (char c:s) ++count;
+	size_t count = countof(s);
 	utt_assert(count == s.length());
 	const String cs(s);
-	count = 0;
-	for (const char& c:cs) ++count;
+	count = countof(cs);
 	utt_assert(count == cs.length());
 	char buffer[7];
 	utt_assert(s.memout(buffer, 9, 7) == 7);
@@ -164,11 +162,51 @@ utt(test_return_t) {
 }
 
 utt(test_array_t) {
-	array_t<int, 8> r;
-	numbers::arange(r);
-	utt_assert(r[LAST] == r.length - 1);
-	numbers::random::binomial(r, 67, 0.44);
-	cout << r << endl;
+	array_t<long long int, 8> r;
+	numbers::zeros(r);
+	utt_assert(numbers::sum(r) == 0);
+	numbers::ones(r);
+	utt_assert(numbers::sum(r) == r.size());
+	numbers::add(r, 12);
+	numbers::add(r, -1);
+	numbers::mul(r, -3.5);
+	utt_assert(r[0] == r[LAST]);
+	utt_assert(r[r.size() / 2] == -42);
+	numbers::random::integers::uniform(r, 5, 34);
+	long long int x = numbers::sum(r);
+	long long int y = -37;
+	numbers::sum(r, y, false);
+	utt_assert(y == x - 37);
+	numbers::sum(r, y);
+	utt_assert(x == y);
+	array_t<double, 44> u(0);
+	array_t<double, 44> v(-1);
+	utt_assert(numbers::sum(u) == 0);
+	utt_assert(numbers::sum(v) == -(double)v.size());
+}
+
+utt(test_ArrayList) {
+	ArrayList<int> r(8);
+	numbers::zeros(r);
+	utt_assert(numbers::sum(r) == 0);
+	numbers::ones(r);
+	utt_assert(numbers::sum(r) == (int)r.size());
+	numbers::add(r, 12);
+	numbers::add(r, -1);
+	numbers::mul(r, -3.5);
+	utt_assert(r[0] == r[LAST]);
+	utt_assert(r[r.size() / 2] == -42);
+	numbers::random::integers::uniform(r, 5, 34);
+	long long int x = numbers::sum(r);
+	long long int y = -37;
+	numbers::sum(r, y, false);
+	utt_assert(y == x - 37);
+	numbers::sum(r, y);
+	utt_assert(x == y);
+	ArrayList<double> u(44, 0);
+	ArrayList<double> v(44, -1);
+	utt_assert(numbers::sum(u) == 0);
+	utt_assert(numbers::sum(v) == -(double)v.size());
 }
 
 utt_end();
