@@ -95,12 +95,14 @@ namespace random {
 		for (T& x: arr) x = distribution(rng.get());
 		return arr;
 	}
+
 	template<typename T, size_t N>
-	array_t<T, N>& binomial(array_t<T, N>& arr, T n, double b) {
-		std::binomial_distribution<T> distribution(n, b);
+	array_t<T, N>& binomial(array_t<T, N>& arr, T n, double p) {
+		std::binomial_distribution<T> distribution(n, p);
 		for (T& x: arr) x = distribution(rng.get());
 		return arr;
 	}
+
 	template<typename T, size_t N>
 	array_t<T, N>& normal(array_t<T, N>& arr, double mu, double sigma) {
 		std::normal_distribution<double> distribution(mu, sigma);

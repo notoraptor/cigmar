@@ -42,6 +42,7 @@
 		<Unit filename="primitive/classes/TreeSet.hpp" />
 		<Unit filename="primitive/classes/array_t.hpp" />
 		<Unit filename="primitive/interfaces.hpp" />
+		<Unit filename="primitive/interfaces/Streamable.hpp" />
 		<Unit filename="primitive/symbols.hpp" />
 		<Unit filename="primitive/types.hpp" />
 		<Unit filename="primitive/types/pos_t.hpp" />

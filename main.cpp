@@ -164,7 +164,11 @@ utt(test_return_t) {
 }
 
 utt(test_array_t) {
-	array_t<size_t, 14> r;
+	array_t<int, 8> r;
+	numbers::arange(r);
+	utt_assert(r[LAST] == r.length - 1);
+	numbers::random::binomial(r, 67, 0.44);
+	cout << r << endl;
 }
 
 utt_end();

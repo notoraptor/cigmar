@@ -1,10 +1,12 @@
 #ifndef CIGMAR_ARRAY_T
 #define CIGMAR_ARRAY_T
 
+#include "../interfaces/Streamable.hpp"
+
 // Motion fully-defined.
 
 template<typename T, size_t N>
-class array_t {
+class array_t: public Streamable {
 private:
 	T mem[N];
 public:
@@ -29,6 +31,16 @@ public:
 	T* end() {return mem + length;}
 	const T* begin() const {return mem;}
 	const T* end() const {return mem + length;}
+
+	void toStream(std::ostream& o) const override {
+		o << '{';
+		if (length) {
+			o << mem[0];
+			for (size_t i = 1; i < length; ++i)
+				o << ", " << mem[i];
+		}
+		o << '}';
+	}
 };
 
 #endif // CIGMAR_ARRAY_T
