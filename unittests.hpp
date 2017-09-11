@@ -18,6 +18,7 @@ typedef std::function<void(void*)> TestFunction;
 void utt_assert_bool(bool condition, const char* else_message = nullptr) {
 	if (!condition) {
 		ostringstream s;
+		s << "Error occurred with seed " << numbers::rng.seed() << endl;
 		if (else_message)
 			s << "Assertion failed:" << endl << else_message;
 		else

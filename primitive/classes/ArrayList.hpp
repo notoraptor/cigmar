@@ -3,11 +3,12 @@
 
 #include <iostream>
 #include <vector>
+#include "../interfaces/Streamable.hpp"
 
 // Motion fully-defined.
 
 template<typename T>
-class ArrayList {
+class ArrayList: public Streamable {
 private:
 	std::vector<T> vec;
 public:
@@ -65,9 +66,6 @@ public:
 		return *this;
 	}
 
-	size_t size() const {return vec.size();}
-	explicit operator bool() const {return vec.empty();}
-
 	size_t capacity() const {return vec.capacity();}
 	ArrayList& reserve(size_t n) {vec.reserve(n); return *this;}
 
@@ -79,11 +77,23 @@ public:
 
 	explicit operator T*() {return vec.data();}
 	explicit operator const T*() const {return vec.data();}
+	explicit operator bool() const {return vec.empty();}
+	size_t size() const {return vec.size();}
 
 	iterator_t begin() {return vec.begin();}
 	iterator_t end() {return vec.end();}
-	const_iterator_t cbegin() const {return vec.cbegin();}
-	const_iterator_t cend() const {return vec.cend();}
+	const_iterator_t begin() const {return vec.begin();}
+	const_iterator_t end() const {return vec.end();}
+
+	void toStream(std::ostream& o) const override {
+		o << '[';
+		if (vec.size()) {
+			o << vec[0];
+			for (size_t i = 1; i < size(); ++i)
+				o << "; " << vec[i];
+		}
+		o << ']';
+	}
 };
 
 #endif // CIGMAR_ARRAYLIST

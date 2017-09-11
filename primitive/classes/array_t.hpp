@@ -41,13 +41,13 @@ public:
 	const T* end() const {return mem + length;}
 
 	void toStream(std::ostream& o) const override {
-		o << '{';
+		o << '(';
 		if (length) {
 			o << mem[0];
 			for (size_t i = 1; i < length; ++i)
-				o << ", " << mem[i];
+				o << "; " << mem[i];
 		}
-		o << '}';
+		o << ')';
 	}
 };
 

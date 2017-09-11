@@ -172,7 +172,7 @@ utt(test_array_t) {
 	numbers::mul(r, -3.5);
 	utt_assert(r[0] == r[LAST]);
 	utt_assert(r[r.size() / 2] == -42);
-	numbers::random::integers::uniform(r, 5, 34);
+	numbers::random::uniform(r, 5, 34);
 	long long int x = numbers::sum(r);
 	long long int y = -37;
 	numbers::sum(r, y, false);
@@ -196,7 +196,7 @@ utt(test_ArrayList) {
 	numbers::mul(r, -3.5);
 	utt_assert(r[0] == r[LAST]);
 	utt_assert(r[r.size() / 2] == -42);
-	numbers::random::integers::uniform(r, 5, 34);
+	numbers::random::uniform(r, 5, 34);
 	long long int x = numbers::sum(r);
 	long long int y = -37;
 	numbers::sum(r, y, false);
@@ -209,9 +209,70 @@ utt(test_ArrayList) {
 	utt_assert(numbers::sum(v) == -(double)v.size());
 }
 
+utt(test_TreeSet) {
+	array_t<double, 50> arr;
+	array_t<int, 600> arr2;
+	array_t<long, 100> arr3;
+	numbers::random::binomial(arr, 50, 0.6);
+	numbers::random::uniform(arr2, 1, 500);
+	numbers::random::normal(arr3, 100, 25);
+	utt_assert(numbers::all(arr, [](double x) {return x == (size_t)x && x >= 0 && x < 50;}));
+	utt_assert(numbers::all(arr2, [](int x) {return x >= 1 && x <= 500;}));
+	TreeSet<double> s(arr), s2(arr2), s3(arr3);
+	utt_assert(s.size() < arr.size());
+	utt_assert(s2.size() < arr2.size());
+	utt_assert(s3.size() < arr3.size());
+	utt_assert(s);
+	utt_assert(s2);
+	utt_assert(s3);
+	utt_assert(!TreeSet<int>());
+	TreeSet<size_t> s4;
+	s4 << 1 << 2 << 5 << 33 << 5 << 27 << 2 << 1 << 1;
+	utt_assert(s4 && s4.size() == 5);
+	utt_assert(s4.contains(33));
+	utt_assert(!s4.contains(29));
+	s4.remove(33).remove(27);
+	utt_assert(!s4.contains(33));
+	utt_assert(!s4.contains(27));
+	utt_assert(s4.contains(2));
+	double min = s.min();
+	double max = s.max();
+	double before = s.before((min + max)/2);
+	double after = s.after((min + max)/2);
+	utt_assert(min < max);
+	utt_assert(before < (min + max)/2);
+	utt_assert(after > (min + max)/2);
+	utt_assert(min <= before);
+	utt_assert(min <= after);
+	utt_assert(max >= before);
+	utt_assert(max >= after);
+	double previous = min;
+	for (double x : s) {
+		utt_assert(previous <= x);
+		previous = x;
+	}
+	TreeSet<double> reversed_set(s, [](double a, double b) {return a > b;});
+	previous = max;
+	for (double x: reversed_set) {
+		utt_assert(previous >= x);
+		previous = x;
+	}
+	const double* ptr_max = s.safeMax();
+	const double* ptr_min = s.safeMin();
+	utt_assert(ptr_max != nullptr);
+	utt_assert(ptr_min);
+	utt_assert(max == *ptr_max);
+	utt_assert(min == *ptr_min);
+	utt_assert(s.safeBefore(-1) == nullptr);
+	utt_assert(!s.safeAfter(50));
+	utt_assert(s.safeAfter(-1));
+	utt_assert(s.safeBefore(50));
+}
+
 utt_end();
 
 int main() {
+	numbers::rng.seed(1788599792);
 	Tests()();
 	return 0;
 }

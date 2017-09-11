@@ -112,44 +112,54 @@ O prod(C& arr) {
 
 namespace random {
 
-	namespace integers {
-
-		template<typename C, typename A, typename B>
-		C& uniform(C& arr, A a, B b) {
-			typedef typename C::dtype dtype;
-			std::uniform_int_distribution<dtype> distribution(a, b);
-			for (dtype& x : arr) x = distribution(rng.get());
-			return arr;
-		}
-
-	}
-
-	namespace reals {
-
-		template<typename C, typename A, typename B>
-		C& uniform(C& arr, A a, B b) {
-			typedef typename C::dtype dtype;
-			std::uniform_real_distribution<dtype> distribution(a, b);
-			for (dtype& x: arr) x = distribution(rng.get());
-			return arr;
-		}
-
-	}
-
-	template<typename T, size_t N>
-	array_t<T, N>& binomial(array_t<T, N>& arr, T n, double p) {
-		std::binomial_distribution<T> distribution(n, p);
-		for (T& x: arr) x = distribution(rng.get());
+	template<typename C, typename A, typename B>
+	C& uniform(C& arr, A a, B b) {
+		typedef typename C::dtype dtype;
+		typedef typename std::conditional<
+			std::is_integral<dtype>::value,
+			std::uniform_int_distribution<dtype>,
+			std::uniform_real_distribution<dtype>
+		>::type distribution_t;
+		distribution_t distribution(a, b);
+		for (dtype& x: arr) x = distribution(rng.get());
 		return arr;
 	}
 
-	template<typename T, size_t N>
-	array_t<T, N>& normal(array_t<T, N>& arr, double mu, double sigma) {
-		static_assert(std::is_signed<T>{}, "normal distribution is forbidden for signed types, as it may generate negative values.");
+	template<typename C, typename N>
+	C& binomial(C& arr, N n, double p) {
+		typedef typename C::dtype dtype;
+		static_assert(
+			std::is_integral<N>{},
+			"binomial distribution: parameter 'n' must be an integer type."
+		);
+		std::binomial_distribution<N> distribution(n, p);
+		for (dtype& x: arr) x = distribution(rng.get());
+		return arr;
+	}
+
+	template<typename C>
+	C& normal(C& arr, double mu, double sigma) {
+		typedef typename C::dtype dtype;
+		static_assert(
+			std::is_signed<dtype>{},
+			"normal distribution is forbidden for signed types, as it may generate negative values."
+		);
 		std::normal_distribution<double> distribution(mu, sigma);
-		for (T& x: arr) x = (T)distribution(rng.get());
+		for (dtype& x: arr) x = (dtype)distribution(rng.get());
 		return arr;
 	}
+}
+
+template<typename C, typename dtype = typename C::dtype, typename F = std::function<bool(dtype)>>
+bool all(const C& arr, F elemwiseChecker) {
+	for (const dtype& x: arr) if (!elemwiseChecker(x)) return false;
+	return true;
+}
+
+template<typename C, typename dtype = typename C::dtype, typename F = std::function<bool(dtype)>>
+bool any(const C& arr, F elemwiseChecker) {
+	for (const dtype& x: arr) if (elemwiseChecker(x)) return true;
+	return false;
 }
 
 }

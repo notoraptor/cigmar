@@ -3,9 +3,10 @@
 
 #include <functional>
 #include <set>
+#include "../interfaces/Streamable.hpp"
 
 template<typename T>
-class TreeSet {
+class TreeSet: public Streamable {
 public:
 	typedef std::function<bool(const T&, const T&)> less_type;
 	typedef std::set<T, less_type> set_type;
@@ -17,40 +18,73 @@ private:
 	static bool less_than(const T& a, const T& b) {return a < b;}
 public:
 	TreeSet(less_type c = less_than): s(c) {}
-	TreeSet(const ArrayList<T>& arr, less_type c = less_than): s(arr.cbegin(), arr.cend(), c) {}
-	template<size_t N>
-	TreeSet(const array_t<T, N>& arr, less_type c = less_than): s(arr.cbegin(), arr.cend(), c) {}
+	template<typename C>
+	TreeSet(const C& arr, less_type c = less_than): s(arr.begin(), arr.end(), c) {}
 	TreeSet(const TreeSet& other): s(other.s) {}
 	TreeSet(TreeSet&&) = default;
 
-	operator bool() const {return s.empty();}
+	explicit operator bool() const {return !s.empty();}
 	size_t size() const {return s.size();}
-
 	bool contains(const T& val) const {
-		return s.find(val) != s.end();
+		return s.count(val) != 0;
 	}
 
-	TreeSet<T>& add(const T& val) {
+	TreeSet& add(const T& val) {
 		s.insert(val);
 		return *this;
 	}
-	TreeSet<T>& remove(const T& val) {
+	TreeSet& remove(const T& val) {
 		s.erase(val);
 		return *this;
 	}
-	TreeSet<T>& swap(TreeSet<T>& other) {
+	TreeSet& swap(TreeSet<T>& other) {
 		s.swap(other.s);
 		return *this;
 	}
-	TreeSet<T>& clear() {
+	TreeSet& clear() {
 		s.clear();
 		return *this;
 	}
 
+	TreeSet& operator<<(const T& val) {
+		s.insert(val);
+		return *this;
+	}
+
+	const T* safeMin() const {return s.empty() ? nullptr: &(*s.begin());}
+	const T* safeMax() const {return s.empty() ? nullptr: &(*(--s.end()));}
+	const T* safeBefore(const T& val) const {
+		auto it = s.lower_bound(val);
+		return it == s.begin() ? nullptr : &(*(--it));
+	}
+	const T* safeAfter(const T& val) const {
+		auto it = s.upper_bound(val);
+		return it == s.end() ? nullptr : &(*it);
+	}
+
+	const T& min() const {return *s.begin();}
+	const T& max() const {return *(--s.end());}
+	const T& before(const T& val) const {return *(--s.lower_bound(val));}
+	const T& after(const T& val) const {return *s.upper_bound(val);}
+
 	iterator_t begin() {return s.begin();}
 	iterator_t end() {return s.end();}
-	const_iterator_t cbegin() const {return s.cbegin();}
-	const_iterator_t cend() const {return s.cend();}
+	const_iterator_t begin() const {return s.begin();}
+	const_iterator_t end() const {return s.end();}
+
+	void toStream(std::ostream& o) const override {
+		o << '{';
+		if (s.size()) {
+			auto it = s.begin();
+			o << *it;
+			++it;
+			while(it != s.end()) {
+				o << "; " << *it;
+				++it;
+			}
+		}
+		o << '}';
+	}
 };
 
 #endif // CIGMAR_TREESET
