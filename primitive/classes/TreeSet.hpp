@@ -14,7 +14,6 @@ public:
 	typedef typename std::set<T, less_type>::const_iterator const_iterator_t;
 private:
 	set_type s;
-	less_type comparator;
 	static bool less_than(const T& a, const T& b) {return a < b;}
 public:
 	TreeSet(less_type c = less_than): s(c) {}
