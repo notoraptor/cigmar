@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <set>
+#include <initializer_list>
 #include "../interfaces/Streamable.hpp"
 
 template<typename T>
@@ -19,15 +20,24 @@ public:
 	TreeSet(less_type c = less_than): s(c) {}
 	template<typename C>
 	TreeSet(const C& arr, less_type c = less_than): s(arr.begin(), arr.end(), c) {}
+	TreeSet(std::initializer_list<T> il, less_type c = less_than): s(il, c) {}
 	TreeSet(const TreeSet& other): s(other.s) {}
 	TreeSet(TreeSet&&) = default;
 
+	TreeSet& operator=(TreeSet&&) = default;
+	TreeSet& operator=(std::initializer_list<T> il) {
+		s = il;
+		return *this;
+	}
 	explicit operator bool() const {return !s.empty();}
+	TreeSet& operator<<(const T& val) {
+		s.insert(val);
+		return *this;
+	}
 	size_t size() const {return s.size();}
 	bool contains(const T& val) const {
 		return s.count(val) != 0;
 	}
-
 	TreeSet& add(const T& val) {
 		s.insert(val);
 		return *this;
@@ -36,17 +46,12 @@ public:
 		s.erase(val);
 		return *this;
 	}
-	TreeSet& swap(TreeSet<T>& other) {
+	TreeSet& swap(TreeSet& other) {
 		s.swap(other.s);
 		return *this;
 	}
 	TreeSet& clear() {
 		s.clear();
-		return *this;
-	}
-
-	TreeSet& operator<<(const T& val) {
-		s.insert(val);
 		return *this;
 	}
 

@@ -4,6 +4,9 @@
 #include "classes/array_t.hpp"
 #include "classes/ArrayList.hpp"
 #include "classes/TreeSet.hpp"
+#include "classes/HashSet.hpp"
+#include "classes/TreeMap.hpp"
+#include "classes/HashMap.hpp"
 
 // class AbstractList;
 // class AbstractMap;
@@ -11,9 +14,6 @@
 class LinkedList; // Double linked list.
 class Stack;
 class Queue;
-class HashMap;
-class TreeMap;
-class HashSet;
 
 class Tensor; // Sophisticated N-D array.
 

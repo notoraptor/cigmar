@@ -2,6 +2,7 @@
 #define CIGMAR_ARRAY_T
 
 #include <cstring>
+#include "../symbols.hpp"
 #include "../interfaces/Streamable.hpp"
 
 // Motion fully-defined.

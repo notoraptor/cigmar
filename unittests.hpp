@@ -15,7 +15,7 @@ using std::endl;
 typedef std::function<void(void**)> UnitTestMethod;
 typedef std::function<void(void*)> TestFunction;
 
-void utt_assert_bool(bool condition, const char* else_message = nullptr) {
+inline void utt_assert_bool(bool condition, const char* else_message = nullptr) {
 	if (!condition) {
 		ostringstream s;
 		s << "Error occurred with seed " << numbers::rng.seed() << endl;
@@ -69,6 +69,8 @@ public:
 		} catch (string& s) {
 			cerr << endl << s << endl;
 			exit(EXIT_FAILURE);
+		} catch(std::exception& e) {
+			cerr << endl << e.what() << endl;
 		} catch (...) {
 			exit(EXIT_FAILURE);
 		}

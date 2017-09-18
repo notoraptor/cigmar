@@ -39,6 +39,9 @@
 		<Unit filename="numbers.hpp" />
 		<Unit filename="primitive/classes.hpp" />
 		<Unit filename="primitive/classes/ArrayList.hpp" />
+		<Unit filename="primitive/classes/HashMap.hpp" />
+		<Unit filename="primitive/classes/HashSet.hpp" />
+		<Unit filename="primitive/classes/TreeMap.hpp" />
 		<Unit filename="primitive/classes/TreeSet.hpp" />
 		<Unit filename="primitive/classes/array_t.hpp" />
 		<Unit filename="primitive/interfaces.hpp" />
