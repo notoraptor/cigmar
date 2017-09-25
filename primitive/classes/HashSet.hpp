@@ -8,6 +8,8 @@
 template<typename T>
 class HashSet: public Streamable {
 public:
+	typedef T dtype;
+public:
 	typedef std::unordered_set<T> set_type;
 	typedef typename std::unordered_set<T>::iterator iterator_t;
 	typedef typename std::unordered_set<T>::const_iterator const_iterator_t;

@@ -7,13 +7,12 @@
 #include "classes/HashSet.hpp"
 #include "classes/TreeMap.hpp"
 #include "classes/HashMap.hpp"
-
+#include "classes/Stack.hpp"
+#include "classes/Queue.hpp"
 // class AbstractList;
 // class AbstractMap;
 // class AbstractSet;
 class LinkedList; // Double linked list.
-class Stack;
-class Queue;
 
 class Tensor; // Sophisticated N-D array.
 

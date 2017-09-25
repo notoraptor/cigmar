@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <initializer_list>
 #include "../interfaces/Streamable.hpp"
 
 // Motion fully-defined.
@@ -19,7 +20,9 @@ public:
 
 	ArrayList(): vec() {}
 	ArrayList(size_t n, T val = T()): vec(n, val) {}
-	template<size_t N> ArrayList(const array_t<T, N>& arr): vec(arr.begin(), arr.end()) {}
+	template<typename C>
+	ArrayList(const C& arr): vec(arr.begin(), arr.end()) {}
+	ArrayList(std::initializer_list<T> il): vec(il) {}
 	ArrayList(const ArrayList& copied): vec(copied.vec) {}
 	ArrayList(ArrayList&&) = default;
 

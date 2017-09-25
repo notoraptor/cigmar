@@ -9,6 +9,8 @@
 template<typename T>
 class TreeSet: public Streamable {
 public:
+	typedef T dtype;
+public:
 	typedef std::function<bool(const T&, const T&)> less_type;
 	typedef std::set<T, less_type> set_type;
 	typedef typename std::set<T, less_type>::iterator iterator_t;
