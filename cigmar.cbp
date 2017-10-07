@@ -23,6 +23,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="." />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -33,30 +34,30 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="String.hpp" />
-		<Unit filename="init.hpp" />
+		<Unit filename="cigmar/String.hpp" />
+		<Unit filename="cigmar/config.hpp" />
+		<Unit filename="cigmar/init.hpp" />
+		<Unit filename="cigmar/numbers.hpp" />
+		<Unit filename="cigmar/primitive/classes.hpp" />
+		<Unit filename="cigmar/primitive/classes/ArrayList.hpp" />
+		<Unit filename="cigmar/primitive/classes/HashMap.hpp" />
+		<Unit filename="cigmar/primitive/classes/HashSet.hpp" />
+		<Unit filename="cigmar/primitive/classes/Queue.hpp" />
+		<Unit filename="cigmar/primitive/classes/Stack.hpp" />
+		<Unit filename="cigmar/primitive/classes/TreeMap.hpp" />
+		<Unit filename="cigmar/primitive/classes/TreeSet.hpp" />
+		<Unit filename="cigmar/primitive/classes/array_t.hpp" />
+		<Unit filename="cigmar/primitive/interfaces.hpp" />
+		<Unit filename="cigmar/primitive/interfaces/Streamable.hpp" />
+		<Unit filename="cigmar/primitive/symbols.hpp" />
+		<Unit filename="cigmar/primitive/types.hpp" />
+		<Unit filename="cigmar/primitive/types/pos_t.hpp" />
+		<Unit filename="cigmar/primitive/types/return_t.hpp" />
+		<Unit filename="cigmar/primitive/utils.hpp" />
+		<Unit filename="cigmar/unittests.hpp" />
+		<Unit filename="cigmar/utils.cpp" />
+		<Unit filename="cigmar/utils.hpp" />
 		<Unit filename="main.cpp" />
-		<Unit filename="numbers.hpp" />
-		<Unit filename="primitive/classes.hpp" />
-		<Unit filename="primitive/classes/ArrayList.hpp" />
-		<Unit filename="primitive/classes/HashMap.hpp" />
-		<Unit filename="primitive/classes/HashSet.hpp" />
-		<Unit filename="primitive/classes/Queue.hpp" />
-		<Unit filename="primitive/classes/Stack.hpp" />
-		<Unit filename="primitive/classes/TreeMap.hpp" />
-		<Unit filename="primitive/classes/TreeSet.hpp" />
-		<Unit filename="primitive/classes/array_t.hpp" />
-		<Unit filename="primitive/classes/chains.hpp" />
-		<Unit filename="primitive/interfaces.hpp" />
-		<Unit filename="primitive/interfaces/Streamable.hpp" />
-		<Unit filename="primitive/symbols.hpp" />
-		<Unit filename="primitive/types.hpp" />
-		<Unit filename="primitive/types/pos_t.hpp" />
-		<Unit filename="primitive/types/return_t.hpp" />
-		<Unit filename="primitive/utils.hpp" />
-		<Unit filename="unittests.hpp" />
-		<Unit filename="utils.cpp" />
-		<Unit filename="utils.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+namespace cigmar {
+
 template<typename T>
 class return_t {
 private:
@@ -52,5 +54,7 @@ template<typename E> return_t<E> transfer(E* o) {return return_t<E>(o, true, fal
 template<typename E> return_t<E> transfer_array(E* o) {return return_t<E>(o, true, true);};
 
 template<typename E> bool check(return_t<E>& r) {return r.p != nullptr;}
+
+}
 
 #endif // CIGMAR_RETURN_T

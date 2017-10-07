@@ -3,7 +3,9 @@
 #include <string>
 #include <ostream>
 #include <limits>
-#include "../interfaces.hpp"
+#include <cigmar/primitive/interfaces.hpp>
+
+namespace cigmar {
 
 class pos_t: public Comparable<pos_t>, public Streamable, public Hashable {
 private:
@@ -181,7 +183,10 @@ inline pos_t operator%(size_t a, const pos_t& b) {
 	return b ? pos_t(a % (size_t)b) : b;
 }
 
-HASHABLE(pos_t);
 COMPARABLE(pos_t, size_t);
+
+}
+
+HASHABLE(cigmar::pos_t);
 
 #endif // CIGMAR_POS_T

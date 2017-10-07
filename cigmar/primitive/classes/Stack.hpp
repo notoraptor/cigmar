@@ -3,7 +3,9 @@
 
 #include <forward_list>
 #include <initializer_list>
-#include "../utils.hpp"
+#include <cigmar/primitive/utils.hpp>
+
+namespace cigmar {
 
 template<typename T> class Stack;
 
@@ -135,6 +137,8 @@ void StackElementPusher<T, E>::push(Stack<T>& stack, const E& element) {
 template<typename T, typename E>
 void StackIterablePusher<T, E>::push(Stack<T>& stack, const E& iterable) {
 	stack.pushAll(iterable);
+}
+
 }
 
 #endif // CIGMAR_STACK

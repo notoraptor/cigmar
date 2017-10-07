@@ -2,8 +2,10 @@
 #define CIGMAR_PRIMITIVE_TYPES
 #include <cstdint>
 #include <ostream>
-#include "types/pos_t.hpp"
-#include "types/return_t.hpp"
+#include <cigmar/primitive/types/pos_t.hpp>
+#include <cigmar/primitive/types/return_t.hpp>
+
+namespace cigmar {
 
 /// bool
 /// char
@@ -22,5 +24,7 @@ using ulong = uint64_t;
 
 std::ostream& operator<<(std::ostream& o, byte b);
 std::ostream& operator<<(std::ostream& o, ubyte b);
+
+}
 
 #endif // CIGMAR_PRIMITIVE_TYPES

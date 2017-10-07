@@ -4,7 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <initializer_list>
-#include "../interfaces/Streamable.hpp"
+#include <cigmar/primitive/interfaces/Streamable.hpp>
+
+namespace cigmar {
 
 // Motion fully-defined.
 
@@ -98,5 +100,7 @@ public:
 		o << ']';
 	}
 };
+
+}
 
 #endif // CIGMAR_ARRAYLIST

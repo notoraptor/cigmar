@@ -5,8 +5,10 @@
 #include <string>
 #include <sstream>
 #include <cstring>
-#include "primitive/interfaces.hpp"
-#include "primitive/classes/ArrayList.hpp"
+#include <cigmar/primitive/interfaces.hpp>
+#include <cigmar/primitive/classes/ArrayList.hpp>
+
+namespace cigmar {
 
 // Motion fully-defined.
 
@@ -284,6 +286,9 @@ inline String operator "" _s(const char* s, size_t len) {
 }
 
 COMPARABLE(String, const char*);
-HASHABLE(String);
+
+}
+
+HASHABLE(cigmar::String);
 
 #endif // CIGMAR_STRING

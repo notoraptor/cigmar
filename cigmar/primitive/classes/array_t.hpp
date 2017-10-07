@@ -2,8 +2,10 @@
 #define CIGMAR_ARRAY_T
 
 #include <cstring>
-#include "../symbols.hpp"
-#include "../interfaces/Streamable.hpp"
+#include <cigmar/primitive/symbols.hpp>
+#include <cigmar/primitive/interfaces/Streamable.hpp>
+
+namespace cigmar {
 
 // Motion fully-defined.
 
@@ -51,5 +53,7 @@ public:
 		o << ')';
 	}
 };
+
+}
 
 #endif // CIGMAR_ARRAY_T

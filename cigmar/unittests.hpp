@@ -12,6 +12,8 @@ using std::string;
 using std::cerr;
 using std::endl;
 
+namespace cigmar {
+
 typedef std::function<void(void**)> UnitTestMethod;
 typedef std::function<void(void*)> TestFunction;
 
@@ -90,5 +92,7 @@ public: \
 		; if (initializer) initializer(&data); \
 	} \
 };
+
+}
 
 #endif // CIGMAR_UNITTESTS

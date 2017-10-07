@@ -5,9 +5,10 @@
 #include <chrono>
 #include <random>
 #include <type_traits>
-#include "primitive/classes.hpp"
-#include "primitive/types/return_t.hpp"
+#include <cigmar/primitive/classes.hpp>
+#include <cigmar/primitive/types/return_t.hpp>
 
+namespace cigmar {
 namespace numbers {
 
 class RNG {
@@ -162,6 +163,7 @@ bool any(const C& arr, F elemwiseChecker) {
 	return false;
 }
 
+}
 }
 
 #endif // CIGMAR_INTEGER

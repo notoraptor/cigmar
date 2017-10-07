@@ -1,9 +1,8 @@
 #include <iostream>
-#include "utils.hpp"
+#include <cigmar/utils.hpp>
 using std::cout;
 using std::endl;
-
-#define dtypeof(variable) decltype(variable)::dtype
+using namespace cigmar;
 
 utt_begin(TestCigmar);
 

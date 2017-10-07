@@ -3,6 +3,8 @@
 
 #include <ostream>
 
+namespace cigmar {
+
 class Streamable {
 public:
 	virtual void toStream(std::ostream& o) const = 0;
@@ -10,5 +12,7 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& o, const Streamable& s);
+
+}
 
 #endif // CIGMAR_STREAMABLE

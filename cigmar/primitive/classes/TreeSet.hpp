@@ -4,7 +4,9 @@
 #include <functional>
 #include <set>
 #include <initializer_list>
-#include "../interfaces/Streamable.hpp"
+#include <cigmar/primitive/interfaces/Streamable.hpp>
+
+namespace cigmar {
 
 template<typename T>
 class TreeSet: public Streamable {
@@ -92,5 +94,7 @@ public:
 		o << '}';
 	}
 };
+
+}
 
 #endif // CIGMAR_TREESET

@@ -3,7 +3,9 @@
 
 #include <forward_list>
 #include <initializer_list>
-#include "../utils.hpp"
+#include <cigmar/primitive/utils.hpp>
+
+namespace cigmar {
 
 template<typename T> class Queue;
 
@@ -139,6 +141,8 @@ void QueueElementPusher<T, E>::push(Queue<T>& queue, const E& element) {
 template<typename T, typename E>
 void QueueIterablePusher<T, E>::push(Queue<T>& queue, const E& iterable) {
 	queue.pushAll(iterable);
+}
+
 }
 
 #endif // CIGMAR_QUEUE

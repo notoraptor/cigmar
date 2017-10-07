@@ -3,7 +3,9 @@
 
 #include <unordered_set>
 #include <initializer_list>
-#include "../interfaces/Streamable.hpp"
+#include <cigmar/primitive/interfaces/Streamable.hpp>
+
+namespace cigmar {
 
 template<typename T>
 class HashSet: public Streamable {
@@ -70,5 +72,7 @@ public:
 		return *this;
 	}
 };
+
+}
 
 #endif // CIGMAR_HASHSET

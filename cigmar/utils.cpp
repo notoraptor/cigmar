@@ -1,7 +1,9 @@
 #include <locale>
-#include "utils.hpp"
+#include <cigmar/utils.hpp>
 
 /** Initialization of global symbols and variables. **/
+
+namespace cigmar {
 
 _LAST LAST;
 
@@ -42,3 +44,4 @@ char String::to_upper(char c) {
 	return std::toupper(c, loc);
 }
 
+}

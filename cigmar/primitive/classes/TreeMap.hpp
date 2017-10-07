@@ -4,7 +4,9 @@
 #include <functional>
 #include <map>
 #include <initializer_list>
-#include "../interfaces/Streamable.hpp"
+#include <cigmar/primitive/interfaces/Streamable.hpp>
+
+namespace cigmar {
 
 template<typename K, typename V>
 class TreeMap: public Streamable {
@@ -73,5 +75,7 @@ public:
 	V& operator[](const K& key) {return m[key];}
 	V& operator[](K&& key) {return m[std::move(key)];}
 };
+
+}
 
 #endif // CIGMAR_TREEMAP
