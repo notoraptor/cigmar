@@ -9,21 +9,21 @@ namespace cigmar {
 
 /// bool
 /// char
-using byte = int8_t;
+using byte_t = int8_t;
 using short_t = int16_t;
 using int_t = int32_t;
 using long_t = int64_t;
-using ubyte = uint8_t;
-using ushort = uint16_t;
-using uint = uint32_t;
-using ulong = uint64_t;
+using ubyte_t = uint8_t;
+using ushort_t = uint16_t;
+using uint_t = uint32_t;
+using ulong_t = uint64_t;
 /// float
 /// double
 /// size_t
 
 
-std::ostream& operator<<(std::ostream& o, byte b);
-std::ostream& operator<<(std::ostream& o, ubyte b);
+std::ostream& operator<<(std::ostream& o, byte_t b);
+std::ostream& operator<<(std::ostream& o, ubyte_t b);
 
 }
 

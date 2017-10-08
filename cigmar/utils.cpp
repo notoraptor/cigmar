@@ -13,7 +13,7 @@ namespace numbers {
     RNG rng;
 }
 
-/** Others définitions. **/
+/** Others definitions. **/
 
 const char String::endl = '\n';
 
@@ -23,11 +23,11 @@ static std::locale loc;
 
 /// Global functions.
 
-std::ostream& operator<<(std::ostream& o, byte b) {
+std::ostream& operator<<(std::ostream& o, byte_t b) {
 	return (o << (int)b);
 }
 
-std::ostream& operator<<(std::ostream& o, ubyte b) {
+std::ostream& operator<<(std::ostream& o, ubyte_t b) {
 	return (o << (unsigned int)b);
 }
 

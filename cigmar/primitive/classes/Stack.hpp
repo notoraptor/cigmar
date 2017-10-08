@@ -7,20 +7,21 @@
 
 namespace cigmar {
 
-template<typename T> class Stack;
-
-template<typename T, typename E>
-struct StackElementPusher {
-	void push(Stack<T>& stack, const E& element);
-};
-
-template<typename T, typename E>
-struct StackIterablePusher {
-	void push(Stack<T>& stack, const E& iterable);
-};
-
 template<typename T>
 class Stack {
+private:
+	template<typename E>
+	struct StackElementPusher {
+		void push(Stack& stack, const E& element) {
+			stack.push(element);
+		};
+	};
+	template<typename E>
+	struct StackIterablePusher {
+		void push(Stack& stack, const E& iterable) {
+			stack.pushAll(iterable);
+		};
+	};
 public:
 	typedef T dtype;
 	typedef std::forward_list<T> stack_type;
@@ -111,8 +112,8 @@ public:
 	Stack& operator<<(const C& arr) {
 		typedef typename std::conditional<
 			is_iterable<C>::value && !std::is_same<C, T>::value,
-			StackIterablePusher<T, C>,
-			StackElementPusher<T, C>>::type pusher_type;
+			StackIterablePusher<C>,
+			StackElementPusher<C>>::type pusher_type;
 		pusher_type().push(*this, arr);
 		return *this;
 	}
@@ -128,16 +129,6 @@ public:
 	T& operator*() {return content.front();}
 	const T& operator*() const {return content.front();}
 };
-
-template<typename T, typename E>
-void StackElementPusher<T, E>::push(Stack<T>& stack, const E& element) {
-	stack.push(element);
-}
-
-template<typename T, typename E>
-void StackIterablePusher<T, E>::push(Stack<T>& stack, const E& iterable) {
-	stack.pushAll(iterable);
-}
 
 }
 

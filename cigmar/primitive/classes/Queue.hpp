@@ -7,20 +7,21 @@
 
 namespace cigmar {
 
-template<typename T> class Queue;
-
-template<typename T, typename E>
-struct QueueElementPusher {
-	void push(Queue<T>& queue, const E& element);
-};
-
-template<typename T, typename E>
-struct QueueIterablePusher {
-	void push(Queue<T>& queue, const E& iterable);
-};
-
 template<typename T>
 class Queue {
+private:
+	template<typename E>
+	struct QueueElementPusher {
+		void push(Queue& queue, const E& element) {
+			queue.push(element);
+		};
+	};
+	template<typename E>
+	struct QueueIterablePusher {
+		void push(Queue& queue, const E& iterable) {
+			queue.pushAll(iterable);
+		};
+	};
 public:
 	typedef T dtype;
 	typedef std::forward_list<T> queue_type;
@@ -115,8 +116,8 @@ public:
 	Queue& operator<<(const C& arr) {
 		typedef typename std::conditional<
 			is_iterable<C>::value && !std::is_same<C, T>::value,
-			QueueIterablePusher<T, C>,
-			QueueElementPusher<T, C>>::type pusher_type;
+			QueueIterablePusher<C>,
+			QueueElementPusher<C>>::type pusher_type;
 		pusher_type().push(*this, arr);
 		return *this;
 	}
@@ -132,16 +133,6 @@ public:
 	T& operator*() {return content.front();}
 	const T& operator*() const {return content.front();}
 };
-
-template<typename T, typename E>
-void QueueElementPusher<T, E>::push(Queue<T>& queue, const E& element) {
-	queue.push(element);
-}
-
-template<typename T, typename E>
-void QueueIterablePusher<T, E>::push(Queue<T>& queue, const E& iterable) {
-	queue.pushAll(iterable);
-}
 
 }
 

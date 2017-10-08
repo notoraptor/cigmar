@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <initializer_list>
+#include <cigmar/primitive/utils.hpp>
 #include <cigmar/primitive/interfaces/Streamable.hpp>
 
 namespace cigmar {
@@ -23,13 +24,17 @@ public:
 	ArrayList(): vec() {}
 	ArrayList(size_t n, T val = T()): vec(n, val) {}
 	template<typename C>
-	ArrayList(const C& arr): vec(arr.begin(), arr.end()) {}
+	ArrayList(const C& arr): vec() {
+		static_assert(is_iterable<C>::value, "Iterable type required to instantiate an ArrayList.");
+		vec.assign(arr.begin(), arr.end());
+	}
 	ArrayList(std::initializer_list<T> il): vec(il) {}
 	ArrayList(const ArrayList& copied): vec(copied.vec) {}
 	ArrayList(ArrayList&&) = default;
 
-	void operator=(const ArrayList&) = delete;
-	ArrayList& operator=(ArrayList&&) = default;
+	size_t size() const {return vec.size();}
+	size_t capacity() const {return vec.capacity();}
+
 	ArrayList& add(const T& val) {
 		vec.push_back(val);
 		return *this;
@@ -66,13 +71,15 @@ public:
 		vec.clear();
 		return *this;
 	}
-	ArrayList& purge() {
+	ArrayList& free() {
 		std::vector<T>().swap(vec);
 		return *this;
 	}
 
-	size_t capacity() const {return vec.capacity();}
 	ArrayList& reserve(size_t n) {vec.reserve(n); return *this;}
+
+	void operator=(const ArrayList&) = delete;
+	ArrayList& operator=(ArrayList&&) = default;
 
 	T& operator[](size_t pos) {return vec[pos];}
 	const T& operator[](size_t pos) const {return vec[pos];}
@@ -83,7 +90,6 @@ public:
 	explicit operator T*() {return vec.data();}
 	explicit operator const T*() const {return vec.data();}
 	explicit operator bool() const {return vec.empty();}
-	size_t size() const {return vec.size();}
 
 	iterator_t begin() {return vec.begin();}
 	iterator_t end() {return vec.end();}

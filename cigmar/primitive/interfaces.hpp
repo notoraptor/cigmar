@@ -10,6 +10,7 @@ namespace cigmar {
 template<typename T>
 class Comparable {
 public:
+	virtual ~Comparable() {}
 	virtual int compare(const T& other) const = 0;
 	bool operator==(const T& other) const {return compare(other) == 0;};
 	bool operator!=(const T& other) const {return compare(other) != 0;};
