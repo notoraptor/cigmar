@@ -14,6 +14,7 @@
 				<Compiler>
 					<Add option="-std=c++11" />
 					<Add option="-g" />
+					<Add directory="." />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -44,6 +45,7 @@
 		<Unit filename="cigmar/primitive/classes/HashSet.hpp" />
 		<Unit filename="cigmar/primitive/classes/Queue.hpp" />
 		<Unit filename="cigmar/primitive/classes/Stack.hpp" />
+		<Unit filename="cigmar/primitive/classes/Timer.hpp" />
 		<Unit filename="cigmar/primitive/classes/TreeMap.hpp" />
 		<Unit filename="cigmar/primitive/classes/TreeSet.hpp" />
 		<Unit filename="cigmar/primitive/classes/array_t.hpp" />
@@ -54,10 +56,15 @@
 		<Unit filename="cigmar/primitive/types/pos_t.hpp" />
 		<Unit filename="cigmar/primitive/types/return_t.hpp" />
 		<Unit filename="cigmar/primitive/utils.hpp" />
+		<Unit filename="cigmar/unittests.cpp" />
 		<Unit filename="cigmar/unittests.hpp" />
 		<Unit filename="cigmar/utils.cpp" />
 		<Unit filename="cigmar/utils.hpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="tests/test_HashMap.cpp" />
+		<Unit filename="tests/test_Queue.cpp" />
+		<Unit filename="tests/test_Stack.cpp" />
+		<Unit filename="tests/test_TreeMap.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

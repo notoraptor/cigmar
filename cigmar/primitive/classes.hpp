@@ -9,6 +9,7 @@
 #include <cigmar/primitive/classes/HashMap.hpp>
 #include <cigmar/primitive/classes/Stack.hpp>
 #include <cigmar/primitive/classes/Queue.hpp>
+#include <cigmar/primitive/classes/Timer.hpp>
 
 namespace cigmar {
 // class AbstractList;

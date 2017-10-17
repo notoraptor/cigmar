@@ -6,6 +6,8 @@
 #include <sstream>
 #include <cstring>
 #include <cigmar/primitive/interfaces.hpp>
+#include <cigmar/primitive/types/pos_t.hpp>
+#include <cigmar/primitive/types/return_t.hpp>
 #include <cigmar/primitive/classes/ArrayList.hpp>
 
 namespace cigmar {
