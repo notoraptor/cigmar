@@ -16,7 +16,7 @@ public:
 		length = 10;
 		array = (UnitTest**)malloc(sizeof(UnitTest*) * length);
 	}
-	void add(UnitTest* ptr) {
+	void add(UnitTest& ptr) {
 		if (count == length) {
 			size_t new_length = 2 * length;
 			UnitTest** new_array = (UnitTest**)malloc(sizeof(UnitTest*) * new_length);
@@ -25,8 +25,8 @@ public:
 			array = new_array;
 			length = new_length;
 		}
-		ptr->unique = false;
-		array[count] = ptr;
+		ptr.unique = false;
+		array[count] = &ptr;
 		++count;
 	}
 	UnitTest** begin() {return array;}
@@ -44,7 +44,7 @@ inline void initTestMap() {
 	}
 }
 
-void recordTest(UnitTest* test) {
+void recordTest(UnitTest& test) {
 	initTestMap();
 	testMap.add(test);
 }
