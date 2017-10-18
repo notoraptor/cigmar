@@ -84,7 +84,7 @@ struct Executor {
 inline void utt_assert_bool(bool condition, const char* else_message = nullptr) {
 	if (!condition) {
 		std::ostringstream s;
-		s << "Error occurred with seed " << numbers::rng.seed() << std::endl;
+		s << "Error occurred (seed: " << numbers::rng.seed() << ')' << std::endl;
 		if (else_message)
 			s << "Assertion failed:" << std::endl << else_message;
 		else
@@ -93,7 +93,19 @@ inline void utt_assert_bool(bool condition, const char* else_message = nullptr) 
 	}
 }
 
+template<typename T>
+inline void utt_smart_assert_bool(bool condition, const char* message, T value) {
+	if (!condition) {
+		std::ostringstream s;
+		if (message)
+			s << message << std::endl << "Got: ";
+		s << value << std::endl;
+		utt_assert_bool(condition, s.str().c_str());
+	}
+}
+
 #define utt_assert(condition_code) utt_assert_bool((bool)(condition_code), #condition_code)
+#define utt_smart_assert(condition_code, print_value) utt_smart_assert_bool((bool)(condition_code), #condition_code , print_value)
 #define utt_begin(name) namespace name {class name: public UnitTest {public: name(): UnitTest(#name) {
 #define utt_init() ; initializer = [](void** data)
 #define utt_clear() ; destructor = [](void** data)
