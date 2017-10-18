@@ -3,7 +3,7 @@
 
 #include <initializer_list>
 #include <unordered_map>
-#include <cigmar/primitive/interfaces/Streamable.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
 
 namespace cigmar {
 

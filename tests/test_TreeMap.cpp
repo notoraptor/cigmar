@@ -1,5 +1,5 @@
-#include <cigmar/String.hpp>
-#include <cigmar/primitive/classes/TreeMap.hpp>
+#include <cigmar/classes/String.hpp>
+#include <cigmar/classes/TreeMap.hpp>
 #include <cigmar/unittests.hpp>
 using namespace cigmar;
 

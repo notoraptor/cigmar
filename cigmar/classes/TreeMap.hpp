@@ -4,7 +4,7 @@
 #include <functional>
 #include <map>
 #include <initializer_list>
-#include <cigmar/primitive/interfaces/Streamable.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
 
 namespace cigmar {
 

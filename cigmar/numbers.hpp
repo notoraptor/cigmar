@@ -4,9 +4,9 @@
 #include <iostream>
 #include <chrono>
 #include <random>
+#include <functional>
 #include <type_traits>
-#include <cigmar/primitive/classes.hpp>
-#include <cigmar/primitive/types/return_t.hpp>
+#include <cigmar/types/return_t.hpp>
 
 namespace cigmar {
 namespace numbers {

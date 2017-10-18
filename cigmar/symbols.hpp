@@ -1,9 +1,40 @@
-#ifndef CIGMAR_PRIMITIVE_UTILS
-#define CIGMAR_PRIMITIVE_UTILS
+#ifndef CIGMAR_PRIMITIVE_SYMBOLS
+#define CIGMAR_PRIMITIVE_SYMBOLS
 
 #include <type_traits>
 
 namespace cigmar {
+
+/// bool
+/// char
+using byte_t = int8_t;
+using short_t = int16_t;
+using int_t = int32_t;
+using long_t = int64_t;
+using ubyte_t = uint8_t;
+using ushort_t = uint16_t;
+using uint_t = uint32_t;
+using ulong_t = uint64_t;
+/// float
+/// double
+/// size_t
+
+std::ostream& operator<<(std::ostream& o, byte_t b);
+std::ostream& operator<<(std::ostream& o, ubyte_t b);
+
+// class AbstractList;
+// class AbstractMap;
+// class AbstractSet;
+class LinkedList; // Double linked list.
+class Tensor; // Sophisticated N-D array.
+
+#define dtypeof(variable) decltype(variable)::dtype
+
+// TODO: Remove definition of LAST, or make it more elegant.
+
+class _LAST {};
+
+extern _LAST LAST;
 
 /* Definition of static trait `is_iterable<type>::value`
 https://stackoverflow.com/a/29634934
@@ -48,4 +79,4 @@ Reference (2017/09/24):
 
 }
 
-#endif // CIGMAR_PRIMITIVE_UTILS
+#endif // CIGMAR_PRIMITIVE_SYMBOLS

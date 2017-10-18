@@ -4,9 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <initializer_list>
-#include <cigmar/primitive/symbols.hpp>
-#include <cigmar/primitive/utils.hpp>
-#include <cigmar/primitive/interfaces/Streamable.hpp>
+#include <cigmar/symbols.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
 
 namespace cigmar {
 

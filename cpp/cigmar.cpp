@@ -1,7 +1,11 @@
 #include <locale>
 #include <chrono>
 #include <thread>
-#include <cigmar/utils.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
+#include <cigmar/classes/String.hpp>
+#include <cigmar/symbols.hpp>
+#include <cigmar/init.hpp>
+#include <cigmar/numbers.hpp>
 
 /* NB:
  * To have all C++11 thread functionalities available, compiler must be POSIX compliant.

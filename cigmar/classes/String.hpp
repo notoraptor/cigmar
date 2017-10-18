@@ -5,10 +5,13 @@
 #include <string>
 #include <sstream>
 #include <cstring>
-#include <cigmar/primitive/interfaces.hpp>
-#include <cigmar/primitive/types/pos_t.hpp>
-#include <cigmar/primitive/types/return_t.hpp>
-#include <cigmar/primitive/classes/ArrayList.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
+#include <cigmar/interfaces/Hashable.hpp>
+#include <cigmar/interfaces/Comparable.hpp>
+#include <cigmar/types/pos_t.hpp>
+#include <cigmar/types/return_t.hpp>
+#include <cigmar/classes/ArrayList.hpp>
+#include <cigmar/symbols.hpp>
 
 namespace cigmar {
 

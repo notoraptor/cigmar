@@ -3,7 +3,9 @@
 #include <string>
 #include <ostream>
 #include <limits>
-#include <cigmar/primitive/interfaces.hpp>
+#include <cigmar/interfaces/Comparable.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
+#include <cigmar/interfaces/Hashable.hpp>
 
 namespace cigmar {
 

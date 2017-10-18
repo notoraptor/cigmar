@@ -1,5 +1,7 @@
 #include <cigmar/unittests.hpp>
-#include <cigmar/primitive/classes/Queue.hpp>
+#include <cigmar/classes/ArrayList.hpp>
+#include <cigmar/classes/Queue.hpp>
+#include <cigmar/symbols.hpp>
 using namespace cigmar;
 
 utt_begin(TestQueue);

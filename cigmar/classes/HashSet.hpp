@@ -3,7 +3,7 @@
 
 #include <unordered_set>
 #include <initializer_list>
-#include <cigmar/primitive/interfaces/Streamable.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
 
 namespace cigmar {
 

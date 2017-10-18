@@ -3,7 +3,7 @@
 
 #include <forward_list>
 #include <initializer_list>
-#include <cigmar/primitive/utils.hpp>
+#include <cigmar/symbols.hpp>
 
 namespace cigmar {
 

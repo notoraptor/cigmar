@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cigmar/time.hpp>
-#include <cigmar/primitive/classes/Timer.hpp>
+#include <cigmar/classes/Timer.hpp>
 #include <cigmar/unittests.hpp>
 
 namespace cigmar {

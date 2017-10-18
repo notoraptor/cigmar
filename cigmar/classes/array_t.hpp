@@ -2,8 +2,8 @@
 #define CIGMAR_ARRAY_T
 
 #include <cstring>
-#include <cigmar/primitive/symbols.hpp>
-#include <cigmar/primitive/interfaces/Streamable.hpp>
+#include <cigmar/symbols.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
 
 namespace cigmar {
 
