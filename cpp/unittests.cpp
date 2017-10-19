@@ -1,3 +1,4 @@
+#include <cstring>
 #include <iostream>
 #include <cigmar/time.hpp>
 #include <cigmar/classes/Timer.hpp>
@@ -44,12 +45,14 @@ inline void initTestMap() {
 	}
 }
 
-void recordTest(UnitTest& test) {
+namespace tests {
+
+void record(UnitTest& test) {
 	initTestMap();
 	testMap.add(test);
 }
 
-void runTests() {
+void run() {
 	initTestMap();
 	size_t testsCount = 0;
 	Timer timer;
@@ -57,11 +60,12 @@ void runTests() {
 	for (UnitTest* test: testMap) {
 		(*test)();
 	}
-	double time = timer.milliseconds();
+	double elapsedSeconds = timer.microseconds() * 1e-6;
 	for (UnitTest* test: testMap)
 		testsCount += test->size();
-	std::cerr << std::endl << "Ran " << testsCount << (testsCount == 1 ? " test" : " tests") << " in " << (time/1000.) << 's' << std::endl;
+	std::cerr << std::endl << "Ran " << testsCount << " test" << (testsCount == 1 ? "" : "s") << " in " << elapsedSeconds << 's' << std::endl;
 	std::cerr << std::endl << "OK" << std::endl;
+}
 }
 
 }

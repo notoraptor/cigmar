@@ -24,6 +24,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-std=c++11" />
 					<Add directory="." />
 				</Compiler>
 				<Linker>
@@ -35,36 +36,36 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="cigmar/String.hpp" />
-		<Unit filename="cigmar/config.hpp" />
+		<Unit filename="cigmar/classes/ArrayList.hpp" />
+		<Unit filename="cigmar/classes/HashMap.hpp" />
+		<Unit filename="cigmar/classes/HashSet.hpp" />
+		<Unit filename="cigmar/classes/Queue.hpp" />
+		<Unit filename="cigmar/classes/Stack.hpp" />
+		<Unit filename="cigmar/classes/String.hpp" />
+		<Unit filename="cigmar/classes/Timer.hpp" />
+		<Unit filename="cigmar/classes/TreeMap.hpp" />
+		<Unit filename="cigmar/classes/TreeSet.hpp" />
+		<Unit filename="cigmar/classes/array_t.hpp" />
 		<Unit filename="cigmar/init.hpp" />
+		<Unit filename="cigmar/interfaces/Comparable.hpp" />
+		<Unit filename="cigmar/interfaces/Hashable.hpp" />
+		<Unit filename="cigmar/interfaces/Streamable.hpp" />
 		<Unit filename="cigmar/numbers.hpp" />
-		<Unit filename="cigmar/primitive/classes.hpp" />
-		<Unit filename="cigmar/primitive/classes/ArrayList.hpp" />
-		<Unit filename="cigmar/primitive/classes/HashMap.hpp" />
-		<Unit filename="cigmar/primitive/classes/HashSet.hpp" />
-		<Unit filename="cigmar/primitive/classes/Queue.hpp" />
-		<Unit filename="cigmar/primitive/classes/Stack.hpp" />
-		<Unit filename="cigmar/primitive/classes/Timer.hpp" />
-		<Unit filename="cigmar/primitive/classes/TreeMap.hpp" />
-		<Unit filename="cigmar/primitive/classes/TreeSet.hpp" />
-		<Unit filename="cigmar/primitive/classes/array_t.hpp" />
-		<Unit filename="cigmar/primitive/interfaces.hpp" />
-		<Unit filename="cigmar/primitive/interfaces/Streamable.hpp" />
-		<Unit filename="cigmar/primitive/symbols.hpp" />
-		<Unit filename="cigmar/primitive/types.hpp" />
-		<Unit filename="cigmar/primitive/types/pos_t.hpp" />
-		<Unit filename="cigmar/primitive/types/return_t.hpp" />
-		<Unit filename="cigmar/primitive/utils.hpp" />
-		<Unit filename="cigmar/unittests.cpp" />
+		<Unit filename="cigmar/symbols.hpp" />
+		<Unit filename="cigmar/time.hpp" />
+		<Unit filename="cigmar/types/pos_t.hpp" />
+		<Unit filename="cigmar/types/return_t.hpp" />
 		<Unit filename="cigmar/unittests.hpp" />
-		<Unit filename="cigmar/utils.cpp" />
 		<Unit filename="cigmar/utils.hpp" />
+		<Unit filename="cpp/cigmar.cpp" />
+		<Unit filename="cpp/unittests.cpp" />
 		<Unit filename="main.cpp" />
 		<Unit filename="tests/test_HashMap.cpp" />
 		<Unit filename="tests/test_Queue.cpp" />
 		<Unit filename="tests/test_Stack.cpp" />
 		<Unit filename="tests/test_TreeMap.cpp" />
+		<Unit filename="tests/test_cigmar.cpp" />
+		<Unit filename="tests/test_time.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
