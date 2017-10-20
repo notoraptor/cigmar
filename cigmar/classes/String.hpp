@@ -17,6 +17,21 @@ namespace cigmar {
 
 // Motion fully-defined.
 
+/* TODO
+ * String {
+ * 	String.trim() // Remove trailing spaces at both ends.
+ * 	String.ltrim()
+ * 	String.rtrim()
+ * 	String.ltrimable() // Returns length of left trimable spaces.
+ * 	String.rtrimable() // Returns length of right trimable spaces.
+ * 	trim(char* chars)
+ * 	ltrim(char* chars)
+ * 	rtrim(char* chars)
+ * 	ltrimable(char* chars)
+ * 	rtrimable(char* chars)
+ * }
+ * */
+
 class String: public Streamable, public Hashable, public Comparable<String> {
 private:
 	std::string member;
@@ -87,8 +102,10 @@ public:
 	char& operator[](_LAST) {return member.back();}
 	const char& operator[](_LAST) const {return member.back();}
 
+	explicit operator const char*() const {return member.c_str();}
 	explicit operator bool() const {return !member.empty();}
 	size_t length() const {return member.length();}
+	const char* cstring() const {return member.c_str();}
 	iterator_t begin() {return member.begin();}
 	iterator_t end() {return member.end();}
 	const_iterator_t begin() const {return member.begin();}

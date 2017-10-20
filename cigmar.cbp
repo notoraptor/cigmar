@@ -46,11 +46,13 @@
 		<Unit filename="cigmar/classes/TreeMap.hpp" />
 		<Unit filename="cigmar/classes/TreeSet.hpp" />
 		<Unit filename="cigmar/classes/array_t.hpp" />
+		<Unit filename="cigmar/filesystem.hpp" />
 		<Unit filename="cigmar/init.hpp" />
 		<Unit filename="cigmar/interfaces/Comparable.hpp" />
 		<Unit filename="cigmar/interfaces/Hashable.hpp" />
 		<Unit filename="cigmar/interfaces/Streamable.hpp" />
 		<Unit filename="cigmar/numbers.hpp" />
+		<Unit filename="cigmar/std.hpp" />
 		<Unit filename="cigmar/symbols.hpp" />
 		<Unit filename="cigmar/time.hpp" />
 		<Unit filename="cigmar/types/pos_t.hpp" />
@@ -58,6 +60,9 @@
 		<Unit filename="cigmar/unittests.hpp" />
 		<Unit filename="cigmar/utils.hpp" />
 		<Unit filename="cpp/cigmar.cpp" />
+		<Unit filename="cpp/filesystem.cpp" />
+		<Unit filename="cpp/filesystem_unix.inc" />
+		<Unit filename="cpp/filesystem_windows.inc" />
 		<Unit filename="cpp/unittests.cpp" />
 		<Unit filename="main.cpp" />
 		<Unit filename="tests/test_HashMap.cpp" />
@@ -65,6 +70,7 @@
 		<Unit filename="tests/test_Stack.cpp" />
 		<Unit filename="tests/test_TreeMap.cpp" />
 		<Unit filename="tests/test_cigmar.cpp" />
+		<Unit filename="tests/test_filesystem.cpp" />
 		<Unit filename="tests/test_time.cpp" />
 		<Extensions>
 			<code_completion />
