@@ -2,6 +2,7 @@
 #include <string>
 #include <cigmar/std.hpp>
 #include <cigmar/unittests.hpp>
+#include <cigmar/print.hpp>
 
 using std::cout;
 using std::cerr;
@@ -13,6 +14,13 @@ using namespace cigmar;
 
 
 int main() {
-	tests::run();
+	// tests::run();
+	sys::print("Mon nom est", "personne.");
+	sys::print();
+	sys::print("J'ai", 22, "ans.");
+	sys::err::print("Bonjour", false, true, "Bonsoir.");
+	sys::err::print();
+	sys::err::print();
+	sys::err::print("Salut", '!');
 	return 0;
 }
