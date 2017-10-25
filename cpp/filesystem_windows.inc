@@ -51,7 +51,7 @@ namespace cigmar {
 		private:
 			WIN32_FIND_DATA ffd;
 			friend class Dir;
-			friend const char* entryname(Dirent* entry);
+			friend const char* nameof(Dirent* entry);
 		public:
 			bool isDirectory() const {return ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;}
 			bool isFile() const {return !this->isDirectory();}
@@ -190,8 +190,6 @@ namespace cigmar {
 		const char* nameof(Dirent* entry) {
 			return entry->ffd.cFileName;
 		}
-
-
 
 	}
 
