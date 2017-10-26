@@ -15,12 +15,14 @@ using namespace cigmar;
 
 int main() {
 	// tests::run();
-	sys::print("Mon nom est", "personne.");
-	sys::print();
-	sys::print("J'ai", 22, "ans.");
-	sys::err::print("Bonjour", false, true, "Bonsoir.");
-	sys::err::print();
-	sys::err::print();
-	sys::err::print("Salut", '!');
+	sys::println("Nom nom est", "Steven", "et", "j'ai", 22, "ans.");
+	sys::writeln("Nom nom est", "Steven", "et", "j'ai", 22, "ans.");
+	sys::print("Nom nom est", "Steven", "et", "j'ai", 22, "ans.");
+	sys::write("Nom nom est", "Steven", "et", "j'ai", 22, "ans.");
+
+	sys::err::println("Nom nom est", "Steven", "et", "j'ai", 22, "ans.");
+	sys::err::writeln("Nom nom est", "Steven", "et", "j'ai", 22, "ans.");
+	sys::err::print("Nom nom est", "Steven", "et", "j'ai", 22, "ans.");
+	sys::err::write("Nom nom est", "Steven", "et", "j'ai", 22, "ans.");
 	return 0;
 }
