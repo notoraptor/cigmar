@@ -1,9 +1,11 @@
 bin
 obj
-*.exe
-cigmar.depend
-cigmar.layout
+/cmake-build-debug/
 /release/
+.idea
 .cproject
 .settings/language.settings.xml
+cigmar.depend
+cigmar.layout
+*.exe
 

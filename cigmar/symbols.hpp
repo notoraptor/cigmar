@@ -1,7 +1,10 @@
 #ifndef CIGMAR_PRIMITIVE_SYMBOLS
 #define CIGMAR_PRIMITIVE_SYMBOLS
 
+#include <cstdint>
 #include <type_traits>
+#include <iterator>
+#include <ostream>
 
 namespace cigmar {
 

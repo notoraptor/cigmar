@@ -1,5 +1,5 @@
 /* Reference code for Windows: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365200(v=vs.85).aspx */
-
+#ifdef WIN32
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -194,3 +194,4 @@ namespace cigmar {
 	}
 
 }
+#endif

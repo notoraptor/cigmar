@@ -1,3 +1,4 @@
+#ifndef WIN32
 #include <cstdio>
 #include <string>
 #include <iostream>
@@ -78,3 +79,4 @@ namespace cigmar {
 	}
 
 }
+#endif

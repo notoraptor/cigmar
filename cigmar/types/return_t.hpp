@@ -30,7 +30,7 @@ public:
 			p = nullptr;
 		}
 	}
-	return_t& operator=(return_t& o) {
+	return_t& operator=(const return_t& o) {
 		p = o.p; todelete = o.todelete; isarray = o.isarray;
 		o.unsafe_reset();
 		return *this;

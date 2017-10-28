@@ -3,6 +3,7 @@
 #include <thread>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/String.hpp>
+#include <cigmar/classes/Char.hpp>
 #include <cigmar/symbols.hpp>
 #include <cigmar/init.hpp>
 #include <cigmar/numbers.hpp>
@@ -25,7 +26,6 @@ namespace cigmar {
 		RNG rng;
 	}
 	/** Others definitions. **/
-	const char String::endl = '\n';
 	/// Global variables.
 	static std::locale loc;
 	/// Global functions.
@@ -39,10 +39,10 @@ namespace cigmar {
 		s.toStream(o);
 		return o;
 	};
-	char String::to_lower(char c) {
+	char Char::lower(char c) {
 		return std::tolower(c, loc);
 	}
-	char String::to_upper(char c) {
+	char Char::upper(char c) {
 		return std::toupper(c, loc);
 	}
 	namespace time {

@@ -11,6 +11,7 @@
 #include <cigmar/types/pos_t.hpp>
 #include <cigmar/types/return_t.hpp>
 #include <cigmar/classes/ArrayList.hpp>
+#include <cigmar/classes/Char.hpp>
 #include <cigmar/symbols.hpp>
 
 namespace cigmar {
@@ -38,9 +39,6 @@ private:
 public:
 	typedef std::string::iterator iterator_t;
 	typedef std::string::const_iterator const_iterator_t;
-	static char to_lower(char c);
-	static char to_upper(char c);
-	static const char endl;
 private:
 	template<typename T, typename... Args>
 	void concatenate(std::ostringstream& o, T variable, Args... args) {
@@ -55,11 +53,6 @@ private:
 	void concatenate(std::ostringstream& o) {}
 protected:
 public:
-	String(): member() {}
-	String(const char* s): member(s) {}
-	String(const String& s): member(s.member) {}
-	String(String&& s): member(std::move(s.member)) {}
-	String(const String& s, size_t pos, size_t len = std::string::npos): member(s.member, pos, len) {}
 	template<typename... Args>
 	String(Args... args): member() {
 		std::ostringstream o;
@@ -67,6 +60,11 @@ public:
 		concatenate(o, args...);
 		member = o.str();
 	}
+	String(): member() {}
+	String(const char* s): member(s) {}
+	String(const String& s): member(s.member) {}
+	String(String&& s): member(std::move(s.member)) {}
+	String(const String& s, size_t pos, size_t len = std::string::npos): member(s.member, pos, len) {}
 
 	String& operator=(String&& s) {
 		member = std::move(s.member);
@@ -188,11 +186,11 @@ public:
 		return *this;
 	}
 	String& lower() {
-		std::transform(member.begin(), member.end(), member.begin(), String::to_lower);
+		std::transform(member.begin(), member.end(), member.begin(), Char::lower);
 		return *this;
 	}
 	String& upper() {
-		std::transform(member.begin(), member.end(), member.begin(), String::to_upper);
+		std::transform(member.begin(), member.end(), member.begin(), Char::upper);
 		return *this;
 	}
 	String& extractTo(String& out, size_t pos, size_t len = std::string::npos) {
@@ -200,7 +198,8 @@ public:
 		return *this;
 	}
 	const String& extractTo(String& out, size_t pos, size_t len = std::string::npos) const {
-		return this->extractTo(out, pos, len);
+		out.member.assign(member, pos, len);
+		return *this;
 	}
 	size_t extractTo(char* out, size_t pos, size_t len = std::string::npos) const {
 		size_t copied = member.copy(out, len, pos);
