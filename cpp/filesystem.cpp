@@ -3,10 +3,16 @@
 #include <cigmar/classes/String.hpp>
 
 #ifdef WIN32
+#include <windows.h>
+#define popen _popen
+#define pclose _pclose
 #include <cpp/filesystem_windows.inc>
 #else
+#include <cstdio>
 #include <cpp/filesystem_unix.inc>
 #endif
+
+#define BUFFER_LENGTH 1025
 
 /* Common code. */
 namespace cigmar {
@@ -49,15 +55,6 @@ namespace cigmar {
 				}
 				return String(resolved.c_str());
 			}
-			bool isFile(const char* pathname) {
-				/* fopen with mode "rb" seems to open directories on Ubuntu.
-				 * Adding mode "+" seems to fix it: https://stackoverflow.com/questions/42876210/c-fopen-opening-directories */
-				String normalized(norm(pathname));
-				FILE* f = fopen((const char*)normalized, "rb+");
-				bool is = (f != NULL);
-				if (is) fclose(f);
-				return is;
-			};
 			bool isAbsolute(const char* pathname) {
 				if (!isRooted(pathname))
 					return false;
@@ -78,6 +75,41 @@ namespace cigmar {
 			bool exists(const char* pathname) {
 				return isFile(pathname) || isDirectory(pathname);
 			};
+		}
+
+		class FileHandler {
+		public:
+			typedef int(*FileCleanerFunction)(FILE*);
+		private:
+			FILE* handle;
+			FileCleanerFunction clean;
+		public:
+			FileHandler(FILE* stream, FileCleanerFunction cleanerFunction):
+					handle(stream), clean(cleanerFunction) {}
+			~FileHandler() {
+				if (handle) {
+					clean(handle);
+				}
+			}
+			FileHandler(const FileHandler&) = default;
+			FileHandler(FileHandler&&) = default;
+			FileHandler& operator=(const FileHandler&) = default;
+			FileHandler& operator=(FileHandler&&) = default;
+			explicit operator bool() const {return handle != NULL;}
+			operator FILE*() {return handle;}
+		};
+
+		// Inspired from: https://stackoverflow.com/questions/478898/
+		bool run(const char* command, String& out) {
+			char buffer[BUFFER_LENGTH];
+			FileHandler pipe(popen(command, "rb"), pclose);
+			if (!pipe)
+				return false;
+			while (!feof(pipe)) {
+				if (fgets(buffer, BUFFER_LENGTH, pipe))
+					out << buffer;
+			}
+			return true;
 		}
 	}
 }

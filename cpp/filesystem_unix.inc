@@ -68,6 +68,19 @@ namespace cigmar {
 				return is;
 			};
 
+			bool isFile(const char* pathname) {
+				/* TODO: This code may fail if pathname is already opened
+				 * (e.g. if pathname points to this actual program).
+				 * This need to be tested on Linux. */
+				/* fopen with mode "rb" seems to open directories on Ubuntu.
+				 * Adding mode "+" seems to fix it:
+				 * https://stackoverflow.com/questions/42876210/c-fopen-opening-directories */
+				String normalized(norm(pathname));
+				FILE* f = fopen((const char*)normalized, "rb+");
+				bool is = (f != NULL);
+				if (is) fclose(f);
+				return is;
+			};
 		}
 
 		const char* nameof(Dirent* entry) {

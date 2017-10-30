@@ -37,7 +37,10 @@ namespace cigmar {
 			bool isRelative(const char* pathname);
 			bool exists(const char* pathname);
 		}
+
 		const char* nameof(Dirent* entry);
+
+		bool run(const char* command, String& out);
 
 	}
 }
