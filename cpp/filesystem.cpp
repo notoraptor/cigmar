@@ -1,9 +1,9 @@
 #include <string>
 #include <vector>
 #include <cigmar/classes/String.hpp>
+#include <cigmar/classes/Exception.hpp>
 
 #ifdef WIN32
-#include <windows.h>
 #define popen _popen
 #define pclose _pclose
 #include <cpp/filesystem_windows.inc>
@@ -100,16 +100,17 @@ namespace cigmar {
 		};
 
 		// Inspired from: https://stackoverflow.com/questions/478898/
-		bool run(const char* command, String& out) {
+		String run(const char* command) {
+			String out;
 			char buffer[BUFFER_LENGTH];
 			FileHandler pipe(popen(command, "rb"), pclose);
 			if (!pipe)
-				return false;
+				throw Exception("cigmar::sys::run(): unable to open stdout.");
 			while (!feof(pipe)) {
 				if (fgets(buffer, BUFFER_LENGTH, pipe))
 					out << buffer;
 			}
-			return true;
+			return out;
 		}
 	}
 }

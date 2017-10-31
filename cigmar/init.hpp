@@ -10,6 +10,19 @@ public:
 	CigmarInit() {
 		std::cout << std::boolalpha;
 		std::cerr << std::boolalpha;
+		std::set_terminate(CigmarInit::terminate);
+	}
+	static void terminate() {
+		std::exception_ptr current_exception = std::current_exception();
+		if (current_exception) {
+			try {
+				std::rethrow_exception(current_exception);
+			} catch (std::exception& ex) {
+				std::cerr << "Exception not caught: " << ex.what() << std::endl;
+			}
+		}
+		std::cerr << "Unexpected program end." << std::endl;
+		exit(EXIT_FAILURE);
 	}
 };
 

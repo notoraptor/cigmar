@@ -40,7 +40,7 @@ namespace cigmar {
 
 		const char* nameof(Dirent* entry);
 
-		bool run(const char* command, String& out);
+		String run(const char* command);
 
 	}
 }

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include <cigmar/filesystem.hpp>
 #include <cigmar/unittests.hpp>
 
@@ -71,6 +70,11 @@ utt(test_absolute) {
 	utt_assert(sys::path::isAbsolute((const char*)current));
 	utt_assert(sys::path::isRooted((const char*)parent));
 	utt_assert(sys::path::isAbsolute((const char*)parent));
+}
+
+utt(test_run) {
+	String s = sys::run("echo SUPER");
+	utt_smart_assert(s.trim() == "SUPER", s);
 }
 
 utt(test_very_long_path) {

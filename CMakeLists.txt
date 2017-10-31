@@ -7,6 +7,7 @@ set(SOURCE_FILES
         cigmar/classes/array_t.hpp
         cigmar/classes/ArrayList.hpp
         cigmar/classes/Char.hpp
+        cigmar/classes/Exception.hpp
         cigmar/classes/HashMap.hpp
         cigmar/classes/HashSet.hpp
         cigmar/classes/Queue.hpp
@@ -19,7 +20,6 @@ set(SOURCE_FILES
         cigmar/interfaces/Hashable.hpp
         cigmar/interfaces/Streamable.hpp
         cigmar/types/pos_t.hpp
-        cigmar/types/return_t.hpp
         cigmar/filesystem.hpp
         cigmar/init.hpp
         cigmar/numbers.hpp

@@ -9,29 +9,15 @@
 #include <cigmar/interfaces/Hashable.hpp>
 #include <cigmar/interfaces/Comparable.hpp>
 #include <cigmar/types/pos_t.hpp>
-#include <cigmar/types/return_t.hpp>
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/classes/Char.hpp>
 #include <cigmar/symbols.hpp>
 
+#define EMPTY_CHARACTERS " \f\n\r\t\v"
+
 namespace cigmar {
 
 // Motion fully-defined.
-
-/* TODO
- * String {
- * 	String.trim() // Remove trailing spaces at both ends.
- * 	String.ltrim()
- * 	String.rtrim()
- * 	String.ltrimable() // Returns length of left trimable spaces.
- * 	String.rtrimable() // Returns length of right trimable spaces.
- * 	trim(char* chars)
- * 	ltrim(char* chars)
- * 	rtrim(char* chars)
- * 	ltrimable(char* chars)
- * 	rtrimable(char* chars)
- * }
- * */
 
 class String: public Streamable, public Hashable, public Comparable<String> {
 private:
@@ -65,15 +51,18 @@ public:
 	String(const String& s): member(s.member) {}
 	String(String&& s): member(std::move(s.member)) {}
 	String(const String& s, size_t pos, size_t len = std::string::npos): member(s.member, pos, len) {}
+	// STL
+	String(const std::string& s): member(s) {}
+	String(std::string&& s): member(std::move(s)) {}
 
-	String& operator=(String&& s) {
-		member = std::move(s.member);
-		return *this;
-	};
 	String& operator=(const String& other) {
 		member = other.member;
 		return *this;
 	}
+	String& operator=(String&& s) {
+		member = std::move(s.member);
+		return *this;
+	};
 	String& operator=(const char* s) {
 		member = s;
 		return *this;
@@ -90,14 +79,18 @@ public:
 		member += s;
 		return *this;
 	}
+	String& operator<<(const String& s) {
+		member += s.member;
+		return *this;
+	}
 	String& operator<<(bool val) {
 		member += (val ? "true" : "false");
 		return *this;
 	}
 
 	char& operator[](size_t pos) {return member[pos];}
-	const char& operator[](size_t pos) const {return member[pos];}
 	char& operator[](_LAST) {return member.back();}
+	const char& operator[](size_t pos) const {return member[pos];}
 	const char& operator[](_LAST) const {return member.back();}
 
 	explicit operator const char*() const {return member.c_str();}
@@ -185,6 +178,31 @@ public:
 		} while(pos != std::string::npos);
 		return *this;
 	}
+	size_t ltrimmable(const String& characters = EMPTY_CHARACTERS) {
+		size_t pos = member.find_first_not_of(characters.member);
+		return pos == std::string::npos ? 0 : pos;
+	}
+	size_t rtrimmable(const String& characters = EMPTY_CHARACTERS) {
+		size_t pos = member.find_last_not_of(characters.member);
+		return pos == std::string::npos ? 0 : (member.length() - pos - 1);
+	}
+	String& ltrim(const String& characters = EMPTY_CHARACTERS) {
+		size_t pos = member.find_first_not_of(characters.member);
+		if (pos != std::string::npos)
+			member.erase(0, pos);
+		return *this;
+	}
+	String& rtrim(const String& characters = EMPTY_CHARACTERS) {
+		size_t pos = member.find_last_not_of(characters.member);
+		if (pos != std::string::npos)
+			member.erase(pos + 1);
+		return *this;
+	}
+	String& trim(const String& characters = EMPTY_CHARACTERS) {
+		ltrim(characters);
+		rtrim(characters);
+		return *this;
+	}
 	String& lower() {
 		std::transform(member.begin(), member.end(), member.begin(), Char::lower);
 		return *this;
@@ -204,45 +222,38 @@ public:
 	size_t extractTo(char* out, size_t pos, size_t len = std::string::npos) const {
 		size_t copied = member.copy(out, len, pos);
 		out[copied] = '\0';
-		return copied + 1;
+		return copied;
 	}
 	size_t memout(char* out, size_t pos, size_t len = std::string::npos) const {
 		return member.copy(out, len, pos);
 	}
-
-	String toLower() const {
-		return String(*this).lower();
-	}
-	String toUpper() const {
-		return String(*this).upper();
-	}
 	String substring(size_t pos, size_t len=std::string::npos) const {
 		return String(*this, pos, len);
 	}
-	return_t<ArrayList<String>> split(const String& delimiter) const {
-		ArrayList<String>* pieces = new ArrayList<String>();
+	ArrayList<String> split(const String& delimiter) const {
+		ArrayList<String> pieces;
 		size_t sep_len = delimiter.member.length();
 		size_t piece_start = 0;
 		size_t next_start = 0;
 		do {
 			next_start = member.find(delimiter.member, piece_start);
 			size_t piece_len = next_start - piece_start;
-			pieces->add(std::move(String(*this, piece_start, piece_len)));
+			pieces.add(std::move(String(*this, piece_start, piece_len)));
 			piece_start = next_start + sep_len;
 		} while (next_start != std::string::npos);
-		return transfer(pieces);
+		return pieces;
 	}
-	return_t<ArrayList<String>> split(const char* delimiter) const {
-		ArrayList<String>* pieces = new ArrayList<String>();
+	ArrayList<String> split(const char* delimiter) const {
+		ArrayList<String> pieces;
 		size_t sep_len = strlen(delimiter);
 		size_t piece_start = 0;
 		size_t next_start = 0;
 		do {
 			next_start = member.find(delimiter, piece_start);
-			pieces->add(std::move(String(*this, piece_start, next_start - piece_start)));
+			pieces.add(std::move(String(*this, piece_start, next_start - piece_start)));
 			piece_start = next_start + sep_len;
 		} while (next_start != std::string::npos);
-		return transfer(pieces);
+		return pieces;
 	}
 	bool contains(const String& s, size_t start = 0) const {
 		return member.find(s.member, start) != std::string::npos;

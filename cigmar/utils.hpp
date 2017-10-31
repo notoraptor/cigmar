@@ -5,7 +5,6 @@
 #include <ostream>
 
 #include <cigmar/types/pos_t.hpp>
-#include <cigmar/types/return_t.hpp>
 
 #include <cigmar/classes/array_t.hpp>
 #include <cigmar/classes/ArrayList.hpp>

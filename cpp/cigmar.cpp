@@ -3,8 +3,6 @@
 #include <thread>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/String.hpp>
-#include <cigmar/classes/Char.hpp>
-#include <cigmar/symbols.hpp>
 #include <cigmar/init.hpp>
 #include <cigmar/numbers.hpp>
 

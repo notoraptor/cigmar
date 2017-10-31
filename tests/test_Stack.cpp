@@ -1,7 +1,7 @@
 #include <cigmar/unittests.hpp>
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/classes/Stack.hpp>
-#include <cigmar/symbols.hpp>
+
 using namespace cigmar;
 
 utt_begin(testStack);

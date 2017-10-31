@@ -5,15 +5,15 @@
 
 namespace cigmar {
 namespace sys {
+	template<typename... Args> void println(Args... args);
 	template<typename... Args> void print(Args... args);
-	template<typename... Args> void print_r(Args... args);
+	template<typename... Args> void writeln(Args... args);
 	template<typename... Args> void write(Args... args);
-	template<typename... Args> void write_r(Args... args);
 	namespace err {
+		template<typename... Args> void println(Args... args);
 		template<typename... Args> void print(Args... args);
-		template<typename... Args> void print_r(Args... args);
+		template<typename... Args> void writeln(Args... args);
 		template<typename... Args> void write(Args... args);
-		template<typename... Args> void write_r(Args... args);
 	}
 }
 }
