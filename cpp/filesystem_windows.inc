@@ -7,6 +7,7 @@
 #include <cigmar/std.hpp>
 #include <cigmar/filesystem.hpp>
 #include <windows.h>
+#include <direct.h>
 
 using std::cerr;
 using std::endl;
@@ -65,10 +66,10 @@ namespace cigmar {
 			bool valid;
 		public:
 			Dir(const char* filename) {
-				std::string formatedFilename(sys::path::absolute(filename).cstring());
-				windows::formatPrefix(formatedFilename);
-				windows::formatSuffix(formatedFilename);
-				handle = FindFirstFile(formatedFilename.c_str(), &entry.ffd);
+				String formatedFilename = sys::path::absolute(filename);
+				windows::formatPrefix(formatedFilename.cppstring());
+				windows::formatSuffix(formatedFilename.cppstring());
+				handle = FindFirstFile(formatedFilename.cstring(), &entry.ffd);
 				valid = (handle != INVALID_HANDLE_VALUE);
 				alreadyRead = false;
 			}
@@ -150,7 +151,7 @@ namespace cigmar {
 				String normalized = sys::path::resolve(pathname);
 				if (isAbsolute(normalized.cstring()))
 					return normalized;
-				std::string normalizedPath(normalized.cstring());
+				std::string& normalizedPath = normalized.cppstring();
 				size_t posFirstSeparator = normalizedPath.find(separator);
 				std::string parent;
 				size_t fullPathLength;
@@ -200,6 +201,17 @@ namespace cigmar {
 			return entry->ffd.cFileName;
 		}
 
+		int mkdir(const char* pathname) {
+			String formated = sys::path::absolute(pathname);
+			windows::formatPrefix(formated.cppstring());
+			return _mkdir(formated.cstring());
+		};
+
+		int rmdir(const char* pathname) {
+			String formated = sys::path::absolute(pathname);
+			windows::formatPrefix(formated.cppstring());
+			return _rmdir(formated.cstring());
+		};
 	}
 
 }

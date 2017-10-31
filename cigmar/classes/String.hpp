@@ -93,6 +93,14 @@ public:
 	const char& operator[](size_t pos) const {return member[pos];}
 	const char& operator[](_LAST) const {return member.back();}
 
+	std::string& cppstring() {return member;}
+	/**< Give read-write access to internal wrapped std::string object.
+	 * This is acceptable as long as this class uses only a std::string as
+	 * internal object and does not have to update any other object when its
+	 * std::string is updated. **/
+	const std::string& cppstring() const {return member;}
+	/**< Give read access to internal wrapped std::string object.
+	 * This allows to use String everywhere a std::string is required. **/
 	explicit operator const char*() const {return member.c_str();}
 	explicit operator bool() const {return !member.empty();}
 	size_t length() const {return member.length();}

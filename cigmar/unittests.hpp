@@ -108,12 +108,15 @@ inline void utt_smart_assert_bool(bool condition, const char* message, T value) 
 
 #define utt_assert(condition_code) utt_assert_bool((bool)(condition_code), #condition_code)
 #define utt_smart_assert(condition_code, print_value) utt_smart_assert_bool((bool)(condition_code), #condition_code , print_value)
-#define utt_begin(name) namespace cigmar{ namespace tests{ namespace name {class name: public UnitTest {public: name(): UnitTest(#name) {
+
+#define utt_begin(name) namespace cigmar::tests::name {class name: public UnitTest {public: name(): UnitTest(#name) \
+{
+
 #define utt_init() ; initializer = [](void** data)
 #define utt_clear() ; destructor = [](void** data)
 #define utt(name) ; tests[ #name ] = [](void* data)
 #define utt_end() ; if (initializer) initializer(&data);}} testInstance; \
-	Executor recorder([]() {record(testInstance);}); }}}
+	Executor recorder([]() {record(testInstance);}); }
 
 }
 

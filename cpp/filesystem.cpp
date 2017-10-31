@@ -86,17 +86,21 @@ namespace cigmar {
 		public:
 			FileHandler(FILE* stream, FileCleanerFunction cleanerFunction):
 					handle(stream), clean(cleanerFunction) {}
-			~FileHandler() {
-				if (handle) {
-					clean(handle);
-				}
-			}
+			~FileHandler() {close();}
 			FileHandler(const FileHandler&) = default;
 			FileHandler(FileHandler&&) = default;
 			FileHandler& operator=(const FileHandler&) = default;
 			FileHandler& operator=(FileHandler&&) = default;
 			explicit operator bool() const {return handle != NULL;}
 			operator FILE*() {return handle;}
+			int close() {
+				int err = 0;
+				if (handle) {
+					err = clean(handle);
+					handle = NULL;
+				}
+				return err;
+			}
 		};
 
 		// Inspired from: https://stackoverflow.com/questions/478898/
@@ -109,6 +113,14 @@ namespace cigmar {
 			while (!feof(pipe)) {
 				if (fgets(buffer, BUFFER_LENGTH, pipe))
 					out << buffer;
+			}
+			errno = 0;
+			if (pipe.close()) {
+				if (errno) {
+					throw Exception("cigmar::sys::run(): error closing process: ", strerror(errno));
+				} else {
+					throw Exception("cigmar::sys::run(): command error (", command ,")");
+				}
 			}
 			return out;
 		}

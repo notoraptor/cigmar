@@ -37,6 +37,8 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="cigmar/classes/ArrayList.hpp" />
+		<Unit filename="cigmar/classes/Char.hpp" />
+		<Unit filename="cigmar/classes/Exception.hpp" />
 		<Unit filename="cigmar/classes/HashMap.hpp" />
 		<Unit filename="cigmar/classes/HashSet.hpp" />
 		<Unit filename="cigmar/classes/Queue.hpp" />
@@ -52,11 +54,11 @@
 		<Unit filename="cigmar/interfaces/Hashable.hpp" />
 		<Unit filename="cigmar/interfaces/Streamable.hpp" />
 		<Unit filename="cigmar/numbers.hpp" />
+		<Unit filename="cigmar/print.hpp" />
 		<Unit filename="cigmar/std.hpp" />
 		<Unit filename="cigmar/symbols.hpp" />
 		<Unit filename="cigmar/time.hpp" />
 		<Unit filename="cigmar/types/pos_t.hpp" />
-		<Unit filename="cigmar/types/return_t.hpp" />
 		<Unit filename="cigmar/unittests.hpp" />
 		<Unit filename="cigmar/utils.hpp" />
 		<Unit filename="cpp/cigmar.cpp" />

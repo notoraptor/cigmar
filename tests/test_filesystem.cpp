@@ -77,6 +77,18 @@ utt(test_run) {
 	utt_smart_assert(s.trim() == "SUPER", s);
 }
 
+utt(test_mkdir) {
+	const char* dirname = "test_dir";
+	sys::Dir* dir = sys::dir::open(dirname);
+	if (dir) {
+		utt_assert(sys::rmdir(dirname) == 0);
+		utt_assert(sys::dir::close(dir) == 0);
+	}
+	utt_assert(sys::mkdir(dirname) == 0);
+	dir = sys::dir::open(dirname);
+	utt_assert(dir != NULL);
+}
+
 utt(test_very_long_path) {
 	const char *p ="tests"
 			"\\aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1"
@@ -114,6 +126,16 @@ utt(test_very_long_path) {
 	utt_assert(sys::path::exists(p));
 	String abs = sys::path::absolute(p);
 	utt_assert(abs);
+	String new_long_dirname = sys::path::join(p, "test_dir");
+	const char* dirname = new_long_dirname.cstring();
+	sys::Dir* dir = sys::dir::open(dirname);
+	if (dir) {
+		utt_assert(sys::rmdir(dirname) == 0);
+		utt_assert(sys::dir::close(dir) == 0);
+	}
+	utt_assert(sys::mkdir(dirname) == 0);
+	dir = sys::dir::open(dirname);
+	utt_assert(dir != NULL);
 }
 
 

@@ -42,6 +42,10 @@ namespace cigmar {
 
 		String run(const char* command);
 
+		int mkdir(const char* pathname);
+		int rmdir(const char* pathname);
+		/**< Remove empty directory. **/
+
 	}
 }
 

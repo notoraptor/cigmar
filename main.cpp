@@ -10,9 +10,8 @@ using std::endl;
 using std::string;
 using namespace cigmar;
 
-// TODO: Exceptions with easy-to-write message strings.
-
 int main() {
+	// sys::println(sys::run("python -c 'import sys; print(len(sys.argv));'"));
 	tests::run();
 	return 0;
 }

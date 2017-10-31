@@ -87,7 +87,19 @@ namespace cigmar {
 			return entry->d_name;
 		}
 
+		int mkdir(const char* pathname) {
+			// http://pubs.opengroup.org/onlinepubs/009695399/functions/mkdir.html
+			/*
+			The following line should create a directory with
+			read/write/search permissions for owner and group, and with
+			read/search permissions for others.
+			*/
+			return mkdir(pathname, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		};
 
+		int rmdir(const char* pathname) {
+			return ::rmdir(pathname);
+		};
 
 	}
 
