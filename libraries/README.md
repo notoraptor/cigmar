@@ -13,3 +13,10 @@ json
  - Release ``2.1.1`` (2017/02/25): https://github.com/nlohmann/json/releases/tag/v2.1.1
  - This folder contains original distributed
    released header file.
+
+whirlpool
+ - http://www.larc.usp.br/~pbarreto/WhirlpoolPage.html (2017/11/01)
+ - Used to hash data with Whirlpool algorithm. This folder contains:
+   - ``LICENSE.txt``: license copied from reference page
+   - ``nessis.h``: reference file with alterations
+   - ``Whirlpool.cpp``: alteration of reference file ``Whirlpool.c``

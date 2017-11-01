@@ -51,6 +51,7 @@ public:
 	String(const String& s): member(s.member) {}
 	String(String&& s): member(std::move(s.member)) {}
 	String(const String& s, size_t pos, size_t len = std::string::npos): member(s.member, pos, len) {}
+	String(size_t length, char c): member(length, c) {}
 	// STL
 	String(const std::string& s): member(s) {}
 	String(std::string&& s): member(std::move(s)) {}

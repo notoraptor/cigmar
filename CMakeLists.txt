@@ -6,6 +6,8 @@ include_directories(${PROJECT_SOURCE_DIR})
 set(SOURCE_FILES
         libraries/base64/base64.hpp
         libraries/json/json.hpp
+        libraries/whirlpool/nessie.h
+        libraries/whirlpool/Whirlpool.cpp
         cigmar/classes/array_t.hpp
         cigmar/classes/ArrayList.hpp
         cigmar/classes/Char.hpp
@@ -43,6 +45,6 @@ set(SOURCE_FILES
         tests/test_Stack.cpp
         tests/test_time.cpp
         tests/test_TreeMap.cpp
-        main.cpp cigmar/base64.hpp cpp/base64.cpp)
+        main.cpp cigmar/base64.hpp cpp/base64.cpp video/Video.hpp cigmar/whirlpool.hpp cpp/whirlpool.cpp)
 
 add_executable(cigmar ${SOURCE_FILES})
