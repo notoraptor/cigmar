@@ -42,6 +42,7 @@
 		<Unit filename="cigmar/classes/Exception.hpp" />
 		<Unit filename="cigmar/classes/HashMap.hpp" />
 		<Unit filename="cigmar/classes/HashSet.hpp" />
+		<Unit filename="cigmar/classes/Path.hpp" />
 		<Unit filename="cigmar/classes/Queue.hpp" />
 		<Unit filename="cigmar/classes/Stack.hpp" />
 		<Unit filename="cigmar/classes/String.hpp" />
