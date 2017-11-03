@@ -1,6 +1,7 @@
 bin
 obj
 cmake-build-debug
+tests/Lion.*.jpg
 release
 .idea
 .cproject

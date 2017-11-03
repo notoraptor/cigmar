@@ -12,7 +12,7 @@ static const char* hexDigits = "0123456789ABCDEF";
 namespace cigmar::crypto::hash {
 	static String toHex(const u8 array[], size_t length) {
 		String hexString(2 * length, '0');
-		for (int i = 0; i < length; ++i) {
+		for (size_t i = 0; i < length; ++i) {
 			hexString[2 * i] = hexDigits[array[i] >> 4];
 			hexString[2 * i + 1] = hexDigits[array[i] & ((1 << 4) - 1)];
 		}

@@ -36,6 +36,7 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="cigmar/base64.hpp" />
 		<Unit filename="cigmar/classes/ArrayList.hpp" />
 		<Unit filename="cigmar/classes/Char.hpp" />
 		<Unit filename="cigmar/classes/Exception.hpp" />
@@ -61,11 +62,18 @@
 		<Unit filename="cigmar/types/pos_t.hpp" />
 		<Unit filename="cigmar/unittests.hpp" />
 		<Unit filename="cigmar/utils.hpp" />
+		<Unit filename="cigmar/whirlpool.hpp" />
+		<Unit filename="cpp/base64.cpp" />
 		<Unit filename="cpp/cigmar.cpp" />
 		<Unit filename="cpp/filesystem.cpp" />
 		<Unit filename="cpp/filesystem_unix.inc" />
 		<Unit filename="cpp/filesystem_windows.inc" />
 		<Unit filename="cpp/unittests.cpp" />
+		<Unit filename="cpp/whirlpool.cpp" />
+		<Unit filename="libraries/base64/base64.hpp" />
+		<Unit filename="libraries/json/json.hpp" />
+		<Unit filename="libraries/whirlpool/Whirlpool.cpp" />
+		<Unit filename="libraries/whirlpool/nessie.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="tests/test_HashMap.cpp" />
 		<Unit filename="tests/test_Queue.cpp" />
@@ -74,6 +82,10 @@
 		<Unit filename="tests/test_cigmar.cpp" />
 		<Unit filename="tests/test_filesystem.cpp" />
 		<Unit filename="tests/test_time.cpp" />
+		<Unit filename="tests/test_video.cpp" />
+		<Unit filename="video/Video.hpp" />
+		<Unit filename="video/ffmpeg.cpp" />
+		<Unit filename="video/ffmpeg.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
