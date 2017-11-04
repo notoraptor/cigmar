@@ -35,6 +35,16 @@ utt(test_current_dir) {
 	sys::dir::close(dir);
 }
 
+utt(test_current_dir_class) {
+	sys::_Dir d(".");
+	size_t count = 0;
+	for (const char* entry: d) {
+		++count;
+		std::cerr << entry << std::endl;
+	}
+	std::cerr << "Count: " << count << std::endl;
+}
+
 utt(test_norm) {
 	utt_assert(sys::path::norm(".") == ".");
 	utt_assert(sys::path::norm("..") == "..");
@@ -81,10 +91,10 @@ utt(test_mkdir) {
 	const char* dirname = "test_dir";
 	sys::Dir* dir = sys::dir::open(dirname);
 	if (dir) {
-		utt_assert(sys::rmdir(dirname) == 0);
+		utt_assert(sys::removeDirectory(dirname) == 0);
 		utt_assert(sys::dir::close(dir) == 0);
 	}
-	utt_assert(sys::mkdir(dirname) == 0);
+	utt_assert(sys::makeDirectory(dirname) == 0);
 	dir = sys::dir::open(dirname);
 	utt_assert(dir != NULL);
 }
@@ -127,13 +137,14 @@ utt(test_very_long_path) {
 	String abs = sys::path::absolute(p);
 	utt_assert(abs);
 	String new_long_dirname = sys::path::join(p, "test_dir");
+	new_long_dirname = sys::path::norm((const char*)new_long_dirname);
 	const char* dirname = new_long_dirname.cstring();
 	sys::Dir* dir = sys::dir::open(dirname);
 	if (dir) {
-		utt_assert(sys::rmdir(dirname) == 0);
+		utt_assert(sys::removeDirectory(dirname) == 0);
 		utt_assert(sys::dir::close(dir) == 0);
 	}
-	utt_assert(sys::mkdir(dirname) == 0);
+	utt_assert(sys::makeDirectory(dirname) == 0);
 	dir = sys::dir::open(dirname);
 	utt_assert(dir != NULL);
 }

@@ -8,8 +8,6 @@ namespace cigmar::sys {
 
 class Path {
 private:
-	enum class Status {TYPE_CHECKED, EXTENSION_CHECKED, IS_NORMALIZED, IS_ABSOLUTE, COUNT};
-	Path* parent;
 	String path;
 public:
 	Path(const char* p);

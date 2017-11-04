@@ -6,8 +6,10 @@
 #include <iostream>
 #include <cigmar/std.hpp>
 #include <cigmar/filesystem.hpp>
+#include <cigmar/classes/Exception.hpp>
 #include <windows.h>
 #include <direct.h>
+#include <cassert>
 
 using std::cerr;
 using std::endl;
@@ -47,6 +49,77 @@ namespace cigmar {
 	}
 
 	namespace sys {
+
+		class _PlatformDir {
+		public:
+			String internal;
+		};
+
+		class _PlatformDirent {
+		private:
+			HANDLE handle;
+			WIN32_FIND_DATA ffd;
+			friend class _Dirent;
+			explicit _PlatformDirent(const String& internalPath):
+					handle(INVALID_HANDLE_VALUE) {
+				handle = FindFirstFile(internalPath.cstring(), &ffd);
+				assert(handle != INVALID_HANDLE_VALUE);
+			};
+		public:
+			~_PlatformDirent() {
+				FindClose(handle);
+			}
+		};
+
+		_Dirent::_Dirent() {
+			handler = nullptr;
+		}
+		_Dirent::_Dirent(_Dir& dir) {
+			handler = new _PlatformDirent(dir.handler->internal);
+		}
+		_Dirent::~_Dirent() {
+			delete handler;
+		}
+		_Dirent& _Dirent::operator++() {
+			if (handler) {
+				if (FindNextFile(handler->handle, &handler->ffd) == 0) {
+					delete handler;
+					handler = nullptr;
+				}
+			}
+			return *this;
+		}
+		bool _Dirent::operator==(const _Dirent& other) const {
+			return handler == other.handler;
+		}
+		bool _Dirent::operator!=(const _Dirent& other) const {
+			return handler != other.handler;
+		}
+		const char* _Dirent::operator*() const {
+			return handler ? handler->ffd.cFileName : nullptr;
+		}
+
+		_Dir::_Dir(const char *pathname): handler(nullptr) {
+			String formatedFilename = sys::path::absolute(pathname);
+			windows::formatPrefix(formatedFilename.cppstring());
+			windows::formatSuffix(formatedFilename.cppstring());
+			WIN32_FIND_DATA ffd;
+			HANDLE handle = FindFirstFile(formatedFilename.cstring(), &ffd);
+			if (handle == INVALID_HANDLE_VALUE)
+				throw Exception("cigmar::sys::_Dir: error opening directory ", pathname);
+			FindClose(handle);
+			handler = new _PlatformDir();
+			handler->internal = formatedFilename;
+		}
+		_Dir::~_Dir() {
+			delete handler;
+		}
+		_Dirent _Dir::begin() {
+			return _Dirent(*this);
+		}
+		_Dirent _Dir::end() {
+			return _Dirent();
+		}
 
 		class Dirent {
 		private:
@@ -201,13 +274,13 @@ namespace cigmar {
 			return entry->ffd.cFileName;
 		}
 
-		int mkdir(const char* pathname) {
+		int makeDirectory(const char* pathname) {
 			String formated = sys::path::absolute(pathname);
 			windows::formatPrefix(formated.cppstring());
 			return _mkdir(formated.cstring());
 		};
 
-		int rmdir(const char* pathname) {
+		int removeDirectory(const char* pathname) {
 			String formated = sys::path::absolute(pathname);
 			windows::formatPrefix(formated.cppstring());
 			return _rmdir(formated.cstring());

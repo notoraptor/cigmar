@@ -1,0 +1,42 @@
+# Reference: https://stackoverflow.com/a/41916657
+cache:
+  directories:
+    - $HOME/.cache/cmake
+
+dist: trusty
+sudo: required
+language:
+  - cpp
+compiler:
+  - gcc
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-6
+      - g++-6
+      - cmake
+before_install:
+  - ./.travis/travis_install_cmake.sh
+install:
+  - sudo add-apt-repository ppa:mc3man/trusty-media -y
+  - sudo apt-get update -q
+  - sudo apt-get install ffmpeg -y
+script:
+  # Export CC and CXX to tell cmake which compiler to use
+  - export CC=/usr/bin/gcc-6
+  - export CXX=/usr/bin/g++-6
+  - export CMAKE=$HOME/.cache/cmake/usr/local/bin/cmake
+  # Check versions of gcc, g++ and cmake
+  - $CMAKE --version
+  - $CC -v
+  - $CXX -v
+  # Run your build commands next
+  - mkdir -p Build
+  - cd Build
+  - $CMAKE .. && make
+  - file cigmar
+  - cd ..
+  - ./Build/cigmar
+

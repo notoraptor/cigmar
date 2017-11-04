@@ -107,9 +107,9 @@ namespace cigmar {
 		String run(const char* command) {
 			String out;
 			char buffer[BUFFER_LENGTH];
-			FileHandler pipe(popen(command, "rb"), pclose);
+			FileHandler pipe(popen(command, "r"), pclose);
 			if (!pipe)
-				throw Exception("cigmar::sys::run(): unable to open stdout.");
+				throw Exception("cigmar::sys::run(): unable to open stdout. ", strerror(errno));
 			while (!feof(pipe)) {
 				if (fgets(buffer, BUFFER_LENGTH, pipe))
 					out << buffer;

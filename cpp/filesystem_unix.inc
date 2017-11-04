@@ -5,6 +5,9 @@
 #include <cigmar/std.hpp>
 #include <cigmar/filesystem.hpp>
 #include <dirent.h>
+#include <unistd.h> // for rmdir()
+#include <sys/stat.h> // for mkdir() and constants like S_IXOTH.
+#include <cassert>
 
 using std::cerr;
 using std::endl;
@@ -12,6 +15,76 @@ using std::endl;
 namespace cigmar {
 
 	namespace sys {
+
+		class _PlatformDir {
+		public:
+			String internal;
+		};
+
+		class _PlatformDirent {
+		private:
+			DIR* directory;
+			Dirent* entry;
+			friend class _Dirent;
+			explicit _PlatformDirent(const String& internalPath):
+					directory(NULL), entry(NULL) {
+				directory = opendir((const char*)internalPath);
+				assert(directory != NULL);
+				entry = readdir(directory);
+				assert(entry != NULL);
+			};
+		public:
+			~_PlatformDirent() {
+				closedir(directory);
+			}
+		};
+
+		_Dirent::_Dirent() {
+			handler = nullptr;
+		}
+		_Dirent::_Dirent(_Dir& dir) {
+			handler = new _PlatformDirent(dir.handler->internal);
+		}
+		_Dirent::~_Dirent() {
+			delete handler;
+		}
+		_Dirent& _Dirent::operator++() {
+			if (handler) {
+				handler->entry = readdir(handler->directory);
+				if (handler->entry == NULL) {
+					delete handler;
+					handler = nullptr;
+				}
+			}
+			return *this;
+		}
+		bool _Dirent::operator==(const _Dirent& other) const {
+			return handler == other.handler;
+		}
+		bool _Dirent::operator!=(const _Dirent& other) const {
+			return handler != other.handler;
+		}
+		const char* _Dirent::operator*() const {
+			return handler ? handler->entry->d_name : nullptr;
+		}
+
+		_Dir::_Dir(const char *pathname): handler(nullptr) {
+			DIR* directory = opendir(pathname);
+			if (directory == NULL)
+				throw Exception("cigmar::sys::_Dir: error opening directory ", pathname);
+			closedir(directory);
+			handler = new _PlatformDir();
+			handler->internal = pathname;
+		}
+		_Dir::~_Dir() {
+			delete handler;
+		}
+		_Dirent _Dir::begin() {
+			return _Dirent(*this);
+		}
+		_Dirent _Dir::end() {
+			return _Dirent();
+		}
 
 		namespace dir {
 
@@ -69,7 +142,7 @@ namespace cigmar {
 			};
 
 			bool isFile(const char* pathname) {
-				/* TODO: This code may fail if pathname is already opened
+				/* TODO: This code may fail if pathname is already opened.
 				 * (e.g. if pathname points to this actual program).
 				 * This need to be tested on Linux. */
 				/* fopen with mode "rb" seems to open directories on Ubuntu.
@@ -87,7 +160,7 @@ namespace cigmar {
 			return entry->d_name;
 		}
 
-		int mkdir(const char* pathname) {
+		int makeDirectory(const char* pathname) {
 			// http://pubs.opengroup.org/onlinepubs/009695399/functions/mkdir.html
 			/*
 			The following line should create a directory with
@@ -97,8 +170,8 @@ namespace cigmar {
 			return mkdir(pathname, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		};
 
-		int rmdir(const char* pathname) {
-			return ::rmdir(pathname);
+		int removeDirectory(const char* pathname) {
+			return rmdir(pathname);
 		};
 
 	}

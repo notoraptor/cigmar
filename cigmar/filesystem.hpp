@@ -8,6 +8,34 @@
 
 namespace cigmar {
 	namespace sys {
+		class _PlatformDirent;
+		class _PlatformDir;
+		class _Dir;
+
+		class _Dirent {
+		private:
+			_PlatformDirent* handler;
+		public:
+			_Dirent();
+			explicit _Dirent(_Dir& dir);
+			~_Dirent();
+			_Dirent& operator++();
+			bool operator==(const _Dirent& other) const;
+			bool operator!=(const _Dirent& other) const;
+			const char* operator*() const;
+		};
+
+		class _Dir {
+		private:
+			_PlatformDir* handler;
+			friend class _Dirent;
+		public:
+			explicit _Dir(const char* pathname);
+			~_Dir();
+			_Dirent begin();
+			_Dirent end();
+		};
+
 		#ifdef WIN32
 		class Dir;
 		class Dirent;
@@ -27,6 +55,7 @@ namespace cigmar {
 			extern const char* const unixSeparator;
 			extern const char* const separator;
 			String norm(const char* pathname);
+			/** Try to remove relative directories "." and "..". **/
 			String resolve(const char* pathname);
 			String absolute(const char* pathname);
 			template<typename... Args> String join(Args... args);
@@ -42,8 +71,8 @@ namespace cigmar {
 
 		String run(const char* command);
 
-		int mkdir(const char* pathname);
-		int rmdir(const char* pathname);
+		int makeDirectory(const char* pathname);
+		int removeDirectory(const char* pathname);
 		/**< Remove empty directory. **/
 
 	}
