@@ -24,7 +24,7 @@ namespace cigmar {
 		class PlatformDirent {
 		private:
 			DIR* directory;
-			Dirent* entry;
+			struct dirent* entry;
 			friend class Dirent;
 			explicit PlatformDirent(const String& internalPath):
 					directory(NULL), entry(NULL) {
@@ -39,7 +39,7 @@ namespace cigmar {
 			}
 		};
 
-		Dirent::_Dirent() {
+		Dirent::Dirent() {
 			handler = nullptr;
 		}
 		Dirent::Dirent(Dir& dir) {
