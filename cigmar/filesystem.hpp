@@ -8,47 +8,33 @@
 
 namespace cigmar {
 	namespace sys {
-		class _PlatformDirent;
-		class _PlatformDir;
-		class _Dir;
+		class PlatformDirent;
+		class PlatformDir;
+		class Dir;
 
-		class _Dirent {
+		class Dirent {
 		private:
-			_PlatformDirent* handler;
+			PlatformDirent* handler;
 		public:
-			_Dirent();
-			explicit _Dirent(_Dir& dir);
-			~_Dirent();
-			_Dirent& operator++();
-			bool operator==(const _Dirent& other) const;
-			bool operator!=(const _Dirent& other) const;
+			Dirent();
+			explicit Dirent(Dir& dir);
+			~Dirent();
+			Dirent& operator++();
+			bool operator==(const Dirent& other) const;
+			bool operator!=(const Dirent& other) const;
 			const char* operator*() const;
 		};
 
-		class _Dir {
+		class Dir {
 		private:
-			_PlatformDir* handler;
-			friend class _Dirent;
+			PlatformDir* handler;
+			friend class Dirent;
 		public:
-			explicit _Dir(const char* pathname);
-			~_Dir();
-			_Dirent begin();
-			_Dirent end();
+			explicit Dir(const char* pathname);
+			~Dir();
+			Dirent begin();
+			Dirent end();
 		};
-
-		#ifdef WIN32
-		class Dir;
-		class Dirent;
-		#else
-		typedef DIR Dir;
-		typedef struct dirent Dirent;
-		#endif
-
-		namespace dir {
-			Dir* open(const char* pathname);
-			int close(Dir* path);
-			Dirent* read(Dir* path);
-		}
 
 		namespace path {
 			extern const char* const windowsSeparator;
@@ -66,8 +52,6 @@ namespace cigmar {
 			bool isRelative(const char* pathname);
 			bool exists(const char* pathname);
 		}
-
-		const char* nameof(Dirent* entry);
 
 		String run(const char* command);
 

@@ -16,17 +16,17 @@ namespace cigmar {
 
 	namespace sys {
 
-		class _PlatformDir {
+		class PlatformDir {
 		public:
 			String internal;
 		};
 
-		class _PlatformDirent {
+		class PlatformDirent {
 		private:
 			DIR* directory;
 			Dirent* entry;
-			friend class _Dirent;
-			explicit _PlatformDirent(const String& internalPath):
+			friend class Dirent;
+			explicit PlatformDirent(const String& internalPath):
 					directory(NULL), entry(NULL) {
 				directory = opendir((const char*)internalPath);
 				assert(directory != NULL);
@@ -34,21 +34,21 @@ namespace cigmar {
 				assert(entry != NULL);
 			};
 		public:
-			~_PlatformDirent() {
+			~PlatformDirent() {
 				closedir(directory);
 			}
 		};
 
-		_Dirent::_Dirent() {
+		Dirent::_Dirent() {
 			handler = nullptr;
 		}
-		_Dirent::_Dirent(_Dir& dir) {
-			handler = new _PlatformDirent(dir.handler->internal);
+		Dirent::Dirent(Dir& dir) {
+			handler = new PlatformDirent(dir.handler->internal);
 		}
-		_Dirent::~_Dirent() {
+		Dirent::~Dirent() {
 			delete handler;
 		}
-		_Dirent& _Dirent::operator++() {
+		Dirent& Dirent::operator++() {
 			if (handler) {
 				handler->entry = readdir(handler->directory);
 				if (handler->entry == NULL) {
@@ -58,48 +58,32 @@ namespace cigmar {
 			}
 			return *this;
 		}
-		bool _Dirent::operator==(const _Dirent& other) const {
+		bool Dirent::operator==(const Dirent& other) const {
 			return handler == other.handler;
 		}
-		bool _Dirent::operator!=(const _Dirent& other) const {
+		bool Dirent::operator!=(const Dirent& other) const {
 			return handler != other.handler;
 		}
-		const char* _Dirent::operator*() const {
+		const char* Dirent::operator*() const {
 			return handler ? handler->entry->d_name : nullptr;
 		}
 
-		_Dir::_Dir(const char *pathname): handler(nullptr) {
+		Dir::Dir(const char *pathname): handler(nullptr) {
 			DIR* directory = opendir(pathname);
 			if (directory == NULL)
-				throw Exception("cigmar::sys::_Dir: error opening directory ", pathname);
+				throw Exception("cigmar::sys::Dir: error opening directory ", pathname);
 			closedir(directory);
-			handler = new _PlatformDir();
+			handler = new PlatformDir();
 			handler->internal = pathname;
 		}
-		_Dir::~_Dir() {
+		Dir::~Dir() {
 			delete handler;
 		}
-		_Dirent _Dir::begin() {
-			return _Dirent(*this);
+		Dirent Dir::begin() {
+			return Dirent(*this);
 		}
-		_Dirent _Dir::end() {
-			return _Dirent();
-		}
-
-		namespace dir {
-
-			Dir* open(const char* pathname) {
-				return opendir(pathname);
-			};
-
-			int close(Dir* path) {
-				return closedir(path);
-			};
-
-			Dirent* read(Dir* path) {
-				return readdir(path);
-			};
-
+		Dirent Dir::end() {
+			return Dirent();
 		}
 
 		namespace path {
@@ -154,10 +138,6 @@ namespace cigmar {
 				if (is) fclose(f);
 				return is;
 			};
-		}
-
-		const char* nameof(Dirent* entry) {
-			return entry->d_name;
 		}
 
 		int makeDirectory(const char* pathname) {

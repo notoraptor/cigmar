@@ -19,30 +19,16 @@ utt(test_separator) {
 }
 
 utt(test_current_dir) {
-	sys::Dir* dir = sys::dir::open(".");
-	sys::Dirent* entry = NULL;
-	utt_assert(dir != NULL);
-	while ((entry = sys::dir::read(dir)) != NULL) {
-		String s = sys::path::join(".", sys::nameof(entry));
+	sys::Dir d(".");
+	for (const char* entry: d) {
+		String s = sys::path::join(".", entry);
 		bool isDirectory = sys::path::isDirectory(s.cstring());
 		bool isFile = sys::path::isFile(s.cstring());
 		utt_assert((isDirectory && !isFile) || (isFile && !isDirectory));
-		if (s.endsWith(String(sys::path::separator, "..")))
-			utt_assert(isDirectory);
-		if (s.endsWith(String(sys::path::separator, ".")))
+		String entryString(entry);
+		if (entryString == "." || entryString == "..")
 			utt_assert(isDirectory);
 	}
-	sys::dir::close(dir);
-}
-
-utt(test_current_dir_class) {
-	sys::_Dir d(".");
-	size_t count = 0;
-	for (const char* entry: d) {
-		++count;
-		std::cerr << entry << std::endl;
-	}
-	std::cerr << "Count: " << count << std::endl;
 }
 
 utt(test_norm) {
@@ -89,14 +75,14 @@ utt(test_run) {
 
 utt(test_mkdir) {
 	const char* dirname = "test_dir";
-	sys::Dir* dir = sys::dir::open(dirname);
-	if (dir) {
+	try {
+		sys::Dir d(dirname);
 		utt_assert(sys::removeDirectory(dirname) == 0);
-		utt_assert(sys::dir::close(dir) == 0);
+	} catch (...) {
+		std::cerr << "super" << std::endl;
 	}
-	utt_assert(sys::makeDirectory(dirname) == 0);
-	dir = sys::dir::open(dirname);
-	utt_assert(dir != NULL);
+    utt_assert(sys::makeDirectory(dirname) == 0);
+    sys::Dir d(dirname);
 }
 
 utt(test_very_long_path) {
@@ -139,14 +125,12 @@ utt(test_very_long_path) {
 	String new_long_dirname = sys::path::join(p, "test_dir");
 	new_long_dirname = sys::path::norm((const char*)new_long_dirname);
 	const char* dirname = new_long_dirname.cstring();
-	sys::Dir* dir = sys::dir::open(dirname);
-	if (dir) {
+	try {
+		sys::Dir dir(dirname);
 		utt_assert(sys::removeDirectory(dirname) == 0);
-		utt_assert(sys::dir::close(dir) == 0);
-	}
+	} catch (...) {}
 	utt_assert(sys::makeDirectory(dirname) == 0);
-	dir = sys::dir::open(dirname);
-	utt_assert(dir != NULL);
+	sys::Dir dir(dirname);
 }
 
 

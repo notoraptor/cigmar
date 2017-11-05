@@ -50,37 +50,37 @@ namespace cigmar {
 
 	namespace sys {
 
-		class _PlatformDir {
+		class PlatformDir {
 		public:
 			String internal;
 		};
 
-		class _PlatformDirent {
+		class PlatformDirent {
 		private:
 			HANDLE handle;
 			WIN32_FIND_DATA ffd;
-			friend class _Dirent;
-			explicit _PlatformDirent(const String& internalPath):
+			friend class Dirent;
+			explicit PlatformDirent(const String& internalPath):
 					handle(INVALID_HANDLE_VALUE) {
 				handle = FindFirstFile(internalPath.cstring(), &ffd);
 				assert(handle != INVALID_HANDLE_VALUE);
 			};
 		public:
-			~_PlatformDirent() {
+			~PlatformDirent() {
 				FindClose(handle);
 			}
 		};
 
-		_Dirent::_Dirent() {
+		Dirent::Dirent() {
 			handler = nullptr;
 		}
-		_Dirent::_Dirent(_Dir& dir) {
-			handler = new _PlatformDirent(dir.handler->internal);
+		Dirent::Dirent(Dir& dir) {
+			handler = new PlatformDirent(dir.handler->internal);
 		}
-		_Dirent::~_Dirent() {
+		Dirent::~Dirent() {
 			delete handler;
 		}
-		_Dirent& _Dirent::operator++() {
+		Dirent& Dirent::operator++() {
 			if (handler) {
 				if (FindNextFile(handler->handle, &handler->ffd) == 0) {
 					delete handler;
@@ -89,107 +89,39 @@ namespace cigmar {
 			}
 			return *this;
 		}
-		bool _Dirent::operator==(const _Dirent& other) const {
+		bool Dirent::operator==(const Dirent& other) const {
 			return handler == other.handler;
 		}
-		bool _Dirent::operator!=(const _Dirent& other) const {
+		bool Dirent::operator!=(const Dirent& other) const {
 			return handler != other.handler;
 		}
-		const char* _Dirent::operator*() const {
+		const char* Dirent::operator*() const {
 			return handler ? handler->ffd.cFileName : nullptr;
 		}
 
-		_Dir::_Dir(const char *pathname): handler(nullptr) {
+		Dir::Dir(const char *pathname): handler(nullptr) {
 			String formatedFilename = sys::path::absolute(pathname);
 			windows::formatPrefix(formatedFilename.cppstring());
 			windows::formatSuffix(formatedFilename.cppstring());
 			WIN32_FIND_DATA ffd;
 			HANDLE handle = FindFirstFile(formatedFilename.cstring(), &ffd);
 			if (handle == INVALID_HANDLE_VALUE)
-				throw Exception("cigmar::sys::_Dir: error opening directory ", pathname);
+				throw Exception("cigmar::sys::Dir: error opening directory: ", pathname);
 			FindClose(handle);
-			handler = new _PlatformDir();
+			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				throw Exception("cigmar::sys::Dir: not a directory: ", pathname);
+			}
+			handler = new PlatformDir();
 			handler->internal = formatedFilename;
 		}
-		_Dir::~_Dir() {
+		Dir::~Dir() {
 			delete handler;
 		}
-		_Dirent _Dir::begin() {
-			return _Dirent(*this);
+		Dirent Dir::begin() {
+			return Dirent(*this);
 		}
-		_Dirent _Dir::end() {
-			return _Dirent();
-		}
-
-		class Dirent {
-		private:
-			WIN32_FIND_DATA ffd;
-			friend class Dir;
-			friend const char* nameof(Dirent* entry);
-		public:
-			bool isDirectory() const {return ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;}
-			bool isFile() const {return !this->isDirectory();}
-		};
-
-		class Dir {
-		private:
-			Dirent entry;
-			HANDLE handle;
-			bool alreadyRead;
-			bool valid;
-		public:
-			Dir(const char* filename) {
-				String formatedFilename = sys::path::absolute(filename);
-				windows::formatPrefix(formatedFilename.cppstring());
-				windows::formatSuffix(formatedFilename.cppstring());
-				handle = FindFirstFile(formatedFilename.cstring(), &entry.ffd);
-				valid = (handle != INVALID_HANDLE_VALUE);
-				alreadyRead = false;
-			}
-			~Dir() {
-				if (handle != INVALID_HANDLE_VALUE)
-					FindClose(handle);
-			}
-			operator bool() const {return valid;}
-			Dirent* next() {
-				if (valid) {
-					if (alreadyRead) {
-						valid = (FindNextFile(handle, &entry.ffd) != 0);
-						/*
-						dwError = GetLastError();
-						if (dwError != ERROR_NO_MORE_FILES) {
-							cout << "final error." << endl;
-							// What to do ?
-						}
-						*/
-					} else {
-						alreadyRead = true;
-					}
-				}
-				return valid ? &entry : NULL;
-			}
-		};
-
-		namespace dir {
-
-			Dir* open(const char* pathname) {
-				Dir* dir = new Dir(pathname);
-				if (!(*dir)) {
-					delete dir;
-					dir = NULL;
-				}
-				return dir;
-			};
-
-			int close(Dir* path) {
-				delete path;
-				return 0;
-			};
-
-			Dirent* read(Dir* path) {
-				return path->next();
-			};
-
+		Dirent Dir::end() {
+			return Dirent();
 		}
 
 		namespace path {
@@ -255,8 +187,12 @@ namespace cigmar {
 			}
 
 			bool isDirectory(const char* pathname) {
-				Dir d(pathname);
-				return d && d.next()->isDirectory();
+				try {
+					Dir d(pathname);
+					return true;
+				} catch (...) {
+					return false;
+				}
 			};
 
 			bool isFile(const char* pathname) {
@@ -268,10 +204,6 @@ namespace cigmar {
 				       !(attributes & FILE_ATTRIBUTE_DIRECTORY);
 			}
 
-		}
-
-		const char* nameof(Dirent* entry) {
-			return entry->ffd.cFileName;
 		}
 
 		int makeDirectory(const char* pathname) {
