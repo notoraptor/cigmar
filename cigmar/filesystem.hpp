@@ -41,7 +41,7 @@ namespace cigmar {
 			extern const char* const unixSeparator;
 			extern const char* const separator;
 			String norm(const char* pathname);
-			/** Try to remove relative directories "." and "..". **/
+			/** Normalize and try to remove relative directories "." and "..". **/
 			String resolve(const char* pathname);
 			String absolute(const char* pathname);
 			template<typename... Args> String join(Args... args);

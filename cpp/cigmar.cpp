@@ -3,6 +3,7 @@
 #include <thread>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/String.hpp>
+#include <cigmar/classes/CString.hpp>
 #include <cigmar/init.hpp>
 #include <cigmar/numbers.hpp>
 
@@ -24,6 +25,9 @@ namespace cigmar {
 		RNG rng;
 	}
 	/** Others definitions. **/
+	const char* CString::empty = "";
+	const char* CString::empty_characters = " \f\n\r\t\v";
+
 	/// Global variables.
 	static std::locale loc;
 	/// Global functions.

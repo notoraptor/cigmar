@@ -1,7 +1,6 @@
 #include <cigmar/unittests.hpp>
 #include <cigmar/classes/String.hpp>
 #include <video/Video.hpp>
-#include <cigmar/print.hpp>
 using namespace cigmar;
 
 /*

@@ -78,9 +78,7 @@ utt(test_mkdir) {
 	try {
 		sys::Dir d(dirname);
 		utt_assert(sys::removeDirectory(dirname) == 0);
-	} catch (...) {
-		std::cerr << "super" << std::endl;
-	}
+	} catch (...) {}
     utt_assert(sys::makeDirectory(dirname) == 0);
     sys::Dir d(dirname);
 }

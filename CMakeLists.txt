@@ -55,6 +55,6 @@ set(SOURCE_FILES
         video/ffmpeg.cpp
         video/ffmpeg.hpp
         main.cpp
-        )
+        cigmar/classes/CString.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})

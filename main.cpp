@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cigmar/classes/String.hpp>
 #include <cigmar/unittests.hpp>
 
 using std::cout;

@@ -51,6 +51,7 @@ public:
 	String(const String& s): member(s.member) {}
 	String(String&& s): member(std::move(s.member)) {}
 	String(const String& s, size_t pos, size_t len = std::string::npos): member(s.member, pos, len) {}
+	String(const char* s, size_t pos, size_t len = std::string::npos): member(s + pos, len) {}
 	String(size_t length, char c): member(length, c) {}
 	// STL
 	String(const std::string& s): member(s) {}
@@ -187,11 +188,11 @@ public:
 		} while(pos != std::string::npos);
 		return *this;
 	}
-	size_t ltrimmable(const String& characters = EMPTY_CHARACTERS) {
+	size_t ltrimmable(const String& characters = EMPTY_CHARACTERS) const {
 		size_t pos = member.find_first_not_of(characters.member);
 		return pos == std::string::npos ? 0 : pos;
 	}
-	size_t rtrimmable(const String& characters = EMPTY_CHARACTERS) {
+	size_t rtrimmable(const String& characters = EMPTY_CHARACTERS) const {
 		size_t pos = member.find_last_not_of(characters.member);
 		return pos == std::string::npos ? 0 : (member.length() - pos - 1);
 	}
