@@ -42,10 +42,12 @@
 		<Unit filename="cigmar/classes/Exception.hpp" />
 		<Unit filename="cigmar/classes/HashMap.hpp" />
 		<Unit filename="cigmar/classes/HashSet.hpp" />
+		<Unit filename="cigmar/classes/Hasher.hpp" />
 		<Unit filename="cigmar/classes/Path.hpp" />
 		<Unit filename="cigmar/classes/Queue.hpp" />
 		<Unit filename="cigmar/classes/Stack.hpp" />
 		<Unit filename="cigmar/classes/String.hpp" />
+		<Unit filename="cigmar/classes/StringView.hpp" />
 		<Unit filename="cigmar/classes/Timer.hpp" />
 		<Unit filename="cigmar/classes/TreeMap.hpp" />
 		<Unit filename="cigmar/classes/TreeSet.hpp" />

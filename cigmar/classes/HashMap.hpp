@@ -4,16 +4,17 @@
 #include <initializer_list>
 #include <unordered_map>
 #include <cigmar/interfaces/Streamable.hpp>
+#include <cigmar/classes/Hasher.hpp>
 
 namespace cigmar {
 
 template<typename K, typename V>
 class HashMap: public Streamable {
 public:
-	typedef std::unordered_map<K, V> map_type;
-	typedef typename std::unordered_map<K, V>::iterator iterator_t;
-	typedef typename std::unordered_map<K, V>::const_iterator const_iterator_t;
-	typedef typename std::unordered_map<K, V>::value_type pair_type;
+	typedef std::unordered_map<K, V, Hasher> map_type;
+	typedef typename map_type::iterator iterator_t;
+	typedef typename map_type::const_iterator const_iterator_t;
+	typedef typename map_type::value_type pair_type;
 	/// iterator->first, iterator->second
 private:
 	map_type m;

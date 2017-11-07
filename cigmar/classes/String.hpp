@@ -26,6 +26,7 @@ public:
 	typedef std::string::iterator iterator_t;
 	typedef std::string::const_iterator const_iterator_t;
 private:
+	void concatenate(std::ostringstream& o) {}
 	template<typename T, typename... Args>
 	void concatenate(std::ostringstream& o, T variable, Args... args) {
 		o << variable;
@@ -36,11 +37,9 @@ private:
 		o << s;
 		concatenate(o, args...);
 	}
-	void concatenate(std::ostringstream& o) {}
-protected:
 public:
 	template<typename... Args>
-	String(Args... args): member() {
+	explicit String(Args... args): member() {
 		std::ostringstream o;
 		o << std::boolalpha;
 		concatenate(o, args...);
@@ -49,7 +48,7 @@ public:
 	String(): member() {}
 	String(const char* s): member(s) {}
 	String(const String& s): member(s.member) {}
-	String(String&& s): member(std::move(s.member)) {}
+	String(String&& s) noexcept: member(std::move(s.member)) {}
 	String(const String& s, size_t pos, size_t len = std::string::npos): member(s.member, pos, len) {}
 	String(const char* s, size_t pos, size_t len = std::string::npos): member(s + pos, len) {}
 	String(size_t length, char c): member(length, c) {}
@@ -57,16 +56,26 @@ public:
 	String(const std::string& s): member(s) {}
 	String(std::string&& s): member(std::move(s)) {}
 
+	String& operator=(const char* s) {
+		member = s;
+		return *this;
+	}
 	String& operator=(const String& other) {
 		member = other.member;
 		return *this;
 	}
-	String& operator=(String&& s) {
+	String& operator=(String&& s) noexcept {
 		member = std::move(s.member);
 		return *this;
 	};
-	String& operator=(const char* s) {
+	// STL
+	String& operator=(const std::string& s) {
 		member = s;
+		return *this;
+	}
+	// STL
+	String& operator=(std::string&& s) noexcept {
+		member = std::move(s);
 		return *this;
 	}
 
@@ -95,18 +104,22 @@ public:
 	const char& operator[](size_t pos) const {return member[pos];}
 	const char& operator[](_LAST) const {return member.back();}
 
+	explicit operator const char*() const {return member.c_str();}
+	explicit operator bool() const {return !member.empty();}
+
+	String operator()() const {return String(*this);}
+	String operator()(size_t pos, size_t len) const {return String(*this, pos, len);}
+
 	std::string& cppstring() {return member;}
 	/**< Give read-write access to internal wrapped std::string object.
-	 * This is acceptable as long as this class uses only a std::string as
+	 * **NB**: This is acceptable as long as this class uses only a std::string as
 	 * internal object and does not have to update any other object when its
 	 * std::string is updated. **/
 	const std::string& cppstring() const {return member;}
 	/**< Give read access to internal wrapped std::string object.
 	 * This allows to use String everywhere a std::string is required. **/
-	explicit operator const char*() const {return member.c_str();}
-	explicit operator bool() const {return !member.empty();}
-	size_t length() const {return member.length();}
 	const char* cstring() const {return member.c_str();}
+	size_t length() const {return member.length();}
 	iterator_t begin() {return member.begin();}
 	iterator_t end() {return member.end();}
 	const_iterator_t begin() const {return member.begin();}
@@ -118,6 +131,11 @@ public:
 	}
 	String& swap(String& other) {
 		member.swap(other.member);
+		return *this;
+	}
+	// STL
+	String& swap(std::string& other) {
+		member.swap(other);
 		return *this;
 	}
 	String& insert(size_t pos, const String& s) {
@@ -221,22 +239,16 @@ public:
 		std::transform(member.begin(), member.end(), member.begin(), Char::upper);
 		return *this;
 	}
-	String& extractTo(String& out, size_t pos, size_t len = std::string::npos) {
-		out.member.assign(member, pos, len);
-		return *this;
-	}
-	const String& extractTo(String& out, size_t pos, size_t len = std::string::npos) const {
-		out.member.assign(member, pos, len);
-		return *this;
-	}
-	size_t extractTo(char* out, size_t pos, size_t len = std::string::npos) const {
+	size_t substringTo(char* out, size_t pos, size_t len = std::string::npos) const {
 		size_t copied = member.copy(out, len, pos);
 		out[copied] = '\0';
 		return copied;
 	}
-	size_t memout(char* out, size_t pos, size_t len = std::string::npos) const {
+	/**< out must be large enough to contains len characters + 1 null-terminal character. **/
+	size_t charactersTo(char* out, size_t pos, size_t len = std::string::npos) const {
 		return member.copy(out, len, pos);
 	}
+	/**< out must be large enough to contains just len characters. **/
 	String substring(size_t pos, size_t len=std::string::npos) const {
 		return String(*this, pos, len);
 	}
@@ -302,10 +314,10 @@ public:
 	pos_t lastIndexOf(const String& s, size_t start = std::string::npos) const {
 		return pos_t::_stringpos(member.rfind(s.member, start));
 	}
-	pos_t lastIndexOf(const char* s, size_t start) const {
+	pos_t lastIndexOf(const char* s, size_t start = std::string::npos) const {
 		return pos_t::_stringpos(member.rfind(s, start));
 	}
-	pos_t lastIndexOf(char c, size_t start) const {
+	pos_t lastIndexOf(char c, size_t start = std::string::npos) const {
 		return pos_t::_stringpos(member.rfind(c, start));
 	}
 
@@ -330,7 +342,5 @@ inline String operator "" _s(const char* s, size_t len) {
 COMPARABLE(String, const char*);
 
 }
-
-HASHABLE(cigmar::String);
 
 #endif // CIGMAR_STRING

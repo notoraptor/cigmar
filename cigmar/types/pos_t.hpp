@@ -189,6 +189,4 @@ COMPARABLE(pos_t, size_t);
 
 }
 
-HASHABLE(cigmar::pos_t);
-
 #endif // CIGMAR_POS_T

@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <initializer_list>
 #include <cigmar/interfaces/Streamable.hpp>
+#include <cigmar/classes/Hasher.hpp>
 
 namespace cigmar {
 
@@ -12,9 +13,9 @@ class HashSet: public Streamable {
 public:
 	typedef T dtype;
 public:
-	typedef std::unordered_set<T> set_type;
-	typedef typename std::unordered_set<T>::iterator iterator_t;
-	typedef typename std::unordered_set<T>::const_iterator const_iterator_t;
+	typedef std::unordered_set<T, Hasher> set_type;
+	typedef typename set_type::iterator iterator_t;
+	typedef typename set_type::const_iterator const_iterator_t;
 private:
 	set_type s;
 public:
