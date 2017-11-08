@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/unittests.hpp>
+#include <cigmar/init.hpp>
 
 using std::cout;
 using std::cerr;

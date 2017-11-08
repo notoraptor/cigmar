@@ -51,6 +51,7 @@ public:
 		o << '{';
 		if (m.size()) {
 			auto it = m.begin();
+			// TODO: If either first or second is not printable, this leads to a compilation error (e.g. with a std::function).
 			o << it->first << ':' << it->second;
 			++it;
 			while(it != m.end()) {

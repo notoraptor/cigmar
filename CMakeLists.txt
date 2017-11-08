@@ -44,6 +44,7 @@ set(SOURCE_FILES
         libraries/whirlpool/Whirlpool.cpp
         libraries/whirlpool/nessie.h
         tests/test_HashMap.cpp
+        tests/test_Path.cpp
         tests/test_Queue.cpp
         tests/test_Stack.cpp
         tests/test_TreeMap.cpp
@@ -55,6 +56,7 @@ set(SOURCE_FILES
         video/ffmpeg.cpp
         video/ffmpeg.hpp
         main.cpp
-        cigmar/classes/StringView.hpp cigmar/utils/Hasher.hpp)
+        cigmar/classes/StringView.hpp
+        cigmar/utils/Hasher.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})

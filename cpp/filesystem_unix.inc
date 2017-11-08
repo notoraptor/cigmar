@@ -117,6 +117,10 @@ namespace cigmar {
 				return pathname[0] == '/';
 			}
 
+			bool isRoot(const char* pathname) {
+				return isRooted(pathname) && pathname[1] == '\0';
+			}
+
 			bool isDirectory(const char* pathname) {
 				String normalized(norm(pathname));
 				DIR* d = opendir((const char*)normalized);

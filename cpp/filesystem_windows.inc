@@ -186,6 +186,10 @@ namespace cigmar {
 				return isalpha(pathname[0]) && pathname[1] == ':' && pathname[2] == '\\';
 			}
 
+			bool isRoot(const char* pathname) {
+				return isRooted(pathname) && pathname[3] == '\0';
+			}
+
 			bool isDirectory(const char* pathname) {
 				try {
 					Dir d(pathname);

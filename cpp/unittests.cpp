@@ -1,71 +1,80 @@
-#include <cstring>
+//
+// Created by notoraptor on 08/11/2017.
+//
 #include <iostream>
-#include <cigmar/time.hpp>
-#include <cigmar/classes/Timer.hpp>
 #include <cigmar/unittests.hpp>
+#include <cigmar/classes/TreeMap.hpp>
+#include <cigmar/classes/String.hpp>
+#include <cigmar/classes/Timer.hpp>
 
-namespace cigmar {
+namespace cigmar::tests {
+	typedef TreeMap<String, UttMethod> TestList;
 
-class UnitTestArray {
-private:
-	UnitTest** array;
-	size_t length;
-	size_t count;
-public:
-	void init() {
-		count = 0;
-		length = 10;
-		array = (UnitTest**)malloc(sizeof(UnitTest*) * length);
-	}
-	void add(UnitTest& ptr) {
-		if (count == length) {
-			size_t new_length = 2 * length;
-			UnitTest** new_array = (UnitTest**)malloc(sizeof(UnitTest*) * new_length);
-			memcpy(new_array, array, sizeof(UnitTest*) * length);
-			free(array);
-			array = new_array;
-			length = new_length;
+	template<typename T> class Dynamic {
+	public:
+		T* pointer;
+	public:
+		~Dynamic() {
+			std::cerr << "End testing." << std::endl;
+			delete pointer;
 		}
-		ptr.unique = false;
-		array[count] = &ptr;
-		++count;
+	};
+
+	static Dynamic<TestList> tests;
+	static bool initialized = false;
+
+	static void init() {
+		if (!initialized) {
+			tests.pointer = new TestList();
+			initialized = true;
+		}
 	}
-	UnitTest** begin() {return array;}
-	UnitTest** end() {return (array + count);}
-	~UnitTestArray() {free(array);}
-};
 
-UnitTestArray testMap;
-bool testMapInitialized = false;
-
-inline void initTestMap() {
-	if (!testMapInitialized) {
-		testMap.init();
-		testMapInitialized = true;
+	UttRecorder::UttRecorder(UttMethod method, const char *className, const char *methodName) {
+		init();
+		TestList& treemap = *tests.pointer;
+		String s(className, ".", methodName);
+		treemap[s] = method;
 	}
-}
 
-namespace tests {
-
-void record(UnitTest& test) {
-	initTestMap();
-	testMap.add(test);
-}
-
-void run() {
-	initTestMap();
-	size_t testsCount = 0;
-	Timer timer;
-	timer.start();
-	for (UnitTest* test: testMap) {
-		(*test)();
+	void run() {
+		init();
+		TestList& treemap = *tests.pointer;
+		Timer timer;
+		timer.start();
+		for (TestList::iterator_t it = treemap.begin(); it != treemap.end(); ++it) {
+			// catch
+			try {
+				// turn
+				try {
+					std::cerr << it->first << " ...";
+					it->second();
+					std::cerr << " ok" << std::endl;
+				} catch (std::string &s) {
+					std::ostringstream os;
+					std::cerr << " ERROR" << std::endl;
+					os << "ERROR: " << it->first << std::endl << s;
+					throw os.str();
+				} catch (...) {
+					std::cerr << " ERROR" << std::endl << std::endl;
+					std::cerr << "ERROR: " << it->first << std::endl;
+					throw;
+				}
+			} catch (std::string& s) {
+				std::cerr << std::endl << s << std::endl;
+				exit(EXIT_FAILURE);
+			} catch(std::exception& e) {
+				std::cerr << std::endl << e.what() << std::endl;
+				exit(EXIT_FAILURE);
+			} catch (...) {
+				std::cerr << std::endl << "(unknown exception)" << std::endl;
+				exit(EXIT_FAILURE);
+			}
+		}
+		double elapsedSeconds = timer.microseconds() * 1e-6;
+		size_t testsCount = treemap.size();
+		std::cerr << std::endl << "Ran " << testsCount << " test" << (testsCount == 1 ? "" : "s") << " in " << elapsedSeconds << 's' << std::endl;
+		std::cerr << std::endl << "OK" << std::endl;
 	}
-	double elapsedSeconds = timer.microseconds() * 1e-6;
-	for (UnitTest* test: testMap)
-		testsCount += test->size();
-	std::cerr << std::endl << "Ran " << testsCount << " test" << (testsCount == 1 ? "" : "s") << " in " << elapsedSeconds << 's' << std::endl;
-	std::cerr << std::endl << "OK" << std::endl;
-}
-}
 
 }

@@ -40,6 +40,7 @@ namespace cigmar {
 			extern const char* const windowsSeparator;
 			extern const char* const unixSeparator;
 			extern const char* const separator;
+			/** Normalize separators and remove any useless trailing separator. **/
 			String norm(const char* pathname);
 			/** Normalize and try to remove relative directories "." and "..". **/
 			String resolve(const char* pathname);
@@ -47,6 +48,7 @@ namespace cigmar {
 			template<typename... Args> String join(Args... args);
 			bool isDirectory(const char* pathname);
 			bool isFile(const char* pathname);
+			bool isRoot(const char* pathname);
 			bool isRooted(const char* pathname);
 			bool isAbsolute(const char* pathname);
 			bool isRelative(const char* pathname);
