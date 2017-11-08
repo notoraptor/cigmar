@@ -4,12 +4,13 @@
 #include <ostream>
 #include <limits>
 #include <cigmar/interfaces/Comparable.hpp>
+#include <cigmar/interfaces/CrossComparable.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/interfaces/Hashable.hpp>
 
 namespace cigmar {
 
-class pos_t: public Comparable<pos_t>, public Streamable, public Hashable {
+class pos_t: public Comparable<pos_t>, public CrossComparable<size_t>, public Streamable, public Hashable {
 private:
 	bool valid;
 	size_t value;
@@ -26,7 +27,7 @@ public:
 	int compare(const pos_t& other) const override {
 		return (!valid && !other.valid) ? 0 : ( value < other.value ? -1 : value - other.value );
 	}
-	int compare(size_t other) const {
+	int crossCompare(size_t other) const override {
 		return (!valid || value < other) ? -1 : value - other;
 	}
 	void toStream(std::ostream& o) const override {
@@ -184,8 +185,6 @@ inline pos_t operator/(size_t a, const pos_t& b) {
 inline pos_t operator%(size_t a, const pos_t& b) {
 	return b ? pos_t(a % (size_t)b) : b;
 }
-
-COMPARABLE(pos_t, size_t);
 
 }
 

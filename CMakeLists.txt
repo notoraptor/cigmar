@@ -57,6 +57,9 @@ set(SOURCE_FILES
         video/ffmpeg.hpp
         main.cpp
         cigmar/classes/StringView.hpp
-        cigmar/utils/Hasher.hpp)
+        cigmar/utils/Hasher.hpp
+        cigmar/interfaces/CrossComparable.hpp
+        tests/test_String.cpp
+        )
 
 add_executable(cigmar ${SOURCE_FILES})

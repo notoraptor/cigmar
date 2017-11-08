@@ -12,6 +12,7 @@
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/classes/Char.hpp>
 #include <cigmar/symbols.hpp>
+#include <cigmar/interfaces/CrossComparable.hpp>
 
 #define EMPTY_CHARACTERS " \f\n\r\t\v"
 
@@ -19,7 +20,13 @@ namespace cigmar {
 
 // Motion fully-defined.
 
-class String: public Streamable, public Hashable, public Comparable<String> {
+typedef const char* ccharseq_t;
+
+class String:
+		public Streamable,
+		public Hashable,
+		public Comparable<String>,
+		public CrossComparable<const char*> {
 private:
 	std::string member;
 public:
@@ -371,7 +378,7 @@ public:
 	int compare(const String& other) const override {
 		return member.compare(other.member);
 	}
-	int compare(const char* other) const {
+	int crossCompare(const char* other) const override {
 		return member.compare(other);
 	}
 };
@@ -379,8 +386,6 @@ public:
 inline String operator "" _s(const char* s, size_t len) {
 	return String(s);
 }
-
-COMPARABLE(String, const char*);
 
 }
 
