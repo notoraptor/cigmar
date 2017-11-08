@@ -15,6 +15,7 @@ utt_begin(TestPath);
 		utt_assert(!path.hasExtension());
 		utt_assert(path.extension() == "");
 		sys::Path parent = path.parent();
-		utt_assert(sys::Path(parent, path.filename()) == path);
+		sys::Path tmp(parent, path.filename());
+		utt_assert(tmp == path);
 	}
 utt_end();

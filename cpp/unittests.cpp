@@ -33,7 +33,7 @@ namespace cigmar::tests {
 	UttRecorder::UttRecorder(UttMethod method, const char *className, const char *methodName) {
 		init();
 		TestList& treemap = *tests.pointer;
-		String s(className, ".", methodName);
+		String s = String::write(className, ".", methodName);
 		treemap[s] = method;
 	}
 

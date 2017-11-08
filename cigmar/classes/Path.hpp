@@ -67,8 +67,18 @@ namespace cigmar::sys {
 		explicit Path(const char* p): m_path(p), states() {init();};
 		explicit Path(const String& p): m_path(p), states() {init();};
 		explicit Path(String&& p): m_path(std::move(p)), states() {init();};
-		Path(const Path& parent, const char* p): m_path(path::join(parent, p)), states() {init();};
-		Path(const Path& parent, const String& p): m_path(path::join(parent, p)), states() {init();};
+		Path(const Path& parent, const char* p): m_path(), states() {
+			if (path::isRooted(p))
+				throw Exception("Cannot build a path with parent when base name is rooted.");
+			m_path = path::join(parent, p);
+			init();
+		};
+		Path(const Path& parent, const String& p): m_path(), states() {
+			if (path::isRooted((const char*)p))
+				throw Exception("Cannot build a path with parent when base name is rooted.");
+			m_path = path::join(parent, p);
+			init();
+		};
 		Path(const Path& p) = default;
 		Path(Path&& p) = default;
 		Path& operator=(const Path&) = default;
@@ -95,6 +105,12 @@ namespace cigmar::sys {
 			}
 			return (bool)states[PATH_STATE_IS_DIRECTORY];
 		};
+		bool isAbsolute() {
+			if (~states[PATH_STATE_IS_ABSOLUTE]) {
+				states[PATH_STATE_IS_ABSOLUTE] = path::isAbsolute((const char*)m_path);
+			}
+			return (bool)states[PATH_STATE_IS_ABSOLUTE];
+		}
 		bool hasExtension() {
 			if (~states[PATH_STATE_HAS_EXTENSION]) {
 				states[PATH_STATE_HAS_EXTENSION] = false;
@@ -136,7 +152,7 @@ namespace cigmar::sys {
 			pos_t posLastSeparator = m_path.lastIndexOf(path::separator);
 			if (!posLastSeparator)
 				return Path(".");
-			return Path(String(m_path, 0, posLastSeparator));
+			return Path(String(m_path, 0, (size_t)posLastSeparator));
 		};
 		String basename() {
 			if (states[PATH_STATE_IS_ROOT]) {
@@ -160,7 +176,7 @@ namespace cigmar::sys {
 		};
 		String extension() {
 			if (hasExtension())
-				return String(m_path, m_path.lastIndexOf('.') + 1);
+				return String(m_path, (size_t)m_path.lastIndexOf('.') + 1);
 			return String("");
 		};
 		Dir directory() {
@@ -172,7 +188,7 @@ namespace cigmar::sys {
 			o << m_path;
 		};
 		int compare(const Path& other) const override {
-			return Path(*this).absolute() == Path(other).absolute();
+			return Path(*this).absolute().m_path.compare(Path(other).absolute().m_path);
 		}
 	};
 

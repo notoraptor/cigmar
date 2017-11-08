@@ -26,25 +26,39 @@ public:
 	typedef std::string::iterator iterator_t;
 	typedef std::string::const_iterator const_iterator_t;
 private:
-	void concatenate(std::ostringstream& o) {}
+	static void concatenate(std::ostringstream& o) {}
 	template<typename T, typename... Args>
-	void concatenate(std::ostringstream& o, T variable, Args... args) {
+	static void concatenate(std::ostringstream& o, T variable, Args... args) {
 		o << variable;
 		concatenate(o, args...);
 	}
 	template<typename... Args>
-	void concatenate(std::ostringstream& o, const char* s, Args... args) {
+	static void concatenate(std::ostringstream& o, const char* s, Args... args) {
 		o << s;
 		concatenate(o, args...);
 	}
-public:
 	template<typename... Args>
-	explicit String(Args... args): member() {
-		std::ostringstream o;
-		o << std::boolalpha;
-		concatenate(o, args...);
-		member = o.str();
+	static void spaceFirst(std::ostringstream& o, const char* s, Args... args) {
+		o << s;
+		spaceNext(o, args...);
 	}
+	template<typename T, typename... Args>
+	static void spaceFirst(std::ostringstream& o, T variable, Args... args) {
+		o << variable;
+		spaceNext(o, args...);
+	}
+	template<typename... Args>
+	static void spaceNext(std::ostringstream& o, const char* s, Args... args) {
+		o << ' ' << s;
+		spaceNext(o, args...);
+	}
+	template<typename T, typename... Args>
+	static void spaceNext(std::ostringstream& o, T variable, Args... args) {
+		o << ' ' << variable;
+		spaceNext(o, args...);
+	}
+	static void spaceNext(std::ostringstream& o) {}
+public:
 	String(): member() {}
 	String(const char* s): member(s) {}
 	String(const String& s): member(s.member) {}
@@ -55,6 +69,33 @@ public:
 	// STL
 	String(const std::string& s): member(s) {}
 	String(std::string&& s): member(std::move(s)) {}
+
+	template<typename... Args> static String println(Args... args) {
+		std::ostringstream o;
+		o << std::boolalpha;
+		spaceFirst(o, args...);
+		o << std::endl;
+		return String(o.str());
+	};
+	template<typename... Args> static String print(Args... args) {
+		std::ostringstream o;
+		o << std::boolalpha;
+		spaceFirst(o, args...);
+		return String(o.str());
+	};
+	template<typename... Args> static String writeln(Args... args) {
+		std::ostringstream o;
+		o << std::boolalpha;
+		concatenate(o, args...);
+		o << std::endl;
+		return String(o.str());
+	};
+	template<typename... Args> static String write(Args... args) {
+		std::ostringstream o;
+		o << std::boolalpha;
+		concatenate(o, args...);
+		return String(o.str());
+	}
 
 	String& operator=(const char* s) {
 		member = s;

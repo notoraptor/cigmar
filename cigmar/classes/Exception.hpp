@@ -20,7 +20,7 @@ namespace cigmar {
         explicit Exception(const std::exception& exc): std::exception(), message(exc.what()) {}
         Exception(const Exception& other) noexcept: std::exception(), message(other.message) {}
         template<typename... Args>
-        explicit Exception(Args... args): std::exception(), message(args...) {}
+        explicit Exception(Args... args): std::exception(), message(String::write(args...)) {}
         Exception& operator=(const Exception& other) {
             message = other.message;
             return *this;
