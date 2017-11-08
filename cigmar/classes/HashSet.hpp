@@ -4,7 +4,7 @@
 #include <unordered_set>
 #include <initializer_list>
 #include <cigmar/interfaces/Streamable.hpp>
-#include <cigmar/classes/Hasher.hpp>
+#include <cigmar/utils/Hasher.hpp>
 
 namespace cigmar {
 

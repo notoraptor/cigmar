@@ -4,7 +4,7 @@
 #include <initializer_list>
 #include <unordered_map>
 #include <cigmar/interfaces/Streamable.hpp>
-#include <cigmar/classes/Hasher.hpp>
+#include <cigmar/utils/Hasher.hpp>
 
 namespace cigmar {
 

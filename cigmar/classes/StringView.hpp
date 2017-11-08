@@ -1,6 +1,4 @@
-//
-// Created by HPPC on 05/11/2017.
-//
+/* Work In Progress. */
 
 #ifndef CIGMAR_CSTRING_HPP
 #define CIGMAR_CSTRING_HPP
