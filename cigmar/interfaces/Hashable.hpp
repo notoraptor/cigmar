@@ -10,10 +10,13 @@ namespace cigmar {
 	};
 }
 
-template<> struct std::hash<cigmar::Hashable> {
-	size_t operator()(const cigmar::Hashable& o) const {
-		return o.hash();
-	}
-};
+namespace std {
+	template<>
+	struct hash<cigmar::Hashable> {
+		size_t operator()(const cigmar::Hashable &o) const {
+			return o.hash();
+		}
+	};
+}
 
 #endif
