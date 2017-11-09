@@ -32,8 +32,8 @@ public:
 	T& operator[](size_t pos) {return mem[pos];}
 	const T& operator[](size_t pos) const {return mem[pos];}
 
-	T& operator[](_LAST) {return mem[length - 1];}
-	const T& operator[](_LAST) const {return mem[length - 1];}
+	T& operator[](last_t) {return mem[length - 1];}
+	const T& operator[](last_t) const {return mem[length - 1];}
 
 	explicit operator T*() {return mem;}
 	explicit operator const T*() const {return mem;}

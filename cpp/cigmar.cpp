@@ -19,7 +19,7 @@
 /** Initialization of global symbols and variables. **/
 
 namespace cigmar {
-	_LAST LAST;
+	last_t LAST;
 	CigmarInit cigmar_init;
 	namespace numbers {
 		RNG rng;

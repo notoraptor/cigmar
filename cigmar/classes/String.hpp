@@ -20,8 +20,6 @@ namespace cigmar {
 
 // Motion fully-defined.
 
-typedef const char* ccharseq_t;
-
 class String:
 		public Streamable,
 		public Hashable,
@@ -148,15 +146,16 @@ public:
 	}
 
 	char& operator[](size_t pos) {return member[pos];}
-	char& operator[](_LAST) {return member.back();}
+	char& operator[](last_t) {return member.back();}
 	const char& operator[](size_t pos) const {return member[pos];}
-	const char& operator[](_LAST) const {return member.back();}
+	const char& operator[](last_t) const {return member.back();}
 
 	explicit operator const char*() const {return member.c_str();}
 	explicit operator bool() const {return !member.empty();}
 
 	String operator()() const {return String(*this);}
 	String operator()(size_t pos, size_t len) const {return String(*this, pos, len);}
+	String operator()(size_t pos, last_t last) const {return String(*this, pos);}
 
 	std::string& cppstring() {return member;}
 	/**< Give read-write access to internal wrapped std::string object.
@@ -256,7 +255,7 @@ public:
 	}
 	size_t ltrimmable(const String& characters = EMPTY_CHARACTERS) const {
 		size_t pos = member.find_first_not_of(characters.member);
-		return pos == std::string::npos ? 0 : pos;
+		return pos == std::string::npos ? length() : pos;
 	}
 	size_t rtrimmable(const String& characters = EMPTY_CHARACTERS) const {
 		size_t pos = member.find_last_not_of(characters.member);

@@ -35,9 +35,9 @@ class Tensor; // Sophisticated N-D array.
 
 // TODO: Remove definition of LAST, or make it more elegant.
 
-class _LAST {};
+class last_t {};
 
-extern _LAST LAST;
+extern last_t LAST;
 
 /* Definition of static trait `is_iterable<type>::value`
 https://stackoverflow.com/a/29634934
@@ -45,7 +45,7 @@ https://ideone.com/ExTsEO
 (2017/09/24)
 */
 
-namespace traits {
+namespace {
     // To allow ADL with custom begin/end
     using std::begin;
     using std::end;
@@ -64,7 +64,7 @@ namespace traits {
 }
 
 template <typename T>
-using is_iterable = decltype(traits::is_iterable_impl<T>(0));
+using is_iterable = decltype(is_iterable_impl<T>(0));
 /**<
 ~~~~
 cigmar::is_iterable<MyType>::value
@@ -72,7 +72,7 @@ cigmar::is_iterable<MyType>::value
 
 Type trait to statically check if a symbol T
 is iterable according to C++ standard library
-iteration model (ie. with begin() and end()
+iteration model (ie. with `begin()` and `end()`
 methods/functions.
 
 Reference (2017/09/24):

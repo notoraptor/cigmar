@@ -25,7 +25,7 @@ public:
 	ArrayList(size_t n, T val = T()): vec(n, val) {}
 	template<typename C>
 	ArrayList(const C& arr): vec() {
-		static_assert(is_iterable<C>::value, "Iterable type required to instantiate an ArrayList.");
+		static_assert(is_iterable<C>::value, "Iterable type is required for ArrayList instanciation.");
 		vec.assign(arr.begin(), arr.end());
 	}
 	ArrayList(std::initializer_list<T> il): vec(il) {}
@@ -84,8 +84,8 @@ public:
 	T& operator[](size_t pos) {return vec[pos];}
 	const T& operator[](size_t pos) const {return vec[pos];}
 
-	T& operator[](_LAST) {return vec.back();}
-	const T& operator[](_LAST) const {return vec.back();}
+	T& operator[](last_t) {return vec.back();}
+	const T& operator[](last_t) const {return vec.back();}
 
 	explicit operator T*() {return vec.data();}
 	explicit operator const T*() const {return vec.data();}

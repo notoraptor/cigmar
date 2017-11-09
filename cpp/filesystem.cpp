@@ -75,6 +75,41 @@ namespace cigmar {
 			bool exists(const char* pathname) {
 				return isFile(pathname) || isDirectory(pathname);
 			};
+			bool hasExtension(const char* pathname) {
+				String p(pathname);
+				pos_t posLastPoint = p.lastIndexOf('.');
+				if (posLastPoint) {
+					pos_t posLastSeparator = p.lastIndexOf(separator);
+					return !posLastSeparator || (posLastSeparator < posLastPoint);
+				}
+				return false;
+			};
+			String dirname(const char* pathname) {
+				String p(pathname);
+				if (isRoot(pathname))
+					throw Exception("Root path does not have parent directory.");
+				if (p == "." || p == "..")
+					throw Exception("Consider calling absolute() before dirname() for path ", p);
+				pos_t posLastSeparator = p.lastIndexOf(separator);
+				return posLastSeparator ? String(p, 0, (size_t)posLastSeparator) : ".";
+			};
+			String basename(const char* pathname) {
+				String p(pathname);
+				if (p == "." || p == "..")
+					throw Exception("Consider calling absolute() before basename() for path ", p);
+				if (isRoot(pathname))
+					return pathname;
+				pos_t posLastSeparator = p.lastIndexOf(separator);
+				return posLastSeparator ? String(p, (size_t)posLastSeparator + 1) : p;
+			};
+			String filename(const char* pathname) {
+				String bn = basename(pathname);
+				pos_t posLastPoint = bn.lastIndexOf('.');
+				return posLastPoint ? String(bn, 0, (size_t)posLastPoint) : bn;
+			};
+			String extension(const char* pathname) {
+				return hasExtension(pathname) ? String(strchr(pathname, '.') + 1) : "";
+			};
 		}
 
 		class FileHandler {

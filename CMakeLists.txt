@@ -5,22 +5,23 @@ set(CMAKE_CXX_STANDARD 11)
 include_directories(${PROJECT_SOURCE_DIR})
 set(SOURCE_FILES
         cigmar/base64.hpp
+        cigmar/classes/array_t.hpp
         cigmar/classes/ArrayList.hpp
         cigmar/classes/Char.hpp
         cigmar/classes/Exception.hpp
         cigmar/classes/HashMap.hpp
         cigmar/classes/HashSet.hpp
-        cigmar/classes/Path.hpp
         cigmar/classes/Queue.hpp
         cigmar/classes/Stack.hpp
         cigmar/classes/String.hpp
+        cigmar/classes/StringView.hpp
         cigmar/classes/Timer.hpp
         cigmar/classes/TreeMap.hpp
         cigmar/classes/TreeSet.hpp
-        cigmar/classes/array_t.hpp
         cigmar/filesystem.hpp
         cigmar/init.hpp
         cigmar/interfaces/Comparable.hpp
+        cigmar/interfaces/CrossComparable.hpp
         cigmar/interfaces/Hashable.hpp
         cigmar/interfaces/Streamable.hpp
         cigmar/numbers.hpp
@@ -31,6 +32,7 @@ set(SOURCE_FILES
         cigmar/types/pos_t.hpp
         cigmar/unittests.hpp
         cigmar/utils.hpp
+        cigmar/utils/Hasher.hpp
         cigmar/whirlpool.hpp
         cpp/base64.cpp
         cpp/cigmar.cpp
@@ -41,25 +43,21 @@ set(SOURCE_FILES
         cpp/whirlpool.cpp
         libraries/base64/base64.hpp
         libraries/json/json.hpp
-        libraries/whirlpool/Whirlpool.cpp
         libraries/whirlpool/nessie.h
-        tests/test_HashMap.cpp
-        tests/test_Path.cpp
-        tests/test_Queue.cpp
-        tests/test_Stack.cpp
-        tests/test_TreeMap.cpp
+        libraries/whirlpool/Whirlpool.cpp
+        main.cpp
         tests/test_cigmar.cpp
         tests/test_filesystem.cpp
+        tests/test_HashMap.cpp
+        tests/test_Queue.cpp
+        tests/test_Stack.cpp
+        tests/test_String.cpp
         tests/test_time.cpp
+        tests/test_TreeMap.cpp
         tests/test_video.cpp
-        video/Video.hpp
         video/ffmpeg.cpp
         video/ffmpeg.hpp
-        main.cpp
-        cigmar/classes/StringView.hpp
-        cigmar/utils/Hasher.hpp
-        cigmar/interfaces/CrossComparable.hpp
-        tests/test_String.cpp
-        )
+        video/Video.hpp
+        cigmar/hex.hpp tests/test_encodings.cpp tests/test_arrays.cpp)
 
 add_executable(cigmar ${SOURCE_FILES})

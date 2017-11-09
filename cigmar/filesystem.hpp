@@ -1,6 +1,7 @@
 #ifndef CIGMAR_FILESYSTEM
 #define CIGMAR_FILESYSTEM
 
+#include <cigmar/classes/Exception.hpp>
 #include <cigmar/classes/String.hpp>
 #ifndef WIN32
 #include <dirent.h>
@@ -45,6 +46,10 @@ namespace cigmar {
 			/** Normalize and try to remove relative directories "." and "..". **/
 			String resolve(const char* pathname);
 			String absolute(const char* pathname);
+			String dirname(const char* pathname);
+			String basename(const char* pathname);
+			String filename(const char* pathname);
+			String extension(const char* pathname);
 			template<typename... Args> String join(Args... args);
 			bool isDirectory(const char* pathname);
 			bool isFile(const char* pathname);
@@ -53,6 +58,7 @@ namespace cigmar {
 			bool isAbsolute(const char* pathname);
 			bool isRelative(const char* pathname);
 			bool exists(const char* pathname);
+			bool hasExtension(const char* pathname);
 		}
 
 		String run(const char* command);
@@ -67,18 +73,29 @@ namespace cigmar {
 namespace cigmar {
 	namespace sys {
 		namespace path {
-			inline void concatenate(std::ostringstream& o) {}
-			template<typename T, typename... Args>
-			void concatenate(std::ostringstream& o, T variable, Args... args) {
-				if (!o.str().empty())
-					o << separator;
-				o << variable;
-				concatenate(o, args...);
+			namespace {
+				inline void concatenate(std::ostringstream &o) {}
+
+				template<typename T, typename... Args>
+				void concatenate(std::ostringstream &o, T variable, Args... args) {
+					std::ostringstream temp;
+					temp << variable;
+					if (isRooted(temp.str().c_str()))
+						throw Exception("Cannot build path with rooted element inside.");
+					o << separator << temp.str();
+					concatenate(o, args...);
+				}
+
+				template<typename T, typename... Args>
+				void concatenateFirst(std::ostringstream &o, T variable, Args... args) {
+					o << variable;
+					concatenate(o, args...);
+				}
 			}
 			template<typename... Args>
 			String join(Args... args) {
 				std::ostringstream o;
-				concatenate(o, args...);
+				concatenateFirst(o, args...);
 				return String(o.str());
 			};
 		}
