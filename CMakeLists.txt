@@ -31,7 +31,6 @@ set(SOURCE_FILES
         src/cigmar/time.hpp
         src/cigmar/types/pos_t.hpp
         src/cigmar/unittests.hpp
-        src/cigmar/utils.hpp
         src/cigmar/utils/Hasher.hpp
         src/cigmar/whirlpool.hpp
         src/cpp/base64.cpp

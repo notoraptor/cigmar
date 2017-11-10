@@ -10,7 +10,7 @@ namespace sys {
 	template<typename... Args> void writeln(Args... args);
 	template<typename... Args> void write(Args... args);
 	namespace err {
-		template<typename... Args> void println(Args... args);
+		template<typename... Args> void println(Args&&... args);
 		template<typename... Args> void print(Args... args);
 		template<typename... Args> void writeln(Args... args);
 		template<typename... Args> void write(Args... args);
@@ -30,14 +30,14 @@ namespace sys {
 	inline void printElement(std::ostream& o) {};
 	inline void printFirstElement(std::ostream& o) {};
 	template<typename T, typename... Args>
-	void printElement(std::ostream& o, T variable, Args... args) {
+	void printElement(std::ostream& o, T&& variable, Args&&... args) {
 		o << ' ' << variable;
-		printElement(o, args...);
+		printElement(o, std::forward<Args>(args)...);
 	}
 	template<typename T, typename... Args>
-	void printFirstElement(std::ostream& o, T variable, Args... args) {
+	void printFirstElement(std::ostream& o, T&& variable, Args&&... args) {
 		o << variable;
-		printElement(o, args...);
+		printElement(o, std::forward<Args>(args)...);
 	}
 	//
 	template<typename... Args> void println(Args... args) {
@@ -55,8 +55,8 @@ namespace sys {
 		writeRawElement(std::cout, args...);
 	};
 	namespace err {
-		template<typename... Args> void println(Args... args) {
-			printFirstElement(std::cerr, args...);
+		template<typename... Args> void println(Args&&... args) {
+			printFirstElement(std::cerr, std::forward<Args>(args)...);
 			std::cerr << std::endl;
 		};
 		template<typename... Args> void print(Args... args) {
