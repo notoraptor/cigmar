@@ -15,7 +15,7 @@ private:
 	unsigned int _seed;
 	std::default_random_engine generator;
 public:
-	RNG(): generator() {
+	RNG() noexcept : generator() {
 		_seed = std::chrono::system_clock::now().time_since_epoch().count();
 		generator.seed(_seed);
 	}

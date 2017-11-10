@@ -7,7 +7,7 @@ namespace cigmar {
 
 class CigmarInit {
 public:
-	CigmarInit() {
+	CigmarInit() noexcept {
 		std::cout << std::boolalpha;
 		std::cerr << std::boolalpha;
 		std::set_terminate(CigmarInit::terminate);

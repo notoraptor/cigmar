@@ -203,9 +203,7 @@ namespace cigmar {
 				std::string formatedFilename((const char*)sys::path::absolute(pathname));
 				windows::formatPrefix(formatedFilename);
 				DWORD attributes = GetFileAttributes(formatedFilename.c_str());
-				return (attributes == INVALID_FILE_ATTRIBUTES) ?
-				       false :
-				       !(attributes & FILE_ATTRIBUTE_DIRECTORY);
+				return attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_DIRECTORY);
 			}
 
 		}

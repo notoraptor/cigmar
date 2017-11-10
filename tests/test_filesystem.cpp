@@ -51,7 +51,7 @@ utt(test_resolve) {
 }
 
 utt(test_join) {
-	string a = "a/b/c/d\\e\\f\\g";
+	string a = R"(a/b/c/d\e\f\g)";
 	string b = "h/i/j";
 	string c = "k\\something\\l/m";
 	string sep(sys::path::separator);

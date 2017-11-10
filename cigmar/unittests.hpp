@@ -15,7 +15,7 @@ namespace cigmar::tests {
 
 	class UttRecorder {
 	public:
-		UttRecorder(UttMethod method, const char* className, const char* methodName);
+		UttRecorder(UttMethod method, const char* className, const char* methodName) noexcept ;
 	};
 
 	void run();

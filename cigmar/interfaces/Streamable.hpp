@@ -8,7 +8,7 @@ namespace cigmar {
 class Streamable {
 public:
 	virtual void toStream(std::ostream& o) const = 0;
-	virtual ~Streamable() {}
+	virtual ~Streamable() = default;
 };
 
 std::ostream& operator<<(std::ostream& o, const Streamable& s);
