@@ -10,5 +10,4 @@ cigmar.layout
 cmake-build-debug
 obj
 release
-test_dir
 tests/Lion.*.jpg
