@@ -117,7 +117,7 @@ public:
 	const char* toCString() const {
 		switch (type) {
 			case DataType::CSTRING:
-				data.cstring;
+				return data.cstring;
 				break;
 			case DataType::STRING:
 				return data.string.cstring();
@@ -150,9 +150,10 @@ void check(const GenericString& g) {
 }
 
 int main() {
-	// tests::run();
 	check("I am a C-string.");
 	check(String("I am a Cigmar String."));
 	check(std::string("I am a C++ string."));
+	tests::run();
 	return 0;
 }
+
