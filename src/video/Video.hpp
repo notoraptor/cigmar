@@ -5,39 +5,38 @@
 #ifndef CIGMAR_VIDEO_HPP
 #define CIGMAR_VIDEO_HPP
 
+#include <cstdint>
 #include <cmath>
 #include <cigmar/filesystem.hpp>
 #include <cigmar/classes/String.hpp>
 #include <libraries/json/json.hpp>
 #include <cigmar/classes/Exception.hpp>
-
-using Json = nlohmann::json;
+#include <cigmar/interfaces/Streamable.hpp>
+#include <cigmar/whirlpool.hpp>
+#include <video/ffmpeg.hpp>
+#include <chrono>
 
 // TODO: PNG: http://lodev.org/lodepng/
 // TODO: https://en.wikipedia.org/wiki/Netpbm#PAM_graphics_format
 
 namespace cigmar::video {
-	class Video;
 
-	namespace ffmpeg {
-		/** Call ``ffprobe`` to get video infos in JSON format. **/
-		String infos(const String& filename);
-		bool thumbnail(const Video& video, int number = 0);
-	}
-
-	class Video {
+	class Video: public Streamable {
 	private:
 		String filename;
 		String format;
 		String audioCodec;
 		String videoCodec;
+		int64_t dateAddedMicroseconds;
 		size_t size;
 		size_t width;
 		size_t height;
 		double duration;
 		double frameRate;
 		double sampleRate;
+		String stringId;
 	private:
+		typedef nlohmann::json Json;
 		template<typename T> void extractValue(const std::string& in, T& out) {
 			std::stringstream ss;
 			ss << in;
@@ -107,18 +106,26 @@ namespace cigmar::video {
 				if (std::isnan(sampleRate))
 					sampleRate = 44100; // Let's say 44100 Hz.
 			}
+			dateAddedMicroseconds =
+					std::chrono::duration_cast<std::chrono::microseconds>(
+							std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 		}
 	public:
+		static const char* thumbnailExtension;
+		static bool extensionIsSupported(const String& extension);
+	public:
 		explicit Video(const String& filepath):
-				filename(filepath), format(), audioCodec(), videoCodec(),
+				filename(filepath), format(), audioCodec(), videoCodec(), stringId(), dateAddedMicroseconds(0),
 				size(0), width(0), height(0), duration(0), frameRate(0), sampleRate(0) {
 			getInfos();
 		};
 		explicit Video(String&& filepath):
-				filename(std::move(filepath)), format(), audioCodec(), videoCodec(),
+				filename(std::move(filepath)), format(), audioCodec(), videoCodec(), stringId(), dateAddedMicroseconds(0),
 				size(0), width(0), height(0), duration(0), frameRate(0), sampleRate(0) {
 			getInfos();
 		};
+		Video(const Video&) = default;
+		Video(Video&&) = default;
 
 		const String& getFilename() const { return filename; }
 		const String& getFormat() const { return format; }
@@ -130,6 +137,21 @@ namespace cigmar::video {
 		double getDuration() const { return duration; }
 		double getFrameRate() const { return frameRate; }
 		double getSampleRate() const { return sampleRate; }
+		int64_t getDateAddedMicroseconds() const {
+			return dateAddedMicroseconds;
+		}
+
+		const String& getId() {
+			if (!stringId) stringId = crypto::hash::whirlpool(sys::path::absolute((const char*)filename));
+			return stringId;
+		}
+		String getId() const {
+			return crypto::hash::whirlpool(sys::path::absolute((const char*)filename));;
+		}
+
+		void toStream(std::ostream& o) const override {
+			o << "Video(" << filename << ")";
+		}
 	};
 
 }

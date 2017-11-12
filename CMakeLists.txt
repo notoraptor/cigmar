@@ -57,6 +57,9 @@ set(SOURCE_FILES
         src/video/ffmpeg.cpp
         src/video/ffmpeg.hpp
         src/video/Video.hpp
-        src/cigmar/hex.hpp src/tests/test_encodings.cpp src/tests/test_arrays.cpp)
+        src/cigmar/hex.hpp
+        src/tests/test_encodings.cpp
+        src/tests/test_arrays.cpp
+        src/cigmar/file/Lines.hpp src/video/utils.hpp src/cigmar/file/writer/Text.hpp src/cigmar/file/writer/Binary.hpp src/video/Database.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
