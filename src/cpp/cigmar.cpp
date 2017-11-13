@@ -59,7 +59,7 @@ namespace cigmar {
 	}
 
 	/// Namespace definitions.
-	namespace numbers {
+	namespace numbers::random {
 		RNG rng;
 	}
 	namespace time {

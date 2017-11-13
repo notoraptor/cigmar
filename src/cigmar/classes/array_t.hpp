@@ -4,28 +4,47 @@
 #include <cstring>
 #include <cigmar/symbols.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
+#include <cigmar/interfaces/Collection.hpp>
+#include <cigmar/classes/Exception.hpp>
+#include <cigmar/classes/StaticCollection.hpp>
 
 namespace cigmar {
 
 // Motion fully-defined.
 
 template<typename T, size_t N>
-class array_t: public Streamable {
+class array_t: public Streamable, public Collection<T, T*, const T*> {
 private:
 	T mem[N];
 public:
-	typedef T dtype;
 	const size_t length = N;
 public:
 	array_t() {}
-	array_t(T val) {
+	explicit array_t(T val) {
 		if (val == 0) memset(mem, 0, length * sizeof(T));
 		else for (size_t i = 0; i < length; ++i) mem[i] = val;
 	}
+	template<typename A, typename B, typename C>
+	explicit array_t(const Collection<A, B, C>& collection) {
+		if (collection.size() > size())
+			throw Exception("Cannot create an array_t of size " , size(),
+			                " from a collection with bigger size ", collection.size() ,".");
+		size_t i = 0;
+		auto cit = collection.begin();
+		auto cend = collection.end();
+		while (cit != cend) {
+			mem[i] = *cit;
+			++cit;
+			++i;
+		}
+		if (i < size())
+			memset(mem + i, 0, (size() - i) * sizeof(T));
+	};
+	array_t(std::initializer_list<T> il): array_t(StaticCollection<T>(il)) {}
 	array_t(const array_t&) = delete;
-	array_t(array_t&&) = default;
+	array_t(array_t&&) noexcept = default;
 	void operator=(const array_t&) = delete;
-	array_t& operator=(array_t&&) = default;
+	array_t& operator=(array_t&&) noexcept = default;
 
 	size_t size() const {return length;}
 

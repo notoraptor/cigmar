@@ -4,6 +4,7 @@
 #include <cigmar/print.hpp>
 #include <video/utils.hpp>
 #include <cigmar/file/writer/Binary.hpp>
+#include <cigmar/classes/StaticCollection.hpp>
 
 using std::cout;
 using std::cerr;
@@ -24,8 +25,18 @@ const char* jstring = R"(
 
 */
 
+class A {
+public:
+	A() {}
+	A(const A&) {
+		sys::err::print("{copied}");
+	}
+	A(A&&) {
+		sys::err::print("{moved}");
+	}
+};
+
 int main() {
-	// tests::run();
 	const char* foldername = "res/video";
 	const char* dbname = "mydb.db.tsv";
 	ArrayList<video::Video> videos = video::loadVideosFromDirectory(foldername);
@@ -35,6 +46,7 @@ int main() {
 	for(const video::Video& video: videos) {
 		outfile << video::TsvVideoRecorder(video) << ENDL;
 	}
+	tests::run();
 	return 0;
 }
 

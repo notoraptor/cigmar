@@ -13,13 +13,19 @@ set(SOURCE_FILES
         src/cigmar/classes/HashSet.hpp
         src/cigmar/classes/Queue.hpp
         src/cigmar/classes/Stack.hpp
+        src/cigmar/classes/StaticCollection.hpp
         src/cigmar/classes/String.hpp
         src/cigmar/classes/StringView.hpp
         src/cigmar/classes/Timer.hpp
         src/cigmar/classes/TreeMap.hpp
         src/cigmar/classes/TreeSet.hpp
+        src/cigmar/file/Lines.hpp
+        src/cigmar/file/writer/Binary.hpp
+        src/cigmar/file/writer/Text.hpp
         src/cigmar/filesystem.hpp
+        src/cigmar/hex.hpp
         src/cigmar/init.hpp
+        src/cigmar/interfaces/Collection.hpp
         src/cigmar/interfaces/Comparable.hpp
         src/cigmar/interfaces/CrossComparable.hpp
         src/cigmar/interfaces/Hashable.hpp
@@ -45,7 +51,9 @@ set(SOURCE_FILES
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
         src/main.cpp
+        src/tests/test_arrays.cpp
         src/tests/test_cigmar.cpp
+        src/tests/test_encodings.cpp
         src/tests/test_filesystem.cpp
         src/tests/test_HashMap.cpp
         src/tests/test_Queue.cpp
@@ -54,12 +62,11 @@ set(SOURCE_FILES
         src/tests/test_time.cpp
         src/tests/test_TreeMap.cpp
         src/tests/test_video.cpp
+        src/video/Database.hpp
         src/video/ffmpeg.cpp
         src/video/ffmpeg.hpp
+        src/video/utils.hpp
         src/video/Video.hpp
-        src/cigmar/hex.hpp
-        src/tests/test_encodings.cpp
-        src/tests/test_arrays.cpp
-        src/cigmar/file/Lines.hpp src/video/utils.hpp src/cigmar/file/writer/Text.hpp src/cigmar/file/writer/Binary.hpp src/video/Database.hpp)
+        )
 
 add_executable(cigmar ${SOURCE_FILES})

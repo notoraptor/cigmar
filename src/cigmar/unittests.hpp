@@ -23,7 +23,7 @@ namespace cigmar::tests {
 	inline void utt_assert_bool(bool condition, const char* else_message = nullptr) {
 		if (!condition) {
 			std::ostringstream s;
-			s << "Error occurred (seed: " << numbers::rng.seed() << ')' << std::endl;
+			s << "Error occurred (seed: " << numbers::random::rng.seed() << ')' << std::endl;
 			if (else_message)
 				s << "Assertion failed:" << std::endl << else_message;
 			else

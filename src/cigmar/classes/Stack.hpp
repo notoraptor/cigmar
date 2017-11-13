@@ -4,11 +4,14 @@
 #include <forward_list>
 #include <initializer_list>
 #include <cigmar/symbols.hpp>
+#include <cigmar/interfaces/Collection.hpp>
 
 namespace cigmar {
 
 template<typename T>
-class Stack {
+class Stack: public Collection<T,
+		typename std::forward_list<T>::iterator,
+		typename std::forward_list<T>::const_iterator> {
 private:
 	template<typename E>
 	struct StackElementPusher {
@@ -32,11 +35,11 @@ private:
 	size_t length;
 public:
 	Stack() : content(), length(0) {}
-	template<typename C>
-	Stack(const C& arr): content(), length(0) {pushAll(arr);}
+	template<typename A, typename I, typename C>
+	explicit Stack(const Collection<A, I, C>& arr): content(), length(0) {pushAll(arr);}
 	Stack(std::initializer_list<T> il): content(), length(0) {pushAll(il);}
 	Stack(const Stack& other): content(other.content), length(other.length) {}
-	Stack(Stack&&) = default;
+	Stack(Stack&&) noexcept = default;
 
 	size_t size() const {return length;}
 
@@ -84,7 +87,7 @@ public:
 		length = other.length;
 		return *this;
 	}
-	Stack& operator=(Stack&&) = default;
+	Stack& operator=(Stack&&) noexcept = default;
 	Stack& operator=(std::initializer_list<T> il) {
 		content.clear();
 		length = 0;

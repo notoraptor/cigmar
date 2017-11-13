@@ -6,34 +6,15 @@
 #include <random>
 #include <functional>
 #include <type_traits>
+#include <cigmar/interfaces/Collection.hpp>
 
-namespace cigmar {
-namespace numbers {
+#define COLLECTION_TEMPLATE typename T, typename I, typename C
+#define COLLECTION Collection<T, I, C>
 
-class RNG {
-private:
-	unsigned int _seed;
-	std::default_random_engine generator;
-public:
-	RNG() noexcept : generator() {
-		_seed = std::chrono::system_clock::now().time_since_epoch().count();
-		generator.seed(_seed);
-	}
-	std::default_random_engine& get() {
-		return generator;
-	}
-	unsigned int seed() const {return _seed;}
-	RNG& seed(unsigned int s) {
-		_seed = s;
-		generator.seed(s);
-		return *this;
-	}
-};
+namespace cigmar::numbers {
 
-extern RNG rng;
-
-template<typename C>
-C& arange(C& arr) {
+template<COLLECTION_TEMPLATE>
+COLLECTION& arange(COLLECTION& arr) {
 	size_t c = 0;
 	for (auto& x: arr) {
 		x = c;
@@ -42,69 +23,69 @@ C& arange(C& arr) {
 	return arr;
 }
 
-template<typename C>
-C& zeros(C& arr) {
+template<COLLECTION_TEMPLATE>
+COLLECTION& zeros(COLLECTION& arr) {
 	for (auto& x: arr) x = 0;
 	return arr;
 }
 
-template<typename C>
-C& ones(C& arr) {
+template<COLLECTION_TEMPLATE>
+COLLECTION& ones(COLLECTION& arr) {
 	for (auto& x: arr) x = 1;
 	return arr;
 }
 
-template<typename C, typename T>
-C& fill(C& arr, T value) {
+template<COLLECTION_TEMPLATE, typename V>
+COLLECTION& fill(COLLECTION& arr, V value) {
 	for (auto& x: arr) x = value;
 	return arr;
 }
 
-template<typename C, typename T>
-C& add(C& arr, T value) {
+template<COLLECTION_TEMPLATE, typename V>
+COLLECTION& add(COLLECTION& arr, V value) {
 	for (auto& x: arr) x += value;
 	return arr;
 }
 
-template<typename C, typename T>
-C& sub(C& arr, T value) {
+template<COLLECTION_TEMPLATE, typename V>
+COLLECTION& sub(COLLECTION& arr, V value) {
 	for (auto& x: arr) x -= value;
 	return arr;
 }
 
-template<typename C, typename T>
-C& mul(C& arr, T value) {
+template<COLLECTION_TEMPLATE, typename V>
+COLLECTION& mul(COLLECTION& arr, V value) {
 	for (auto& x: arr) x *= value;
 	return arr;
 }
 
-template<typename C, typename T>
-C& div(C& arr, T value) {
+template<COLLECTION_TEMPLATE, typename V>
+COLLECTION& div(COLLECTION& arr, V value) {
 	for (auto& x: arr) x /= value;
 	return arr;
 }
 
-template<typename C, typename T>
-C& mod(C& arr, T value) {
+template<COLLECTION_TEMPLATE, typename V>
+COLLECTION& mod(COLLECTION& arr, V value) {
 	for (auto& x: arr) x %= value;
 	return arr;
 }
 
-template<typename C, typename O = typename C::dtype>
-void sum(C& arr, O& out, bool reset = true) {
+template<COLLECTION_TEMPLATE, typename O = typename COLLECTION::dtype>
+void sum(const COLLECTION& arr, O& out, bool reset = true) {
 	if (reset) out = 0;
 	for(auto& x: arr) out += x;
 }
 
-template<typename C, typename O = typename C::dtype>
-O sum(C& arr) {
-	O out = 0;
+template<COLLECTION_TEMPLATE>
+T sum(const COLLECTION& arr) {
+	T out = 0;
 	for (auto& x: arr) out += x;
 	return out;
 }
 
-template<typename C, typename O = typename C::dtype>
-O prod(C& arr) {
+template<COLLECTION_TEMPLATE, typename O = typename COLLECTION::dtype>
+O prod(const COLLECTION& arr) {
 	O out = 1;
 	for (auto& x: arr) out *= x;
 	return out;
@@ -112,9 +93,31 @@ O prod(C& arr) {
 
 namespace random {
 
-	template<typename C, typename A, typename B>
-	C& uniform(C& arr, A a, B b) {
-		typedef typename C::dtype dtype;
+	class RNG {
+	private:
+		unsigned int m_seed;
+		std::default_random_engine generator;
+	public:
+		RNG() noexcept : generator() {
+			m_seed = std::chrono::system_clock::now().time_since_epoch().count();
+			generator.seed(m_seed);
+		}
+		std::default_random_engine& get() {
+			return generator;
+		}
+		unsigned int seed() const {return m_seed;}
+		RNG& seed(unsigned int s) {
+			m_seed = s;
+			generator.seed(s);
+			return *this;
+		}
+	};
+
+	extern RNG rng;
+
+	template<COLLECTION_TEMPLATE, typename A, typename B>
+	COLLECTION& uniform(COLLECTION& arr, A a, B b) {
+		typedef typename COLLECTION::dtype dtype;
 		typedef typename std::conditional<
 			std::is_integral<dtype>::value,
 			std::uniform_int_distribution<dtype>,
@@ -125,9 +128,9 @@ namespace random {
 		return arr;
 	}
 
-	template<typename C, typename N>
-	C& binomial(C& arr, N n, double p) {
-		typedef typename C::dtype dtype;
+	template<COLLECTION_TEMPLATE, typename N>
+	COLLECTION& binomial(COLLECTION& arr, N n, double p) {
+		typedef typename COLLECTION::dtype dtype;
 		static_assert(
 			std::is_integral<N>{},
 			"binomial distribution: parameter 'n' must be an integer type."
@@ -137,9 +140,9 @@ namespace random {
 		return arr;
 	}
 
-	template<typename C>
-	C& normal(C& arr, double mu, double sigma) {
-		typedef typename C::dtype dtype;
+	template<COLLECTION_TEMPLATE>
+	COLLECTION& normal(COLLECTION& arr, double mu, double sigma) {
+		typedef typename COLLECTION::dtype dtype;
 		static_assert(
 			std::is_signed<dtype>{},
 			"normal distribution is forbidden for signed types, as it may generate negative values."
@@ -150,19 +153,21 @@ namespace random {
 	}
 }
 
-template<typename C, typename dtype = typename C::dtype, typename F = std::function<bool(dtype)>>
+template<COLLECTION_TEMPLATE, typename dtype = typename COLLECTION::dtype, typename F = std::function<bool(dtype)>>
 bool all(const C& arr, F elemwiseChecker) {
 	for (const dtype& x: arr) if (!elemwiseChecker(x)) return false;
 	return true;
 }
 
-template<typename C, typename dtype = typename C::dtype, typename F = std::function<bool(dtype)>>
+template<COLLECTION_TEMPLATE, typename dtype = typename COLLECTION::dtype, typename F = std::function<bool(dtype)>>
 bool any(const C& arr, F elemwiseChecker) {
 	for (const dtype& x: arr) if (elemwiseChecker(x)) return true;
 	return false;
 }
 
 }
-}
+
+#undef COLLECTION_TEMPLATE
+#undef COLLECTION
 
 #endif // CIGMAR_INTEGER

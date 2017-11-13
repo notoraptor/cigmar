@@ -6,31 +6,29 @@
 #include <initializer_list>
 #include <cigmar/symbols.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
+#include <cigmar/interfaces/Collection.hpp>
 
 namespace cigmar {
 
 // Motion fully-defined.
 
 template<typename T>
-class ArrayList: public Streamable {
+class ArrayList:
+		public Streamable,
+		public Collection<T, typename std::vector<T>::iterator, typename std::vector<T>::const_iterator> {
 private:
 	std::vector<T> vec;
 public:
-	typedef T dtype;
-	// NB: "typename" here is mandatory.
 	typedef typename std::vector<T>::iterator iterator_t;
 	typedef typename std::vector<T>::const_iterator const_iterator_t;
 
 	ArrayList(): vec() {}
-	ArrayList(size_t n, T val = T()): vec(n, val) {}
-	template<typename C>
-	ArrayList(const C& arr): vec() {
-		static_assert(is_iterable<C>::value, "Iterable type is required for ArrayList instanciation.");
-		vec.assign(arr.begin(), arr.end());
-	}
+	explicit ArrayList(size_t n, T val = T()): vec(n, val) {}
+	template<typename A, typename I, typename C>
+	ArrayList(const Collection<A, I, C>& arr): vec(arr.begin(), arr.end()) {}
 	ArrayList(std::initializer_list<T> il): vec(il) {}
 	ArrayList(const ArrayList& copied): vec(copied.vec) {}
-	ArrayList(ArrayList&&) = default;
+	ArrayList(ArrayList&&) noexcept = default;
 
 	size_t size() const {return vec.size();}
 	size_t capacity() const {return vec.capacity();}
@@ -79,7 +77,7 @@ public:
 	ArrayList& reserve(size_t n) {vec.reserve(n); return *this;}
 
 	void operator=(const ArrayList&) = delete;
-	ArrayList& operator=(ArrayList&&) = default;
+	ArrayList& operator=(ArrayList&&) noexcept = default;
 
 	T& operator[](size_t pos) {return vec[pos];}
 	const T& operator[](size_t pos) const {return vec[pos];}

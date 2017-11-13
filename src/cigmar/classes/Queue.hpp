@@ -4,11 +4,14 @@
 #include <forward_list>
 #include <initializer_list>
 #include <cigmar/symbols.hpp>
+#include <cigmar/interfaces/Collection.hpp>
 
 namespace cigmar {
 
 template<typename T>
-class Queue {
+class Queue: public Collection<T,
+		typename std::forward_list<T>::iterator,
+		typename std::forward_list<T>::const_iterator> {
 private:
 	template<typename E>
 	struct QueueElementPusher {
@@ -33,11 +36,11 @@ private:
 	size_t length;
 public:
 	Queue(): content(), last_it(content.before_begin()), length(0) {}
-	template<typename C>
-	Queue(const C& arr): Queue() {pushAll(arr);}
+	template<typename A, typename I, typename C>
+	explicit Queue(const Collection<A, I, C>& arr): Queue() {pushAll(arr);}
 	Queue(std::initializer_list<T> il): Queue() {pushAll(il);}
 	Queue(const Queue& other): Queue() {pushAll(other.content);}
-	Queue(Queue&&) = default;
+	Queue(Queue&&) noexcept = default;
 
 	size_t size() const {return length;}
 	Queue& push(const T& val) {
@@ -90,7 +93,7 @@ public:
 		pushAll(other.content);
 		return *this;
 	}
-	Queue& operator=(Queue&&) = default;
+	Queue& operator=(Queue&&) noexcept = default;
 	Queue& operator=(std::initializer_list<T> il) {
 		clear();
 		pushAll(il);
