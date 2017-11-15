@@ -7,9 +7,10 @@
 #include <cigmar/init.hpp>
 #include <cigmar/numbers.hpp>
 #include <video/Video.hpp>
-#include <video/utils.hpp>
+#include <cigmar/classes/HashSet.hpp>
+#include <cigmar/file/Lines.hpp>
 
-#define STRING(a) const char* a = #a
+// #define STRING(a) const char* a = #a
 
 /* NB:
  * To have all C++11 thread functionalities available, compiler must be POSIX compliant.
@@ -94,56 +95,6 @@ namespace cigmar {
 				supportedExtensionsInitialized = true;
 			}
 			return supportedExtensions.contains(extension);
-		}
-
-		namespace strings {
-			STRING(id);
-			STRING(path);
-			STRING(dateAddedMicroseconds);
-			STRING(format);
-			STRING(frameRate);
-			STRING(sampleRate);
-			STRING(size);
-			STRING(duration);
-			STRING(audioCodec);
-			STRING(videoCodec);
-			STRING(width);
-			STRING(height);
-			STRING(notation);
-			STRING(thumbnail);
-		}
-		const char* TsvVideoRecorder::fields[] = {
-				strings::id,
-				strings::format,
-				strings::frameRate,
-				strings::sampleRate,
-				strings::audioCodec,
-				strings::videoCodec,
-				strings::size,
-				strings::duration,
-				strings::width,
-				strings::height,
-				strings::notation,
-				strings::thumbnail,
-				strings::dateAddedMicroseconds,
-				strings::path
-		};
-		const size_t TsvVideoRecorder::fieldsCount = 14;
-		void TsvVideoRecorder::header(std::ostream &o) {
-			o << strings::id;
-			o << '\t' << strings::format;
-			o << '\t' << strings::frameRate;
-			o << '\t' << strings::sampleRate;
-			o << '\t' << strings::audioCodec;
-			o << '\t' << strings::videoCodec;
-			o << '\t' << strings::size;
-			o << '\t' << strings::duration;
-			o << '\t' << strings::width;
-			o << '\t' << strings::height;
-			o << '\t' << strings::notation;
-			o << '\t' << strings::thumbnail;
-			o << '\t' << strings::dateAddedMicroseconds;
-			o << '\t' << strings::path;
 		}
 	}
 }

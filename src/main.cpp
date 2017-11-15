@@ -2,9 +2,8 @@
 #include <cigmar/unittests.hpp>
 #include <cigmar/file/Lines.hpp>
 #include <cigmar/print.hpp>
-#include <video/utils.hpp>
 #include <cigmar/file/writer/Binary.hpp>
-#include <cigmar/classes/StaticCollection.hpp>
+#include <video/database/Database.hpp>
 
 using std::cout;
 using std::cerr;
@@ -25,26 +24,17 @@ const char* jstring = R"(
 
 */
 
-class A {
-public:
-	A() {}
-	A(const A&) {
-		sys::err::print("{copied}");
-	}
-	A(A&&) {
-		sys::err::print("{moved}");
-	}
-};
-
 int main() {
 	const char* foldername = "res/video";
 	const char* dbname = "mydb.db.tsv";
-	ArrayList<video::Video> videos = video::loadVideosFromDirectory(foldername);
+	ArrayList<video::Video> videos = video::database::loadFromDirectory(foldername);
 	file::writer::Binary outfile(sys::path::join(foldername, dbname));
 	sys::err::println(videos.size(), "videos.");
-	outfile << video::TsvVideoRecorder::header() << ENDL;
-	for(const video::Video& video: videos) {
-		outfile << video::TsvVideoRecorder(video) << ENDL;
+
+	auto tsv = video::database::tsv();
+	outfile << tsv.getHeader() << ENDL;
+	for (const video::Video& video: videos) {
+		outfile << tsv.getRow(video) << ENDL;
 	}
 	tests::run();
 	return 0;

@@ -62,11 +62,11 @@ set(SOURCE_FILES
         src/tests/test_time.cpp
         src/tests/test_TreeMap.cpp
         src/tests/test_video.cpp
-        src/video/Database.hpp
+        src/video/database/Database.hpp
         src/video/ffmpeg.cpp
         src/video/ffmpeg.hpp
         src/video/utils.hpp
         src/video/Video.hpp
-        )
+        src/cigmar/format/tsv.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
