@@ -50,6 +50,8 @@ set(SOURCE_FILES
         src/libraries/json/json.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
+        src/libraries/sqlite/sqlite3.h
+        src/libraries/sqlite/sqlite3.c
         src/main.cpp
         src/tests/test_arrays.cpp
         src/tests/test_cigmar.cpp
@@ -67,6 +69,6 @@ set(SOURCE_FILES
         src/video/ffmpeg.hpp
         src/video/utils.hpp
         src/video/Video.hpp
-        src/cigmar/format/tsv.hpp)
+        src/cigmar/format/tsv.hpp src/cigmar/math/Fraction.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
