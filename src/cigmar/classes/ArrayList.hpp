@@ -7,6 +7,7 @@
 #include <cigmar/symbols.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/interfaces/Collection.hpp>
+#include <cigmar/types/pos_t.hpp>
 
 namespace cigmar {
 
@@ -76,6 +77,17 @@ public:
 
 	ArrayList& reserve(size_t n) {vec.reserve(n); return *this;}
 
+	pos_t indexOf(const T& val) const {
+		size_t pos = 0;
+		for (size_t i = 0; i < vec.size(); ++i) {
+			if (vec[i] == val) {
+				pos = i;
+				break;
+			}
+		}
+		return pos_t(pos != vec.size(), pos);
+	}
+
 	void operator=(const ArrayList&) = delete;
 	ArrayList& operator=(ArrayList&&) noexcept = default;
 
@@ -88,6 +100,13 @@ public:
 	explicit operator T*() {return vec.data();}
 	explicit operator const T*() const {return vec.data();}
 	explicit operator bool() const {return vec.empty();}
+
+	bool operator==(const ArrayList& other) const {
+		return vec == other.vec;
+	}
+	bool operator!=(const ArrayList& other) const {
+		return vec != other.vec;
+	}
 
 	iterator_t begin() {return vec.begin();}
 	iterator_t end() {return vec.end();}
@@ -104,7 +123,6 @@ public:
 		o << ']';
 	}
 };
-
 }
 
 #endif // CIGMAR_ARRAYLIST

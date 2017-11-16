@@ -17,5 +17,17 @@ namespace cigmar {
 			Base64::Decode(in.cppstring(), out.cppstring());
 			return out;
 		}
+		namespace bytes {
+			String encode(const byte_t* in, size_t len) {
+				ArrayList<char> out(Base64::EncodedLength(len) + 1, '\0');
+				Base64::Encode((const char*)in, len, (char*)out, out.size());
+				return String((const char*)out);
+			};
+			ArrayList<byte_t> decode(const String& in) {
+				ArrayList<byte_t> out((size_t)Base64::DecodedLength((const char*)in, in.length()));
+				Base64::Decode((const char*)in, in.length(), (char*)(byte_t*)out, out.size());
+				return out;
+			};
+		}
 	}
 }

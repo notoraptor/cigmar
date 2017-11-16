@@ -11,6 +11,10 @@ namespace cigmar {
 	namespace base64 {
 		String encode(const String& in);
 		String decode(const String& in);
+		namespace bytes {
+			String encode(const byte_t* in, size_t len);
+			ArrayList<byte_t> decode(const String& in);
+		}
 	}
 }
 

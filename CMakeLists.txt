@@ -69,6 +69,6 @@ set(SOURCE_FILES
         src/video/ffmpeg.hpp
         src/video/utils.hpp
         src/video/Video.hpp
-        src/cigmar/format/tsv.hpp src/cigmar/math/Fraction.hpp)
+        src/cigmar/format/tsv.hpp src/cigmar/math/Fraction.hpp src/tests/test_math.cpp src/cigmar/sqlite.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
