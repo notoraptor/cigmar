@@ -3,7 +3,7 @@
 #include <cigmar/file/Lines.hpp>
 #include <cigmar/print.hpp>
 #include <cigmar/file/writer/Binary.hpp>
-#include <video/database/Database.hpp>
+#include <video/database.hpp>
 #include <cigmar/sqlite.hpp>
 #include <cigmar/file/text/read.hpp>
 

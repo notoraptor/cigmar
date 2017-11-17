@@ -70,7 +70,7 @@ set(SOURCE_FILES
         src/tests/test_time.cpp
         src/tests/test_TreeMap.cpp
         src/tests/test_video.cpp
-        src/video/database/Database.hpp
+        src/video/database.hpp
         src/video/ffmpeg.cpp
         src/video/ffmpeg.hpp
         src/video/Video.hpp

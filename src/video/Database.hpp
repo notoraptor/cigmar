@@ -144,6 +144,15 @@ namespace cigmar::video::database {
 		int64_t getId() const {return collection_id;}
 		const String& getName() const {return collection_name;}
 		const String& getThumbnailExtension() const {return thumbnail_extension;}
+		size_t countFolders() {
+			auto query = db->query("SELECT COUNT(video_folder_id) FROM video_folder");
+			size_t count = 0;
+			while (query) {
+				count = (size_t)query.getInt64(0);
+				++query;
+			}
+			return count;
+		}
 		bool folderExists(const String& dirname) {
 			String absolutePath = sys::path::absolute((const char*)dirname);
 			auto query = db->query(
@@ -210,11 +219,20 @@ namespace cigmar::video::database {
 		explicit Database(const char* dbname): db(dbname) {
 			ensureDatabaseStructure();
 		}
+		size_t countCollections() {
+			auto query = db.query("SELECT COUNT(collection_id) FROM collection");
+			size_t count = 0;
+			while (query) {
+				count = (size_t)query.getInt64(0);
+				++query;
+			}
+			return count;
+		}
 		bool collectionExists(const String& name) {
 			auto query = db.query("SELECT COUNT(collection_id) FROM collection WHERE collection_name = ?", name);
-			int count = 0;
+			int64_t count = 0;
 			while (query) {
-				count = query.getInt(0);
+				count = query.getInt64(0);
 				++query;
 			}
 			return count == 1;
