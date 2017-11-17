@@ -49,7 +49,9 @@ int main() {
 	const char* foldername = "res/video";
 	ArrayList<video::Video> videos = video::database::collect(foldername);
 	sys::err::println(videos.size(), "videos.");
-	// tests::run();
+
+	tests::run();
+
 	return 0;
 }
 

@@ -17,14 +17,14 @@ class TreeSet:
 				typename std::set<T, std::function<bool(const T&, const T&)>>::const_iterator> {
 public:
 	typedef T dtype;
-public:
 	typedef std::function<bool(const T&, const T&)> less_type;
 	typedef std::set<T, less_type> set_type;
 	typedef typename std::set<T, less_type>::iterator iterator_t;
 	typedef typename std::set<T, less_type>::const_iterator const_iterator_t;
 private:
-	set_type s;
 	static bool less_than(const T& a, const T& b) {return a < b;}
+private:
+	set_type s;
 public:
 	explicit TreeSet(less_type c = less_than): s(c) {}
 	template<typename A, typename I, typename C>
@@ -33,7 +33,10 @@ public:
 	TreeSet(const TreeSet& other): s(other.s) {}
 	TreeSet(TreeSet&&) noexcept = default;
 
-	TreeSet& operator=(TreeSet&&) noexcept = default;
+	TreeSet& operator=(TreeSet&& moved) noexcept {
+		s = std::move(moved.s);
+		return *this;
+	};
 	TreeSet& operator=(std::initializer_list<T> il) {
 		s = il;
 		return *this;
