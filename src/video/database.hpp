@@ -10,6 +10,7 @@
 #include <cigmar/classes/HashMap.hpp>
 #include <cigmar/classes/HashSet.hpp>
 #include <cigmar/classes/TreeSet.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
 
 namespace cigmar::video::database {
 
@@ -53,7 +54,7 @@ namespace cigmar::video::database {
 
 	class VideoCollection;
 
-	class Folder {
+	class Folder: public Streamable {
 		friend class VideoCollection;
 	public:
 		struct Report {
@@ -120,6 +121,9 @@ namespace cigmar::video::database {
 			return report;
 		}
 	public:
+		void toStream(std::ostream& o) const override {
+			o << absolute_path;
+		}
 		Folder(): db(nullptr), collection(nullptr), video_folder_id(-1), absolute_path() {}
 		explicit operator bool() const {return (bool)db;}
 		int64_t getId() const {return video_folder_id;}
@@ -187,6 +191,17 @@ namespace cigmar::video::database {
 			}
 			assert(count == 1);
 			return Folder(*db, *this, id, absolutePath);
+		}
+		ArrayList<Folder> getFolders() {
+			ArrayList<Folder> folders;
+			auto query = db->query("SELECT video_folder_id, absolute_path FROM video_folder WHERE collection_id = ?", collection_id);
+			while (query) {
+				int64_t id = query.getInt64(0);
+				String absolutePath = query.getText(1);
+				folders.add(Folder(*db, *this, id, absolutePath));
+				++query;
+			}
+			return folders;
 		}
 	};
 

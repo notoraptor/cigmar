@@ -44,6 +44,8 @@ int main() {
 	} else {
 		folder = collection.createFolder(folderName);
 	}
+	sys::err::println(database.countCollections(), "collection(s)");
+	sys::err::println(collection.countFolders(), "folder(s)");
 	sys::err::println(collection.getId(), collection.getName(), collection.getThumbnailExtension());
 	sys::err::println(folder.getId(), folder.getAbsolutePath());
 	const char* foldername = "res/video";
