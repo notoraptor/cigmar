@@ -225,6 +225,12 @@ namespace cigmar::sqlite {
 			bind(stmt, pos + 1, std::forward<Args>(args)...);
 		}
 		template<typename... Args>
+		void bind(sqlite3_stmt* stmt, int pos, size_t value, Args&&... args) {
+			if (sqlite3_bind_int64(stmt, pos, value) != SQLITE_OK)
+				throw Exception("Unable to bind 64-bits integer value to SQLite statement.");
+			bind(stmt, pos + 1, std::forward<Args>(args)...);
+		}
+		template<typename... Args>
 		void bind(sqlite3_stmt* stmt, int pos, const void* null, Args&&... args) {
 			if (null)
 				throw Exception("Expected a null value to bind to SQLite statement.");
@@ -237,6 +243,10 @@ namespace cigmar::sqlite {
 			if (sqlite3_bind_text(stmt, pos, cstring, -1, SQLITE_STATIC) != SQLITE_OK)
 				throw Exception("Unable to bind static C-string value to SQLite statement.");
 			bind(stmt, pos + 1, std::forward<Args>(args)...);
+		}
+		template<typename... Args>
+		void bind(sqlite3_stmt* stmt, int pos, const String& str, Args&&... args) {
+			bind(stmt, pos, Dynamic((const char*)str), std::forward<Args>(args)...);
 		}
 		template<typename T, typename... Args>
 		void bind(sqlite3_stmt* stmt, int pos, sqlite::Binding<T> binding, Args&&... args) {
@@ -285,6 +295,21 @@ namespace cigmar::sqlite {
 				throw;
 			}
 			return Query(db, statement);
+		}
+		template<typename... Args>
+		Query query(const String& sql, Args&&... bindings) {
+			return query((const char*)sql, std::forward<Args>(bindings)...);
+		}
+		template<typename... Args>
+		void run(const char* sql, Args&&... bindings) {
+			query(sql, std::forward<Args>(bindings)...).run();
+		}
+		template<typename... Args>
+		void run(const String& sql, Args&&... bindings) {
+			query((const char*)sql, std::forward<Args>(bindings)...).run();
+		}
+		int64_t lastId() {
+			return sqlite3_last_insert_rowid(db);
 		}
 	};
 }

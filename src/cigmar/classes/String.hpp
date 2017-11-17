@@ -259,17 +259,21 @@ public:
 	}
 	size_t rtrimmable(const String& characters = EMPTY_CHARACTERS) const {
 		size_t pos = member.find_last_not_of(characters.member);
-		return pos == std::string::npos ? 0 : (member.length() - pos - 1);
+		return pos == std::string::npos ? length() : (member.length() - pos - 1);
 	}
 	String& ltrim(const String& characters = EMPTY_CHARACTERS) {
 		size_t pos = member.find_first_not_of(characters.member);
-		if (pos != std::string::npos)
+		if (pos == std::string::npos)
+			member.clear();
+		else
 			member.erase(0, pos);
 		return *this;
 	}
 	String& rtrim(const String& characters = EMPTY_CHARACTERS) {
 		size_t pos = member.find_last_not_of(characters.member);
-		if (pos != std::string::npos)
+		if (pos == std::string::npos)
+			member.clear();
+		else
 			member.erase(pos + 1);
 		return *this;
 	}

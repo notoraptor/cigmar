@@ -20,9 +20,11 @@ set(SOURCE_FILES
         src/cigmar/classes/TreeMap.hpp
         src/cigmar/classes/TreeSet.hpp
         src/cigmar/file/Lines.hpp
+        src/cigmar/file/text/read.hpp
         src/cigmar/file/writer/Binary.hpp
         src/cigmar/file/writer/Text.hpp
         src/cigmar/filesystem.hpp
+        src/cigmar/format/tsv.hpp
         src/cigmar/hex.hpp
         src/cigmar/init.hpp
         src/cigmar/interfaces/Collection.hpp
@@ -30,8 +32,10 @@ set(SOURCE_FILES
         src/cigmar/interfaces/CrossComparable.hpp
         src/cigmar/interfaces/Hashable.hpp
         src/cigmar/interfaces/Streamable.hpp
+        src/cigmar/math/Fraction.hpp
         src/cigmar/numbers.hpp
         src/cigmar/print.hpp
+        src/cigmar/sqlite.hpp
         src/cigmar/std.hpp
         src/cigmar/symbols.hpp
         src/cigmar/time.hpp
@@ -41,6 +45,7 @@ set(SOURCE_FILES
         src/cigmar/whirlpool.hpp
         src/cpp/base64.cpp
         src/cpp/cigmar.cpp
+        src/cpp/file/text/read.cpp
         src/cpp/filesystem.cpp
         src/cpp/filesystem_unix.inc
         src/cpp/filesystem_windows.inc
@@ -48,16 +53,17 @@ set(SOURCE_FILES
         src/cpp/whirlpool.cpp
         src/libraries/base64/base64.hpp
         src/libraries/json/json.hpp
+        src/libraries/sqlite/sqlite3.c
+        src/libraries/sqlite/sqlite3.h
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        src/libraries/sqlite/sqlite3.h
-        src/libraries/sqlite/sqlite3.c
         src/main.cpp
         src/tests/test_arrays.cpp
         src/tests/test_cigmar.cpp
         src/tests/test_encodings.cpp
         src/tests/test_filesystem.cpp
         src/tests/test_HashMap.cpp
+        src/tests/test_math.cpp
         src/tests/test_Queue.cpp
         src/tests/test_Stack.cpp
         src/tests/test_String.cpp
@@ -67,8 +73,7 @@ set(SOURCE_FILES
         src/video/database/Database.hpp
         src/video/ffmpeg.cpp
         src/video/ffmpeg.hpp
-        src/video/utils.hpp
         src/video/Video.hpp
-        src/cigmar/format/tsv.hpp src/cigmar/math/Fraction.hpp src/tests/test_math.cpp src/cigmar/sqlite.hpp)
+        )
 
 add_executable(cigmar ${SOURCE_FILES})

@@ -13,10 +13,10 @@ Tested file: tests/Lion.ogv
 utt_begin(TestVideo);
 
 	utt(test_video) {
-		String folder = "res/tests";
+		String folder = "res/video";
 		String filename = "Lion.ogv";
 		video::Video v(sys::path::join(folder, filename));
-		utt_assert(v.getFilename() == sys::path::join(folder, filename));
+		utt_assert(v.getAbsolutePath() == sys::path::absolute((const char*)sys::path::join(folder, filename)));
 		utt_assert(v.getAudioCodec() == "vorbis");
 		utt_assert(v.getVideoCodec() == "theora");
 		utt_assert(v.getFormat() == "Ogg");
@@ -27,7 +27,7 @@ utt_begin(TestVideo);
 		utt_assert(v.getHeight() == 300);
 		utt_assert(v.getDuration() > 84);
 		utt_assert(v.getDuration() < 85);
-		utt_assert(video::ffmpeg::thumbnail(v, 1));
+		// utt_assert(video::ffmpeg::thumbnail(v, 1));
 	}
 
 	utt(test_video_folder) {

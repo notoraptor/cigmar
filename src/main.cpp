@@ -5,6 +5,7 @@
 #include <cigmar/file/writer/Binary.hpp>
 #include <video/database/Database.hpp>
 #include <cigmar/sqlite.hpp>
+#include <cigmar/file/text/read.hpp>
 
 using std::cout;
 using std::cerr;
@@ -26,40 +27,29 @@ const char* jstring = R"(
 */
 
 int main() {
-	sqlite::Dataabase db("res/test.db");
-	sqlite::Query query = db.query(
-		"CREATE TABLE IF NOT EXISTS entries (ID INTEGER PRIMARY KEY AUTOINCREMENT, value VARCHAR(32))"
-	);
-	sys::err::println(query.run());
-	query = db.query("INSERT INTO entries(value) VALUES(?)", sqlite::Static("Bonjour!"));
-	sys::err::println(query.run());
-	query = db.query("SELECT ID, value FROM entries WHERE ID > ?", 7);
-	while (query) {
-		int cc = query.countColumns();
-		for (int i = 0; i < cc; ++i) {
-			sys::err::write(query.columnName(i), " ");
-			if (query.isInteger(i))
-				sys::err::write(query.getInt64(i), " ");
-			else if (query.isText(i))
-				sys::err::write(query.getText(i), " ");
-			else
-				sys::err::print("Unexpected:", query.toString(i), " ");
-		}
-		sys::err::println();
-		++query;
+	video::database::Database database("res/work/video/model.db");
+	String collectionName = "myTestCollection";
+	String folderName = "res/video";
+	video::database::VideoCollection collection;
+	video::database::Folder folder;
+	if (database.collectionExists(collectionName)) {
+		sys::err::println("Collection", collectionName, "already exists.");
+		collection = database.getCollection(collectionName);
+	} else {
+		collection = database.createCollection(collectionName);
 	}
+	if (collection.folderExists(folderName)) {
+		sys::err::println("Folder", folderName, "already exists.");
+		folder = collection.getFolder(folderName);
+	} else {
+		folder = collection.createFolder(folderName);
+	}
+	sys::err::println(collection.getId(), collection.getName(), collection.getThumbnailExtension());
+	sys::err::println(folder.getId(), folder.getAbsolutePath());
 	const char* foldername = "res/video";
-	const char* dbname = "mydb.db.tsv";
-	ArrayList<video::Video> videos = video::database::loadFromDirectory(foldername);
-	file::writer::Binary outfile(sys::path::join(foldername, dbname));
+	ArrayList<video::Video> videos = video::database::collect(foldername);
 	sys::err::println(videos.size(), "videos.");
-
-	auto tsv = video::database::tsv();
-	outfile << tsv.getHeader() << ENDL;
-	for (const video::Video& video: videos) {
-		outfile << tsv.getRow(video) << ENDL;
-	}
-	tests::run();
+	// tests::run();
 	return 0;
 }
 

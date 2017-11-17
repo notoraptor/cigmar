@@ -23,7 +23,7 @@ namespace cigmar::video {
 
 	class Video: public Streamable {
 	private:
-		String filename;
+		String absolutePath;
 		String format;
 		String audioCodec;
 		String videoCodec;
@@ -58,12 +58,13 @@ namespace cigmar::video {
 				}
 		}
 		void getInfos() {
-			Json jsonInfos = Json::parse(ffmpeg::infos(filename));
+			absolutePath = sys::path::absolute((const char*)absolutePath);
+			Json jsonInfos = Json::parse(ffmpeg::infos(absolutePath));
 			Json::value_type *firstAudioStream = nullptr;
 			Json::value_type *firstVideoStream = nullptr;
 			Json::reference streams = jsonInfos.at("streams");
 			if (!streams.is_array())
-				throw Exception("No streams array in ffmpeg output for filename ", filename);
+				throw Exception("No streams array in ffmpeg output for filename ", absolutePath);
 			for (size_t i = 0; i < streams.size(); ++i) {
 				Json::reference stream = streams[i];
 				String codecType = stream.at("codec_type").get<std::string>();
@@ -76,7 +77,7 @@ namespace cigmar::video {
 				}
 			}
 			if (!firstVideoStream)
-				throw Exception("No video stream in file ", filename);
+				throw Exception("No video stream in file ", absolutePath);
 			Json::reference infosFormat = jsonInfos.at("format");
 			format = infosFormat.at("format_long_name").get<std::string>();
 			extractValue(infosFormat["size"].get<std::string>(), size);
@@ -115,19 +116,19 @@ namespace cigmar::video {
 		static bool extensionIsSupported(const String& extension);
 	public:
 		explicit Video(const String& filepath):
-				filename(filepath), format(), audioCodec(), videoCodec(), stringId(), dateAddedMicroseconds(0),
+				absolutePath(filepath), format(), audioCodec(), videoCodec(), stringId(), dateAddedMicroseconds(0),
 				size(0), width(0), height(0), duration(0), frameRate(0), sampleRate(0) {
 			getInfos();
 		};
 		explicit Video(String&& filepath):
-				filename(std::move(filepath)), format(), audioCodec(), videoCodec(), stringId(), dateAddedMicroseconds(0),
+				absolutePath(std::move(filepath)), format(), audioCodec(), videoCodec(), stringId(), dateAddedMicroseconds(0),
 				size(0), width(0), height(0), duration(0), frameRate(0), sampleRate(0) {
 			getInfos();
 		};
 		Video(const Video&) = default;
 		Video(Video&&) = default;
 
-		const String& getFilename() const { return filename; }
+		const String& getAbsolutePath() const { return absolutePath; }
 		const String& getFormat() const { return format; }
 		const String& getAudioCodec() const { return audioCodec; }
 		const String& getVideoCodec() const { return videoCodec; }
@@ -142,15 +143,32 @@ namespace cigmar::video {
 		}
 
 		const String& getId() {
-			if (!stringId) stringId = crypto::hash::whirlpool(sys::path::absolute((const char*)filename));
+			if (!stringId) stringId = crypto::hash::whirlpool(absolutePath);
 			return stringId;
 		}
 		String getId() const {
-			return crypto::hash::whirlpool(sys::path::absolute((const char*)filename));;
+			return crypto::hash::whirlpool(absolutePath);
+		}
+
+		String getRelativePath(const String& parent) const {
+			String absoluteParent = sys::path::absolute((const char*)parent);
+			if (!sys::path::isDirectory((const char*)absoluteParent))
+				throw Exception("Parent must be a directory: ", absoluteParent);
+			if (!absoluteParent.endsWith(sys::path::separator))
+				absoluteParent << sys::path::separator;
+			pos_t posParent = absolutePath.indexOf(absoluteParent);
+			if (!posParent || posParent != 0)
+				throw Exception("Unable to get relative path against parent path", absoluteParent);
+			return absolutePath(absoluteParent.length(), absolutePath.length());
 		}
 
 		void toStream(std::ostream& o) const override {
-			o << "Video(" << filename << ")";
+			o << "Video(" << absolutePath << ")";
+		}
+
+		// For tree sets.
+		bool operator<(const Video& other) const {
+			return absolutePath < other.absolutePath;
 		}
 	};
 

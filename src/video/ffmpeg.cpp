@@ -9,11 +9,11 @@ namespace cigmar::video::ffmpeg {
 		return sys::run(command.cstring());
 	}
 	bool thumbnail(const Video& video, int number) {
-		String pathname = video.getFilename();
+		String pathname = video.getAbsolutePath();
 		pathname << "." << number << ".jpg";
 		String command;
 		command << "ffmpeg -y -ss " << (int)(video.getDuration() / 2);
-		command << " -i \"" << video.getFilename() << "\" -vframes 1 \"" << pathname << "\" 2>&1";
+		command << " -i \"" << video.getAbsolutePath() << "\" -vframes 1 \"" << pathname << "\" 2>&1";
 		sys::run(command.cstring());
 		return sys::path::isFile(pathname.cstring());
 	}
