@@ -46,11 +46,22 @@ int main() {
 	}
 	sys::err::println(database.countCollections(), "collection(s)");
 	sys::err::println(collection.countFolders(), "folder(s)");
+	sys::err::println(collection.getFolders().size(), "folder(s) ...");
 	sys::err::println(collection.getId(), collection.getName(), collection.getThumbnailExtension());
 	sys::err::println(folder.getId(), folder.getAbsolutePath());
 	const char* foldername = "res/video";
 	ArrayList<video::Video> videos = video::database::collect(foldername);
 	sys::err::println(videos.size(), "videos.");
+
+	if (database.uniqueProperties.has("notation"))
+		sys::err::println("Unique property notation already exists.");
+	else
+		database.uniqueProperties.addInteger("notation", "0");
+
+	if (database.multipleProperties.has("category"))
+		sys::err::println("Multiple property category already exists.");
+	else
+		database.multipleProperties.addText("category");
 
 	tests::run();
 

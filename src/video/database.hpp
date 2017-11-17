@@ -53,6 +53,181 @@ namespace cigmar::video::database {
 	}
 
 	class VideoCollection;
+	class Database;
+
+	class PropertyType {
+		friend class Database;
+	private:
+		int64_t integer;
+		int64_t unsignedInteger;
+		int64_t floating;
+		int64_t text;
+		HashMap<int64_t, String> dbMappingId;
+		PropertyType(): dbMappingId() {}
+		void read(sqlite::Dataabase& db) {
+			HashMap<String, int64_t> dbMappingName;
+			auto query = db.query("SELECT property_type_id, property_type_name FROM property_type");
+			while (query) {
+				int64_t id = query.getInt64(0);
+				String name = query.getText(1);
+				dbMappingId[id] = name;
+				dbMappingName[name] = id;
+				++query;
+			}
+			assert(dbMappingId.size() == 4);
+			integer = dbMappingName.get("int");
+			unsignedInteger = dbMappingName.get("uint");
+			floating = dbMappingName.get("double");
+			text = dbMappingName.get("string");
+		}
+	public:
+		bool exists(int64_t id) const {return dbMappingId.contains(id);}
+		int64_t integerType() const {return integer;}
+		int64_t unsignedIntegerType() const {return unsignedInteger;}
+		int64_t floatingType() const {return floating;}
+		int64_t textType() const {return text;}
+	};
+
+	struct PropertyDefinition: public Streamable {
+		int64_t id;
+		String name;
+		String defaultValue;
+		int64_t type;
+		void toStream(std::ostream& o) const override {
+			// TODO: Not the best: it currently prints property type id instead of name.
+			o << "VideoPropertyDefinition(id: " << id
+			  << ", name: \"" << name
+			  << "\", type: " << type
+			  << ", defaultValue: \"" << defaultValue << "\")";
+		}
+	};
+
+	class UniquePropertiesClass {
+		friend class Database;
+	private:
+		// upd: unique properties definitions.
+		HashMap<int64_t, PropertyDefinition> upd;
+		sqlite::Dataabase& db;
+		PropertyType& type;
+		UniquePropertiesClass(sqlite::Dataabase& dataabase, PropertyType& propertyType):
+			upd(), db(dataabase), type(propertyType) {}
+		void update() {
+			auto query = db.query(
+				"SELECT unique_property_id, unique_property_name, default_value, property_type_id FROM unique_property");
+			while (query) {
+				PropertyDefinition def;
+				def.id = query.getInt64(0);
+				def.name = query.getText(1);
+				def.defaultValue = query.isNull(2) ? "" : query.getText(2);
+				def.type = query.getInt64(3);
+				assert(type.exists(def.type));
+				upd[def.id] = def;
+				++query;
+			}
+		}
+		void add(const String& name, int64_t type, const String& defaultValue = "") {
+			db.run(
+				"INSERT INTO unique_property(unique_property_name, default_value, property_type_id) VALUES(?, ?, ?)",
+				name, defaultValue, type);
+			PropertyDefinition def;
+			def.id = db.lastId();
+			def.name = name;
+			def.defaultValue = defaultValue;
+			def.type = type;
+			upd[def.id] = def;
+		}
+	public:
+		bool has(const String& name) {
+			auto query = db.query("SELECT COUNT(unique_property_id) FROM unique_property WHERE unique_property_name = ?", name);
+			int count;
+			while (query) {
+				count = query.getInt(0);
+				++query;
+			}
+			return (bool)count;
+		}
+		void addInteger(const String& name, const String& defaultValue = "") {
+			add(name, type.integerType(), defaultValue);
+		}
+		void addUnsignedInteger(const String& name, const String& defaultValue = "") {
+			add(name, type.unsignedIntegerType(), defaultValue);
+		}
+		void addFloating(const String& name, const String& defaultValue = "") {
+			add(name, type.floatingType(), defaultValue);
+		}
+		void addText(const String& name, const String& defaultValue = "") {
+			add(name, type.textType(), defaultValue);
+		}
+		void remove(int64_t id) {
+			if (upd.contains(id)) {
+				db.run("DELETE FROM unique_property WHERE unique_property_id = ?", id);
+				upd.remove(id);
+			}
+		}
+	};
+
+	class MultiplePropertiesClass {
+		friend class Database;
+	private:
+		// mpd: multiple properties definitions.
+		HashMap<int64_t, PropertyDefinition> mpd;
+		sqlite::Dataabase& db;
+		PropertyType& type;
+		MultiplePropertiesClass(sqlite::Dataabase& database, PropertyType& propertyType):
+			mpd(), db(database), type(propertyType) {}
+		void update() {
+			auto query = db.query(
+				"SELECT multiple_property_id, multiple_property_name, property_type_id FROM multiple_property");
+			while (query) {
+				PropertyDefinition def;
+				def.id = query.getInt64(0);
+				def.name = query.getText(1);
+				def.type = query.getInt64(2);
+				// def.defaultValue = "";
+				assert(type.exists(def.type));
+				mpd[def.id] = def;
+				++query;
+			}
+		}
+		void add(const String& name, int64_t type) {
+			db.run(
+				"INSERT INTO multiple_property(multiple_property_name, property_type_id) VALUES(?, ?)",
+				name, type);
+			PropertyDefinition def;
+			def.id = db.lastId();
+			def.name = name;
+			def.type = type;
+			mpd[def.id] = def;
+		}
+	public:
+		bool has(const String& name) {
+			auto query = db.query("SELECT COUNT(multiple_property_id) FROM multiple_property WHERE multiple_property_name = ?", name);
+			int count;
+			while (query) {
+				count = query.getInt(0);
+				++query;
+			}
+			return (bool)count;
+		}
+		void addInteger(const String& name) {
+			add(name, type.integerType());
+		}
+		void addUnsignedInteger(const String& name) {
+			add(name, type.unsignedIntegerType());
+		}
+		void addFloating(const String& name) {
+			add(name, type.floatingType());
+		}
+		void addText(const String& name) {
+			add(name, type.textType());
+		}
+		void remove(int64_t id) {
+			if (mpd.contains(id)) {
+				db.run("DELETE FROM multiple_property WHERE multiple_property_id = ?", id);
+				mpd.remove(id);
+			}
+		}
+	};
 
 	class Folder: public Streamable {
 		friend class VideoCollection;
@@ -131,6 +306,7 @@ namespace cigmar::video::database {
 	};
 
 	class VideoCollection {
+		friend class Database;
 	private:
 		sqlite::Dataabase* db;
 		int64_t collection_id;
@@ -141,7 +317,6 @@ namespace cigmar::video::database {
 						const String& collectionName,
 						const String& thumnailExtension):
 			db(&database), collection_id(collectionId), collection_name(collectionName), thumbnail_extension(thumnailExtension) {}
-		friend class Database;
 	public:
 		VideoCollection(): db(nullptr), collection_id(-1), collection_name(), thumbnail_extension() {}
 		explicit operator bool() const {return (bool)db;}
@@ -228,11 +403,17 @@ namespace cigmar::video::database {
 			loadDatabaseStructureQueries("res/work/video/model.sql", queries);
 			for (const String& sql: queries) db.run(sql);
 		}
-	private:
 		sqlite::Dataabase db;
+		PropertyType propertyType;
 	public:
-		explicit Database(const char* dbname): db(dbname) {
+		UniquePropertiesClass uniqueProperties;
+		MultiplePropertiesClass multipleProperties;
+	public:
+		explicit Database(const char* dbname): db(dbname), propertyType(), uniqueProperties(db, propertyType), multipleProperties(db, propertyType) {
 			ensureDatabaseStructure();
+			propertyType.read(db);
+			uniqueProperties.update();
+			multipleProperties.update();
 		}
 		size_t countCollections() {
 			auto query = db.query("SELECT COUNT(collection_id) FROM collection");

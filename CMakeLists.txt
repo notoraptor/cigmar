@@ -77,3 +77,7 @@ set(SOURCE_FILES
         )
 
 add_executable(cigmar ${SOURCE_FILES})
+
+# It's unfortunate we have to add this line (because of sqlite)
+# as this makes the compilation less trivial.
+target_link_libraries(cigmar ${CMAKE_DL_LIBS})
