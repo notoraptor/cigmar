@@ -35,7 +35,7 @@ script:
   # Run your build commands next
   - mkdir -p Build
   - cd Build
-  - $CMAKE .. && make
+  - $CMAKE -DCMAKE_CXX_FLAGS="-pthread" .. && make
   - file cigmar
   - cd ..
   - ./Build/cigmar
