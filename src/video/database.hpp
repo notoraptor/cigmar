@@ -55,6 +55,15 @@ namespace cigmar::video::database {
 	class VideoCollection;
 	class Database;
 
+	struct Report: public Streamable {
+		size_t total = 0;
+		size_t added = 0;
+		size_t removed = 0;
+		void toStream(std::ostream& o) const override {
+			o << "Report(total: " << total << ", added: " << added << ", removed: " << removed << ")";
+		}
+	};
+
 	class PropertyType {
 		friend class Database;
 	private:
@@ -231,12 +240,6 @@ namespace cigmar::video::database {
 
 	class Folder: public Streamable {
 		friend class VideoCollection;
-	public:
-		struct Report {
-			size_t total = 0;
-			size_t added = 0;
-			size_t removed = 0;
-		};
 	private:
 		sqlite::Dataabase* db;
 		VideoCollection* collection;
@@ -247,9 +250,7 @@ namespace cigmar::video::database {
 			db(&database), collection(&parent), video_folder_id(folderId), absolute_path(absolutePath), videos() {
 			Report report = update();
 			sys::err::println("Folder:", absolutePath);
-			sys::err::println("\tTotal:  ", report.total);
-			sys::err::println("\tAdded:  ", report.added);
-			sys::err::println("\tRemoved:", report.removed);
+			sys::err::println(report);
 		}
 		Report update() {
 			Report report;
@@ -316,7 +317,31 @@ namespace cigmar::video::database {
 						int64_t collectionId,
 						const String& collectionName,
 						const String& thumnailExtension):
-			db(&database), collection_id(collectionId), collection_name(collectionName), thumbnail_extension(thumnailExtension) {}
+			db(&database), collection_id(collectionId), collection_name(collectionName), thumbnail_extension(thumnailExtension) {
+			Report report = update();
+			sys::err::println("Collection:", collection_name);
+			sys::err::println(report);
+		}
+		Report update() {
+			Report report;
+			auto query = db->query("SELECT video_folder_id, absolute_path FROM video_folder WHERE collection_id = ?", collection_id);
+			ArrayList<int64_t> idx;
+			ArrayList<String> paths;
+			while (query) {
+				idx.add(query.getInt64(0));
+				paths.add(query.getText(1));
+				++query;
+			}
+			report.total = paths.size();
+			for (size_t i = 0; i < paths.size(); ++i) {
+				if (!sys::path::isDirectory((const char*)paths[i])) {
+					db->run("DELETE FROM video_folder WHERE video_folder_id = ?", idx[i]);
+					++report.removed;
+					--report.total;
+				}
+			}
+			return report;
+		}
 	public:
 		VideoCollection(): db(nullptr), collection_id(-1), collection_name(), thumbnail_extension() {}
 		explicit operator bool() const {return (bool)db;}
