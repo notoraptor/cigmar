@@ -424,6 +424,7 @@ namespace cigmar::video::database {
 			}
 		}
 		void ensureDatabaseStructure() {
+			db.run("PRAGMA foreign_keys=ON");
 			ArrayList<String> queries;
 			loadDatabaseStructureQueries("res/work/video/model.sql", queries);
 			for (const String& sql: queries) db.run(sql);
@@ -434,7 +435,8 @@ namespace cigmar::video::database {
 		UniquePropertiesClass uniqueProperties;
 		MultiplePropertiesClass multipleProperties;
 	public:
-		explicit Database(const char* dbname): db(dbname), propertyType(), uniqueProperties(db, propertyType), multipleProperties(db, propertyType) {
+		explicit Database(const char* dbname):
+				db(dbname), propertyType(), uniqueProperties(db, propertyType), multipleProperties(db, propertyType) {
 			ensureDatabaseStructure();
 			propertyType.read(db);
 			uniqueProperties.update();

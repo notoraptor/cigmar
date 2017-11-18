@@ -29,7 +29,7 @@ const char* jstring = R"(
 int main() {
 	video::database::Database database("res/work/video/model.db");
 	String collectionName = "myTestCollection";
-	String folderName = "res/video";
+	ArrayList<String> folderNames = {"res/video", "res/video-alt"};
 	video::database::VideoCollection collection;
 	video::database::Folder folder;
 	if (database.collectionExists(collectionName)) {
@@ -38,15 +38,19 @@ int main() {
 	} else {
 		collection = database.createCollection(collectionName);
 	}
-	if (collection.folderExists(folderName)) {
-		sys::err::println("Folder", folderName, "already exists.");
-		folder = collection.getFolder(folderName);
-	} else {
-		folder = collection.createFolder(folderName);
+	for (const String& folderName: folderNames) {
+		if (sys::path::isDirectory((const char*)folderName)) {
+			if (collection.folderExists(folderName)) {
+				sys::err::println("Folder", folderName, "already exists.");
+				folder = collection.getFolder(folderName);
+			} else {
+				folder = collection.createFolder(folderName);
+			}
+		}
 	}
 	sys::err::println(database.countCollections(), "collection(s)");
 	sys::err::println(collection.countFolders(), "folder(s)");
-	sys::err::println(collection.getFolders().size(), "folder(s) ...");
+	sys::err::println(collection.getFolders().size(), "folder(s) loaded");
 	sys::err::println(collection.getId(), collection.getName(), collection.getThumbnailExtension());
 	sys::err::println(folder.getId(), folder.getAbsolutePath());
 	const char* foldername = "res/video";
