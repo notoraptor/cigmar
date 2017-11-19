@@ -14,22 +14,6 @@
 
 namespace cigmar::video::database {
 
-	void collect(const char *dirpath, ArrayList<Video> &videos) {
-		sys::Dir dir(dirpath);
-		for (const String pathname: dir) {
-			if (pathname != "." && pathname != "..") {
-				String path = sys::path::join(dirpath, pathname);
-				if (sys::path::isDirectory((const char *) path)) {
-					collect((const char *) path, videos);
-				} else {
-					String extension = sys::path::extension((const char *) pathname);
-					if (Video::extensionIsSupported(extension.lower())) {
-						videos.add(Video(sys::path::join(dirpath, pathname)));
-					}
-				}
-			}
-		}
-	}
 	void collect(const char *dirpath, const std::function<void(const Video&)>& collector) {
 		sys::Dir dir(dirpath);
 		for (const String pathname: dir) {
@@ -45,11 +29,6 @@ namespace cigmar::video::database {
 				}
 			}
 		}
-	}
-	ArrayList<Video> collect(const char *dirpath) {
-		ArrayList<Video> videos;
-		collect(dirpath, videos);
-		return videos;
 	}
 
 	class VideoCollection;
@@ -97,18 +76,11 @@ namespace cigmar::video::database {
 		int64_t textType() const {return text;}
 	};
 
-	struct PropertyDefinition: public Streamable {
+	struct PropertyDefinition {
 		int64_t id;
 		String name;
 		String defaultValue;
 		int64_t type;
-		void toStream(std::ostream& o) const override {
-			// TODO: Not the best: it currently prints property type id instead of name.
-			o << "VideoPropertyDefinition(id: " << id
-			  << ", name: \"" << name
-			  << "\", type: " << type
-			  << ", defaultValue: \"" << defaultValue << "\")";
-		}
 	};
 
 	class UniquePropertiesClass {
@@ -246,24 +218,19 @@ namespace cigmar::video::database {
 		int64_t video_folder_id;
 		String absolute_path;
 		TreeSet<Video> videos;
-		Folder(sqlite::Dataabase& database, VideoCollection& parent, int64_t folderId, const String& absolutePath):
-			db(&database), collection(&parent), video_folder_id(folderId), absolute_path(absolutePath), videos() {
-			Report report = update();
-			sys::err::println("Folder:", absolutePath);
-			sys::err::println(report);
-		}
+		Report report;
 		Report update() {
 			Report report;
 			collect((const char*)absolute_path, [this](const Video& video) { videos.add(video); });
 			report.total = videos.size();
 			auto query = db->query(
-				"SELECT video_id, relative_path FROM video WHERE video_folder_id = ?",
-				video_folder_id);
+					"SELECT video_id, relative_path FROM video WHERE video_folder_id = ?",
+					video_folder_id);
 			HashMap<String, int64_t> videosAbsolutePathsFromDb;
 			HashSet<String> videosAbsolutePathsFromDisk;
 			while (query) {
 				String videoAbsolutePath =
-					sys::path::absolute((const char*)sys::path::join(absolute_path, query.getText(1)));
+						sys::path::absolute((const char*)sys::path::join(absolute_path, query.getText(1)));
 				videosAbsolutePathsFromDb[videoAbsolutePath] = query.getInt64(0);
 				++query;
 			}
@@ -279,10 +246,10 @@ namespace cigmar::video::database {
                                 duration, width, height,
                                 relative_path, video_hash, video_folder_id
                             ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?))",
-							video.getDateAddedMicroseconds(), video.getSize(), video.getFormat(),
-							video.getAudioCodec(), video.getVideoCodec(), video.getSampleRate(), video.getFrameRate(),
-							video.getDuration(), video.getWidth(), video.getHeight(),
-							video.getRelativePath(absolute_path), video.getId(), video_folder_id
+					        video.getDateAddedMicroseconds(), video.getSize(), video.getFormat(),
+					        video.getAudioCodec(), video.getVideoCodec(), video.getSampleRate(), video.getFrameRate(),
+					        video.getDuration(), video.getWidth(), video.getHeight(),
+					        video.getRelativePath(absolute_path), video.getId(), video_folder_id
 					);
 					++report.added;
 				}
@@ -296,6 +263,10 @@ namespace cigmar::video::database {
 			}
 			return report;
 		}
+		Folder(sqlite::Dataabase& database, VideoCollection& parent, int64_t folderId, const String& absolutePath):
+			db(&database), collection(&parent), video_folder_id(folderId), absolute_path(absolutePath), videos() {
+			report = update();
+		}
 	public:
 		void toStream(std::ostream& o) const override {
 			o << absolute_path;
@@ -304,6 +275,7 @@ namespace cigmar::video::database {
 		explicit operator bool() const {return (bool)db;}
 		int64_t getId() const {return video_folder_id;}
 		const String& getAbsolutePath() const {return absolute_path;}
+		size_t countVideos() const {return videos.size();}
 	};
 
 	class VideoCollection {
@@ -313,15 +285,7 @@ namespace cigmar::video::database {
 		int64_t collection_id;
 		String collection_name;
 		String thumbnail_extension;
-		VideoCollection(sqlite::Dataabase& database,
-						int64_t collectionId,
-						const String& collectionName,
-						const String& thumnailExtension):
-			db(&database), collection_id(collectionId), collection_name(collectionName), thumbnail_extension(thumnailExtension) {
-			Report report = update();
-			sys::err::println("Collection:", collection_name);
-			sys::err::println(report);
-		}
+		Report report;
 		Report update() {
 			Report report;
 			auto query = db->query("SELECT video_folder_id, absolute_path FROM video_folder WHERE collection_id = ?", collection_id);
@@ -341,6 +305,13 @@ namespace cigmar::video::database {
 				}
 			}
 			return report;
+		}
+		VideoCollection(sqlite::Dataabase& database,
+						int64_t collectionId,
+						const String& collectionName,
+						const String& thumnailExtension):
+			db(&database), collection_id(collectionId), collection_name(collectionName), thumbnail_extension(thumnailExtension) {
+			report = update();
 		}
 	public:
 		VideoCollection(): db(nullptr), collection_id(-1), collection_name(), thumbnail_extension() {}

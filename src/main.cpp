@@ -26,10 +26,10 @@ const char* jstring = R"(
 
 */
 
-int main() {
+void testDatabase() {
 	video::database::Database database("res/work/video/model.db");
 	String collectionName = "myTestCollection";
-	ArrayList<String> folderNames = {"res/video", "res/video-alt"};
+	String folderName = "res/video";
 	video::database::VideoCollection collection;
 	video::database::Folder folder;
 	if (database.collectionExists(collectionName)) {
@@ -38,24 +38,20 @@ int main() {
 	} else {
 		collection = database.createCollection(collectionName);
 	}
-	for (const String& folderName: folderNames) {
-		if (sys::path::isDirectory((const char*)folderName)) {
-			if (collection.folderExists(folderName)) {
-				sys::err::println("Folder", folderName, "already exists.");
-				folder = collection.getFolder(folderName);
-			} else {
-				folder = collection.createFolder(folderName);
-			}
+	if (sys::path::isDirectory((const char*)folderName)) {
+		if (collection.folderExists(folderName)) {
+			sys::err::println("Folder", folderName, "already exists.");
+			folder = collection.getFolder(folderName);
+		} else {
+			folder = collection.createFolder(folderName);
 		}
 	}
 	sys::err::println(database.countCollections(), "collection(s)");
 	sys::err::println(collection.countFolders(), "folder(s)");
 	sys::err::println(collection.getFolders().size(), "folder(s) loaded");
-	sys::err::println(collection.getId(), collection.getName(), collection.getThumbnailExtension());
-	sys::err::println(folder.getId(), folder.getAbsolutePath());
-	const char* foldername = "res/video";
-	ArrayList<video::Video> videos = video::database::collect(foldername);
-	sys::err::println(videos.size(), "videos.");
+	sys::err::println("Collection details:", collection.getId(), collection.getName(), collection.getThumbnailExtension());
+	sys::err::println("Folder details    :", folder.getId(), folder.getAbsolutePath());
+	sys::err::println(folder.countVideos(), "videos.");
 
 	if (database.uniqueProperties.has("notation"))
 		sys::err::println("Unique property notation already exists.");
@@ -66,8 +62,17 @@ int main() {
 		sys::err::println("Multiple property category already exists.");
 	else
 		database.multipleProperties.addText("category");
+}
 
-	tests::run();
+class A{};
+
+int main() {
+
+	// testDatabase();
+
+	// tests::run();
+	sys::err::println(is_streamable<int>::value);
+	sys::err::println(is_streamable<A>::value);
 
 	return 0;
 }

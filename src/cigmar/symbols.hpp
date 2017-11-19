@@ -66,7 +66,6 @@ namespace cigmar {
 
 		template<typename T>
 		std::false_type is_iterable_impl(...);
-
 	}
 
 	template<typename T>
@@ -85,6 +84,18 @@ namespace cigmar {
 	- https://stackoverflow.com/a/29634934
 	- https://ideone.com/ExTsEO
 	**/
+
+	namespace {
+		template<typename T>
+		auto is_streamable_impl(int)
+		-> decltype(std::ostringstream() << std::declval<T&>(), std::true_type{});
+
+		template<typename T>
+		std::false_type is_streamable_impl(...);
+	}
+
+	template<typename T>
+	using is_streamable = decltype(is_streamable_impl<T>(0));
 
 }
 
