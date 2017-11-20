@@ -9,9 +9,36 @@
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/HashSet.hpp>
 #include <cigmar/classes/HashMap.hpp>
+#include <cigmar/sqlite.hpp>
+#include <cigmar/classes/Exception.hpp>
 
 namespace cigmar::videomanager {
+	template<typename T>
+	class Initializer {
+		T object;
+		bool initialized = false;
+		void check() const {
+			if (!initialized) throw Exception("This object is not initialized.");
+		}
+	public:
+		template<typename... Args>
+		void init(Args&&... args) {
+			if (!initialized) {
+				object.init(std::forward<Args>(args)...);
+				initialized = true;
+			}
+		}
+		T* operator->() {
+			check();
+			return &object;
+		}
+		const T* operator->() const {
+			check();
+			return &object;
+		}
+	};
 	class DatabaseTable {
+	public:
 		virtual int64_t getId() = 0;
 		virtual const String& getIdentifier() = 0;
 	};
@@ -44,14 +71,18 @@ namespace cigmar::videomanager {
 		T& get(const String& identifier) {
 			return identifiers[identifier];
 		}
-		iterator_t begin();
-		iterator_t end();
+		iterator_t begin() {return data.begin();};
+		iterator_t end() {return data.end();};
 	};
-	class PropertyType {
+	struct PropertyType {
 		int64_t property_type_id;
 		String property_type_name;
 	};
 	class PropertyTypes {
+		PropertyType int_type;
+		PropertyType uint_type;
+		PropertyType double_type;
+		PropertyType string_type;
 		// temporar
 		HashMap<String, PropertyType> types;
 		// internal
@@ -65,16 +96,22 @@ namespace cigmar::videomanager {
 		String unique_property_name;
 		String default_value;
 		PropertyType& property_type;
+	public:
+		int64_t getId() override {return unique_property_id;}
+		const String& getIdentifier() override {return unique_property_name;}
 	};
 	class MultipleProperty: public DatabaseTable {
 		int64_t multiple_property_id;
 		String multiple_property_name;
 		PropertyType& property_type;
+	public:
+		int64_t getId() override {return multiple_property_id;}
+		const String& getIdentifier() override {return multiple_property_name;}
 	};
 	class UniqueProperties {
 		DatabaseMapping<UniqueProperty> properties;
 		void add(const String& unique_property_name, const String& default_value, const PropertyType& property_type);
-		// public
+	public:
 		void addInteger(const String& unique_property_name, const String& default_value);
 		void addUnsigned(const String& unique_property_name, const String& default_value);
 		void addDouble(const String& unique_property_name, const String& default_value);
@@ -87,7 +124,7 @@ namespace cigmar::videomanager {
 	class MultipleProperties {
 		DatabaseMapping<MultipleProperty> properties;
 		void add(const String& multiple_property_name, const PropertyType& property_type);
-		// public
+	public:
 		void addInteger(const String& multiple_property_name);
 		void addUnsigned(const String& multiple_property_name);
 		void addDouble(const String& multiple_property_name);
@@ -112,6 +149,7 @@ namespace cigmar::videomanager {
 		String relative_path;
 		String video_hash;
 		Folder& video_folder;
+		String absolute_path;
 		HashMap<UniqueProperty, String> unique_properties;
 		HashMap<MultipleProperty, HashSet<String>> multiple_properties;
 		bool hasUniqueProperty(const UniqueProperty& unique_property);
@@ -123,19 +161,22 @@ namespace cigmar::videomanager {
 		void removeMultiplePropertyValue(const MultipleProperty& multiple_property, const String& value);
 		const String& getUniquePropertyValue(const UniqueProperty& unique_property);
 		const HashSet<String>& getMultiplePropertyValues(const MultipleProperty& multiple_property);
+		int64_t getId() override {return video_id;}
+		const String& getIdentifier() override {return absolute_path;}
 	};
 	class Folder: public DatabaseTable {
 		int64_t video_folder_id;
 		String absolute_path;
 		Library& library;
-		size_t countVideos();
 		DatabaseMapping<Video> videos;
 		HashMap<int64_t, Video*> videosById;
 		HashMap<String, Video*> videosByRelativePath;
 		typedef typename DatabaseMapping<Video>::iterator_t iterator_t;
+		size_t countVideos();
 		Video& getVideo(const String& video_relative_path);
 		Video& getVideo(int64_t video_id);
 		void refresh();
+		String getVideoAbsolutePath(const Video& video);
 		// iteration on videos
 		iterator_t begin();
 		iterator_t end();
@@ -153,6 +194,8 @@ namespace cigmar::videomanager {
 		// iteration on folders
 		iterator_t begin();
 		iterator_t end();
+		int64_t getId() override {return library_id;}
+		const String& getIdentifier() override {return library_name;}
 	};
 	class Database {
 		HashSet<String> library_names;
