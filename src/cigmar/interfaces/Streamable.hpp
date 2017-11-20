@@ -11,21 +11,31 @@ namespace cigmar {
 	public:
 		virtual void toStream(std::ostream& o) const = 0;
 		virtual ~Streamable() = default;
-		struct Streamer {
-			template<typename T>
-			void operator()(std::ostream& o, const T& v) const {
-				o << v;
+	};
+
+	namespace {
+		struct AutoStreamer {
+			template<typename E>
+			void operator()(std::ostream& o, const E& value) const {
+				o << value;
 			}
 		};
 		struct DefaultStreamer {
-			template<typename T>
-			void operator()(std::ostream& o, const T& v) const {
-				o << "{object&" << (void*)(&v) << '}';
+			template<typename E>
+			void operator()(std::ostream& o, const E& value) const {
+				o << "{object&" << (void*)(&value) << '}';
 			}
 		};
-		template<typename T>
-		static void stream(std::ostream& o, const T& v) {
-			typedef typename std::conditional<is_streamable<T>::value, Streamer, DefaultStreamer>::type streamer_t;
+	}
+
+	template<typename T>
+	class Streamer: public Streamable {
+	private:
+		const T& v;
+	public:
+		explicit Streamer(const T& value): v(value) {};
+		void toStream(std::ostream& o) const override {
+			typedef typename std::conditional<is_streamable<T>::value, AutoStreamer, DefaultStreamer>::type streamer_t;
 			streamer_t()(o, v);
 		}
 	};

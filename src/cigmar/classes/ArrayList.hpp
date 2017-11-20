@@ -116,9 +116,10 @@ public:
 	void toStream(std::ostream& o) const override {
 		o << '[';
 		if (vec.size()) {
-			o << vec[0];
-			for (size_t i = 1; i < size(); ++i)
-				o << "; " << vec[i];
+			o << Streamer<T>(vec[0]);
+			for (size_t i = 1; i < size(); ++i) {
+				o << "; " << Streamer<T>(vec[i]);
+			}
 		}
 		o << ']';
 	}

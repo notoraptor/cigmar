@@ -1,14 +1,14 @@
-CREATE TABLE IF NOT EXISTS collection (
-    collection_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    collection_name VARCHAR(512) NOT NULL UNIQUE,
+CREATE TABLE IF NOT EXISTS library (
+    library_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    library_name VARCHAR(512) NOT NULL UNIQUE,
     thumbnail_extension VARCHAR(32) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS video_folder (
     video_folder_id INTEGER PRIMARY KEY AUTOINCREMENT,
     absolute_path TEXT NOT NULL,
-    collection_id INTEGER REFERENCES collection(collection_id) ON DELETE CASCADE,
-    UNIQUE (collection_id, absolute_path)
+    library_id INTEGER REFERENCES library(library_id) ON DELETE CASCADE,
+    UNIQUE (library_id, absolute_path)
 );
 
 CREATE TABLE IF NOT EXISTS video (

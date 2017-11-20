@@ -51,10 +51,10 @@ public:
 		o << '{';
 		if (s.size()) {
 			auto it = s.begin();
-			o << *it;
+			o << Streamer<T>(*it);
 			++it;
 			while(it != s.end()) {
-				o << "; " << *it;
+				o << "; " << Streamer<T>(*it);
 				++it;
 			}
 		}

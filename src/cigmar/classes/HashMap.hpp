@@ -48,12 +48,10 @@ public:
 		o << '{';
 		if (m.size()) {
 			auto it = m.begin();
-			o << it->first << ':';
-			Streamable::stream(o, it->second);
+			o << Streamer<K>(it->first) << ':' << Streamer<V>(it->second);
 			++it;
 			while(it != m.end()) {
-				o << "; " << it->first << ':';
-				Streamable::stream(o, it->second);
+				o << "; " << Streamer<K>(it->first) << ':' << Streamer<V>(it->second);
 				++it;
 			}
 		}

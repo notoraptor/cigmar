@@ -74,7 +74,7 @@ set(SOURCE_FILES
         src/video/ffmpeg.cpp
         src/video/ffmpeg.hpp
         src/video/Video.hpp
-        )
+        src/video/videomanager.cpp src/video/videomanager.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 

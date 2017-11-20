@@ -6,6 +6,7 @@
 #include <video/database.hpp>
 #include <cigmar/sqlite.hpp>
 #include <cigmar/file/text/read.hpp>
+#include <cigmar/utils/Hasher.hpp>
 
 using std::cout;
 using std::cerr;
@@ -28,28 +29,28 @@ const char* jstring = R"(
 
 void testDatabase() {
 	video::database::Database database("res/work/video/model.db");
-	String collectionName = "myTestCollection";
+	String libraryName = "myTestLibrary";
 	String folderName = "res/video";
-	video::database::VideoCollection collection;
+	video::database::Library library;
 	video::database::Folder folder;
-	if (database.collectionExists(collectionName)) {
-		sys::err::println("Collection", collectionName, "already exists.");
-		collection = database.getCollection(collectionName);
+	if (database.libraryExists(libraryName)) {
+		sys::err::println("Library", libraryName, "already exists.");
+		library = database.getLibrary(libraryName);
 	} else {
-		collection = database.createCollection(collectionName);
+		library = database.createLibrary(libraryName);
 	}
 	if (sys::path::isDirectory((const char*)folderName)) {
-		if (collection.folderExists(folderName)) {
+		if (library.folderExists(folderName)) {
 			sys::err::println("Folder", folderName, "already exists.");
-			folder = collection.getFolder(folderName);
+			folder = library.getFolder(folderName);
 		} else {
-			folder = collection.createFolder(folderName);
+			folder = library.createFolder(folderName);
 		}
 	}
-	sys::err::println(database.countCollections(), "collection(s)");
-	sys::err::println(collection.countFolders(), "folder(s)");
-	sys::err::println(collection.getFolders().size(), "folder(s) loaded");
-	sys::err::println("Collection details:", collection.getId(), collection.getName(), collection.getThumbnailExtension());
+	sys::err::println(database.countLibraries(), "librarie(s)");
+	sys::err::println(library.countFolders(), "folder(s)");
+	sys::err::println(library.getFolders().size(), "folder(s) loaded");
+	sys::err::println("Library details:", library.getId(), library.getName(), library.getThumbnailExtension());
 	sys::err::println("Folder details    :", folder.getId(), folder.getAbsolutePath());
 	sys::err::println(folder.countVideos(), "videos.");
 
@@ -64,16 +65,9 @@ void testDatabase() {
 		database.multipleProperties.addText("category");
 }
 
-class A{};
-
 int main() {
-
-	// testDatabase();
-
-	// tests::run();
-	sys::err::println(is_streamable<int>::value);
-	sys::err::println(is_streamable<A>::value);
-
+	 testDatabase();
+	 tests::run();
 	return 0;
 }
 

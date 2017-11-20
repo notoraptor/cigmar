@@ -31,7 +31,7 @@ namespace cigmar::video::database {
 		}
 	}
 
-	class VideoCollection;
+	class Library;
 	class Database;
 
 	struct Report: public Streamable {
@@ -76,46 +76,62 @@ namespace cigmar::video::database {
 		int64_t textType() const {return text;}
 	};
 
-	struct PropertyDefinition {
+	struct PropertyDefinition: public Hashable {
 		int64_t id;
 		String name;
 		String defaultValue;
 		int64_t type;
+		size_t hash() const override {
+			return std::hash<int64_t>()(id);
+		}
+		bool operator==(const PropertyDefinition& other) const {
+			return id == other.id and name == other.name && type == other.type;
+		}
 	};
+
+	struct MultiplePropertyDefinition: public PropertyDefinition {};
+	struct UniquePropertyDefinition: public PropertyDefinition {};
 
 	class UniquePropertiesClass {
 		friend class Database;
 	private:
-		// upd: unique properties definitions.
-		HashMap<int64_t, PropertyDefinition> upd;
+		HashSet<UniquePropertyDefinition> definitions;
 		sqlite::Dataabase& db;
 		PropertyType& type;
 		UniquePropertiesClass(sqlite::Dataabase& dataabase, PropertyType& propertyType):
-			upd(), db(dataabase), type(propertyType) {}
+			definitions(), db(dataabase), type(propertyType) {}
 		void update() {
 			auto query = db.query(
 				"SELECT unique_property_id, unique_property_name, default_value, property_type_id FROM unique_property");
 			while (query) {
-				PropertyDefinition def;
+				UniquePropertyDefinition def;
 				def.id = query.getInt64(0);
 				def.name = query.getText(1);
 				def.defaultValue = query.isNull(2) ? "" : query.getText(2);
 				def.type = query.getInt64(3);
 				assert(type.exists(def.type));
-				upd[def.id] = def;
+				definitions.add(def);
 				++query;
 			}
 		}
 		void add(const String& name, int64_t type, const String& defaultValue = "") {
+			int countMultipleProperties = 0;
+			auto query = db.query("SELECT COUNT(multiple_property_id) FROM multiple_property WHERE multiple_property_name = ?", name);
+			while (query) {
+				countMultipleProperties = query.getInt(0);
+				++query;
+			}
+			if (countMultipleProperties)
+				throw Exception("Cannot create a (unique) property with name \"", name, "\": a multiple property already has this name.");
 			db.run(
 				"INSERT INTO unique_property(unique_property_name, default_value, property_type_id) VALUES(?, ?, ?)",
 				name, defaultValue, type);
-			PropertyDefinition def;
+			UniquePropertyDefinition def;
 			def.id = db.lastId();
 			def.name = name;
 			def.defaultValue = defaultValue;
 			def.type = type;
-			upd[def.id] = def;
+			definitions.add(def);
 		}
 	public:
 		bool has(const String& name) {
@@ -139,10 +155,10 @@ namespace cigmar::video::database {
 		void addText(const String& name, const String& defaultValue = "") {
 			add(name, type.textType(), defaultValue);
 		}
-		void remove(int64_t id) {
-			if (upd.contains(id)) {
-				db.run("DELETE FROM unique_property WHERE unique_property_id = ?", id);
-				upd.remove(id);
+		void remove(const UniquePropertyDefinition& propertyDefinition) {
+			if (definitions.contains(propertyDefinition)) {
+				db.run("DELETE FROM unique_property WHERE unique_property_id = ?", propertyDefinition.id);
+				definitions.remove(propertyDefinition);
 			}
 		}
 	};
@@ -150,35 +166,42 @@ namespace cigmar::video::database {
 	class MultiplePropertiesClass {
 		friend class Database;
 	private:
-		// mpd: multiple properties definitions.
-		HashMap<int64_t, PropertyDefinition> mpd;
+		HashSet<MultiplePropertyDefinition> definitions;
 		sqlite::Dataabase& db;
 		PropertyType& type;
 		MultiplePropertiesClass(sqlite::Dataabase& database, PropertyType& propertyType):
-			mpd(), db(database), type(propertyType) {}
+			definitions(), db(database), type(propertyType) {}
 		void update() {
 			auto query = db.query(
 				"SELECT multiple_property_id, multiple_property_name, property_type_id FROM multiple_property");
 			while (query) {
-				PropertyDefinition def;
+				MultiplePropertyDefinition def;
 				def.id = query.getInt64(0);
 				def.name = query.getText(1);
 				def.type = query.getInt64(2);
 				// def.defaultValue = "";
 				assert(type.exists(def.type));
-				mpd[def.id] = def;
+				definitions.add(def);
 				++query;
 			}
 		}
 		void add(const String& name, int64_t type) {
+			int countUniqueProperties = 0;
+			auto query = db.query("SELECT COUNT(unique_property_id) FROM unique_property WHERE unique_property_name = ?", name);
+			while (query) {
+				countUniqueProperties = query.getInt(0);
+				++query;
+			}
+			if (countUniqueProperties)
+				throw Exception("Cannot create a (multiple) property with name \"", name, "\": an unique property already has this name.");
 			db.run(
 				"INSERT INTO multiple_property(multiple_property_name, property_type_id) VALUES(?, ?)",
 				name, type);
-			PropertyDefinition def;
+			MultiplePropertyDefinition def;
 			def.id = db.lastId();
 			def.name = name;
 			def.type = type;
-			mpd[def.id] = def;
+			definitions.add(def);
 		}
 	public:
 		bool has(const String& name) {
@@ -202,19 +225,24 @@ namespace cigmar::video::database {
 		void addText(const String& name) {
 			add(name, type.textType());
 		}
-		void remove(int64_t id) {
-			if (mpd.contains(id)) {
-				db.run("DELETE FROM multiple_property WHERE multiple_property_id = ?", id);
-				mpd.remove(id);
+		void remove(const MultiplePropertyDefinition& propertyDefinition) {
+			if (definitions.contains(propertyDefinition)) {
+				db.run("DELETE FROM multiple_property WHERE multiple_property_id = ?", propertyDefinition.id);
+				definitions.remove(propertyDefinition);
 			}
 		}
 	};
 
-	class Folder: public Streamable {
-		friend class VideoCollection;
+	class VideoProperties {
+	private:
+	public:
+	};
+
+	class Folder {
+		friend class Library;
 	private:
 		sqlite::Dataabase* db;
-		VideoCollection* collection;
+		Library* library;
 		int64_t video_folder_id;
 		String absolute_path;
 		TreeSet<Video> videos;
@@ -263,32 +291,29 @@ namespace cigmar::video::database {
 			}
 			return report;
 		}
-		Folder(sqlite::Dataabase& database, VideoCollection& parent, int64_t folderId, const String& absolutePath):
-			db(&database), collection(&parent), video_folder_id(folderId), absolute_path(absolutePath), videos() {
+		Folder(sqlite::Dataabase& database, Library& parent, int64_t folderId, const String& absolutePath):
+			db(&database), library(&parent), video_folder_id(folderId), absolute_path(absolutePath), videos() {
 			report = update();
 		}
 	public:
-		void toStream(std::ostream& o) const override {
-			o << absolute_path;
-		}
-		Folder(): db(nullptr), collection(nullptr), video_folder_id(-1), absolute_path() {}
+		Folder(): db(nullptr), library(nullptr), video_folder_id(-1), absolute_path() {}
 		explicit operator bool() const {return (bool)db;}
 		int64_t getId() const {return video_folder_id;}
 		const String& getAbsolutePath() const {return absolute_path;}
 		size_t countVideos() const {return videos.size();}
 	};
 
-	class VideoCollection {
+	class Library {
 		friend class Database;
 	private:
 		sqlite::Dataabase* db;
-		int64_t collection_id;
-		String collection_name;
+		int64_t library_id;
+		String library_name;
 		String thumbnail_extension;
 		Report report;
 		Report update() {
 			Report report;
-			auto query = db->query("SELECT video_folder_id, absolute_path FROM video_folder WHERE collection_id = ?", collection_id);
+			auto query = db->query("SELECT video_folder_id, absolute_path FROM video_folder WHERE library_id = ?", library_id);
 			ArrayList<int64_t> idx;
 			ArrayList<String> paths;
 			while (query) {
@@ -306,18 +331,18 @@ namespace cigmar::video::database {
 			}
 			return report;
 		}
-		VideoCollection(sqlite::Dataabase& database,
-						int64_t collectionId,
-						const String& collectionName,
+		Library(sqlite::Dataabase& database,
+						int64_t libraryId,
+						const String& libraryName,
 						const String& thumnailExtension):
-			db(&database), collection_id(collectionId), collection_name(collectionName), thumbnail_extension(thumnailExtension) {
+			db(&database), library_id(libraryId), library_name(libraryName), thumbnail_extension(thumnailExtension) {
 			report = update();
 		}
 	public:
-		VideoCollection(): db(nullptr), collection_id(-1), collection_name(), thumbnail_extension() {}
+		Library(): db(nullptr), library_id(-1), library_name(), thumbnail_extension() {}
 		explicit operator bool() const {return (bool)db;}
-		int64_t getId() const {return collection_id;}
-		const String& getName() const {return collection_name;}
+		int64_t getId() const {return library_id;}
+		const String& getName() const {return library_name;}
 		const String& getThumbnailExtension() const {return thumbnail_extension;}
 		size_t countFolders() {
 			auto query = db->query("SELECT COUNT(video_folder_id) FROM video_folder");
@@ -331,8 +356,8 @@ namespace cigmar::video::database {
 		bool folderExists(const String& dirname) {
 			String absolutePath = sys::path::absolute((const char*)dirname);
 			auto query = db->query(
-				"SELECT COUNT(video_folder_id) FROM video_folder WHERE collection_id = ? AND absolute_path = ?",
-				collection_id, absolutePath
+				"SELECT COUNT(video_folder_id) FROM video_folder WHERE library_id = ? AND absolute_path = ?",
+				library_id, absolutePath
 			);
 			int count = 0;
 			while (query) {
@@ -344,15 +369,15 @@ namespace cigmar::video::database {
 		Folder createFolder(const String& dirname) {
 			String absolutePath = sys::path::absolute((const char*)dirname);
 			db->run(
-				"INSERT INTO video_folder (collection_id, absolute_path) VALUES(?, ?)",
-				collection_id, absolutePath);
+				"INSERT INTO video_folder (library_id, absolute_path) VALUES(?, ?)",
+				library_id, absolutePath);
 			return Folder(*db, *this, db->lastId(), absolutePath);
 		}
 		Folder getFolder(const String& dirname) {
 			String absolutePath = sys::path::absolute((const char*)dirname);
 			auto query = db->query(
-				"SELECT video_folder_id FROM video_folder WHERE collection_id = ? AND absolute_path = ?",
-				collection_id, absolutePath);
+				"SELECT video_folder_id FROM video_folder WHERE library_id = ? AND absolute_path = ?",
+				library_id, absolutePath);
 			int64_t id;
 			size_t count = 0;
 			while (query) {
@@ -365,7 +390,7 @@ namespace cigmar::video::database {
 		}
 		ArrayList<Folder> getFolders() {
 			ArrayList<Folder> folders;
-			auto query = db->query("SELECT video_folder_id, absolute_path FROM video_folder WHERE collection_id = ?", collection_id);
+			auto query = db->query("SELECT video_folder_id, absolute_path FROM video_folder WHERE library_id = ?", library_id);
 			while (query) {
 				int64_t id = query.getInt64(0);
 				String absolutePath = query.getText(1);
@@ -413,8 +438,8 @@ namespace cigmar::video::database {
 			uniqueProperties.update();
 			multipleProperties.update();
 		}
-		size_t countCollections() {
-			auto query = db.query("SELECT COUNT(collection_id) FROM collection");
+		size_t countLibraries() {
+			auto query = db.query("SELECT COUNT(library_id) FROM library");
 			size_t count = 0;
 			while (query) {
 				count = (size_t)query.getInt64(0);
@@ -422,8 +447,8 @@ namespace cigmar::video::database {
 			}
 			return count;
 		}
-		bool collectionExists(const String& name) {
-			auto query = db.query("SELECT COUNT(collection_id) FROM collection WHERE collection_name = ?", name);
+		bool libraryExists(const String& name) {
+			auto query = db.query("SELECT COUNT(library_id) FROM library WHERE library_name = ?", name);
 			int64_t count = 0;
 			while (query) {
 				count = query.getInt64(0);
@@ -431,13 +456,13 @@ namespace cigmar::video::database {
 			}
 			return count == 1;
 		}
-		VideoCollection createCollection(const String& name, const String& thumbnailExtension = "jpg") {
-			db.run("INSERT INTO collection(collection_name, thumbnail_extension) VALUES(?, ?)", name, thumbnailExtension);
-			return VideoCollection(db, db.lastId(), name, thumbnailExtension);
+		Library createLibrary(const String& name, const String& thumbnailExtension = "jpg") {
+			db.run("INSERT INTO library(library_name, thumbnail_extension) VALUES(?, ?)", name, thumbnailExtension);
+			return Library(db, db.lastId(), name, thumbnailExtension);
 		}
-		VideoCollection getCollection(const String& name) {
+		Library getLibrary(const String& name) {
 			auto query = db.query(
-				"SELECT collection_id, collection_name, thumbnail_extension FROM collection WHERE collection_name = ?",
+				"SELECT library_id, library_name, thumbnail_extension FROM library WHERE library_name = ?",
 				name);
 			int64_t id;
 			String thumbnailExtension;
@@ -449,7 +474,7 @@ namespace cigmar::video::database {
 				++query;
 			}
 			assert(count == 1);
-			return VideoCollection(db, id, name, thumbnailExtension);
+			return Library(db, id, name, thumbnailExtension);
 		}
 	};
 }
