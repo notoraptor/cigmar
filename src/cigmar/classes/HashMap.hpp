@@ -62,8 +62,10 @@ public:
 	iterator_t end() {return m.end();}
 	const_iterator_t begin() const {return m.begin();}
 	const_iterator_t end() const {return m.end();}
+	iterator_t iterator(const K& key) {return m.find(key);}
+	const_iterator_t iterator(const K& key) const {return m.find(key);}
 
-	HashMap& operator=(HashMap&&) = default;
+	HashMap& operator=(HashMap&&) noexcept = default;
 	HashMap& operator=(std::initializer_list<pair_type> il) {
 		m = il;
 		return *this;
