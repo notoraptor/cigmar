@@ -34,7 +34,7 @@ namespace cigmar::video {
 		double duration;
 		double frameRate;
 		double sampleRate;
-		String stringId;
+		String absolutePathHash;
 	private:
 		typedef nlohmann::json Json;
 		template<typename T> void extractValue(const std::string& in, T& out) {
@@ -116,12 +116,12 @@ namespace cigmar::video {
 		static bool extensionIsSupported(const String& extension);
 	public:
 		explicit Video(const String& filepath):
-				absolutePath(filepath), format(), audioCodec(), videoCodec(), stringId(), dateAddedMicroseconds(0),
+				absolutePath(filepath), format(), audioCodec(), videoCodec(), absolutePathHash(), dateAddedMicroseconds(0),
 				size(0), width(0), height(0), duration(0), frameRate(0), sampleRate(0) {
 			getInfos();
 		};
 		explicit Video(String&& filepath):
-				absolutePath(std::move(filepath)), format(), audioCodec(), videoCodec(), stringId(), dateAddedMicroseconds(0),
+				absolutePath(std::move(filepath)), format(), audioCodec(), videoCodec(), absolutePathHash(), dateAddedMicroseconds(0),
 				size(0), width(0), height(0), duration(0), frameRate(0), sampleRate(0) {
 			getInfos();
 		};
@@ -142,24 +142,12 @@ namespace cigmar::video {
 			return dateAddedMicroseconds;
 		}
 
-		const String& getId() {
-			if (!stringId) stringId = crypto::hash::whirlpool(absolutePath);
-			return stringId;
+		const String& getAbsolutePathHash() {
+			if (!absolutePathHash) absolutePathHash = crypto::hash::whirlpool(absolutePath);
+			return absolutePathHash;
 		}
-		String getId() const {
+		String getAbsolutePathHash() const {
 			return crypto::hash::whirlpool(absolutePath);
-		}
-
-		String getRelativePath(const String& parent) const {
-			String absoluteParent = sys::path::absolute((const char*)parent);
-			if (!sys::path::isDirectory((const char*)absoluteParent))
-				throw Exception("Parent must be a directory: ", absoluteParent);
-			if (!absoluteParent.endsWith(sys::path::separator))
-				absoluteParent << sys::path::separator;
-			pos_t posParent = absolutePath.indexOf(absoluteParent);
-			if (!posParent || posParent != 0)
-				throw Exception("Unable to get relative path against parent path", absoluteParent);
-			return absolutePath(absoluteParent.length(), absolutePath.length());
 		}
 
 		void toStream(std::ostream& o) const override {

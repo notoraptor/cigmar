@@ -31,9 +31,13 @@ public:
 
 	size_t size() const {return s.size();}
 	bool contains(const T& val) const {return s.count(val) != 0;}
-	HashSet& add(const T& val) {
-		s.insert(val);
-		return *this;
+	iterator_t add(const T& val) {
+		auto details = s.insert(val);
+		return std::get<0>(details);
+	}
+	iterator_t add(T&& val) {
+		auto details = s.insert(std::move(val));
+		return std::get<0>(details);
 	}
 	HashSet& remove(const T& val) {
 		s.erase(val);
@@ -64,6 +68,8 @@ public:
 	iterator_t end() {return s.end();}
 	const_iterator_t begin() const {return s.begin();}
 	const_iterator_t end() const {return s.end();}
+	iterator_t iterator(const T& val) {return s.find(val);}
+	const_iterator_t iterator(const T& val) const {return s.find(val);}
 
 	HashSet& operator=(HashSet&&) = default;
 	HashSet& operator=(std::initializer_list<T> il) {

@@ -56,7 +56,7 @@ namespace cigmar::sqlite {
 				throw Exception("Column index out of bound for SQLite statement.");
 			return sqlite3_column_type(stmt, col) == type;
 		}
-		friend class Dataabase;
+		friend class Database;
 		explicit Query(sqlite3* database, sqlite3_stmt* statement): db(database), stmt(statement), done(false) {
 			next();
 		};
@@ -184,7 +184,7 @@ namespace cigmar::sqlite {
 		};
 	};
 
-	class Dataabase {
+	class Database {
 	private:
 		sqlite3* db;
 		void open(const char* dbname) {
@@ -273,11 +273,11 @@ namespace cigmar::sqlite {
 			bind(stmt, pos + 1, std::forward<Args>(args)...);
 		}
 	public:
-		Dataabase(): db(nullptr) {};
-		explicit Dataabase(const char* dbname): db(nullptr) {
+		Database(): db(nullptr) {};
+		explicit Database(const char* dbname): db(nullptr) {
 			open(dbname);
 		};
-		~Dataabase() {
+		~Database() {
 			if (db) sqlite3_close(db);
 		};
 		template<typename... Args>

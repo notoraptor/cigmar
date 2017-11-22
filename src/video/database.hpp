@@ -31,6 +31,23 @@ namespace cigmar::video::database {
 		}
 	}
 
+	void collectRelativePaths(const char *dirpath, const std::function<void(const String&)>& collector) {
+		sys::Dir dir(dirpath);
+		for (const String pathname: dir) {
+			if (pathname != "." && pathname != "..") {
+				const String path = sys::path::join(dirpath, pathname);
+				if (sys::path::isDirectory((const char *) path)) {
+					collectRelativePaths((const char *) path, collector);
+				} else {
+					String extension = sys::path::extension((const char *) pathname);
+					if (Video::extensionIsSupported(extension.lower())) {
+						collector(path);
+					}
+				}
+			}
+		}
+	}
+
 	class Library;
 	class Database;
 
@@ -52,7 +69,7 @@ namespace cigmar::video::database {
 		int64_t text;
 		HashMap<int64_t, String> dbMappingId;
 		PropertyType(): dbMappingId() {}
-		void read(sqlite::Dataabase& db) {
+		void read(sqlite::Database& db) {
 			HashMap<String, int64_t> dbMappingName;
 			auto query = db.query("SELECT property_type_id, property_type_name FROM property_type");
 			while (query) {
@@ -96,9 +113,9 @@ namespace cigmar::video::database {
 		friend class Database;
 	private:
 		HashSet<UniquePropertyDefinition> definitions;
-		sqlite::Dataabase& db;
+		sqlite::Database& db;
 		PropertyType& type;
-		UniquePropertiesClass(sqlite::Dataabase& dataabase, PropertyType& propertyType):
+		UniquePropertiesClass(sqlite::Database& dataabase, PropertyType& propertyType):
 			definitions(), db(dataabase), type(propertyType) {}
 		void update() {
 			auto query = db.query(
@@ -167,9 +184,9 @@ namespace cigmar::video::database {
 		friend class Database;
 	private:
 		HashSet<MultiplePropertyDefinition> definitions;
-		sqlite::Dataabase& db;
+		sqlite::Database& db;
 		PropertyType& type;
-		MultiplePropertiesClass(sqlite::Dataabase& database, PropertyType& propertyType):
+		MultiplePropertiesClass(sqlite::Database& database, PropertyType& propertyType):
 			definitions(), db(database), type(propertyType) {}
 		void update() {
 			auto query = db.query(
@@ -241,7 +258,7 @@ namespace cigmar::video::database {
 	class Folder {
 		friend class Library;
 	private:
-		sqlite::Dataabase* db;
+		sqlite::Database* db;
 		Library* library;
 		int64_t video_folder_id;
 		String absolute_path;
@@ -277,7 +294,7 @@ namespace cigmar::video::database {
 					        video.getDateAddedMicroseconds(), video.getSize(), video.getFormat(),
 					        video.getAudioCodec(), video.getVideoCodec(), video.getSampleRate(), video.getFrameRate(),
 					        video.getDuration(), video.getWidth(), video.getHeight(),
-					        video.getRelativePath(absolute_path), video.getId(), video_folder_id
+					        video.getRelativePath(absolute_path), video.getAbsolutePathHash(), video_folder_id
 					);
 					++report.added;
 				}
@@ -291,7 +308,7 @@ namespace cigmar::video::database {
 			}
 			return report;
 		}
-		Folder(sqlite::Dataabase& database, Library& parent, int64_t folderId, const String& absolutePath):
+		Folder(sqlite::Database& database, Library& parent, int64_t folderId, const String& absolutePath):
 			db(&database), library(&parent), video_folder_id(folderId), absolute_path(absolutePath), videos() {
 			report = update();
 		}
@@ -306,7 +323,7 @@ namespace cigmar::video::database {
 	class Library {
 		friend class Database;
 	private:
-		sqlite::Dataabase* db;
+		sqlite::Database* db;
 		int64_t library_id;
 		String library_name;
 		String thumbnail_extension;
@@ -331,7 +348,7 @@ namespace cigmar::video::database {
 			}
 			return report;
 		}
-		Library(sqlite::Dataabase& database,
+		Library(sqlite::Database& database,
 						int64_t libraryId,
 						const String& libraryName,
 						const String& thumnailExtension):
@@ -425,7 +442,7 @@ namespace cigmar::video::database {
 			loadDatabaseStructureQueries("res/work/video/model.sql", queries);
 			for (const String& sql: queries) db.run(sql);
 		}
-		sqlite::Dataabase db;
+		sqlite::Database db;
 		PropertyType propertyType;
 	public:
 		UniquePropertiesClass uniqueProperties;

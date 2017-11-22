@@ -110,6 +110,18 @@ namespace cigmar {
 			String extension(const char* pathname) {
 				return hasExtension(pathname) ? String(strchr(pathname, '.') + 1) : "";
 			};
+			String relativePath(const String& parent, const String& path) {
+				String absoluteParent = sys::path::absolute((const char*)parent);
+				String absolutePath = sys::path::absolute((const char*)path);
+				if (!sys::path::isDirectory((const char*)absoluteParent))
+					throw Exception("Parent must be a directory: ", absoluteParent);
+				if (!absoluteParent.endsWith(sys::path::separator))
+					absoluteParent << sys::path::separator;
+				pos_t posParent = absolutePath.indexOf(absoluteParent);
+				if (!posParent || posParent != 0)
+					throw Exception("Unable to get relative path against parent path", absoluteParent);
+				return absolutePath(absoluteParent.length(), absolutePath.length());
+			}
 		}
 
 		class FileHandler {

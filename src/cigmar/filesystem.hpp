@@ -50,6 +50,7 @@ namespace cigmar {
 			String basename(const char* pathname);
 			String filename(const char* pathname);
 			String extension(const char* pathname);
+			String relativePath(const String& parent, const String& path);
 			template<typename... Args> String join(Args... args);
 			bool isDirectory(const char* pathname);
 			bool isFile(const char* pathname);
