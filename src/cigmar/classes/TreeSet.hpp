@@ -54,6 +54,10 @@ public:
 		s.insert(val);
 		return *this;
 	}
+	TreeSet& add(T&& val) {
+		s.insert(std::move(val));
+		return *this;
+	}
 	TreeSet& remove(const T& val) {
 		s.erase(val);
 		return *this;
@@ -92,10 +96,10 @@ public:
 		o << '{';
 		if (s.size()) {
 			auto it = s.begin();
-			o << *it;
+			o << Streamer<T>(*it);
 			++it;
 			while(it != s.end()) {
-				o << "; " << *it;
+				o << "; " << Streamer<T>(*it);
 				++it;
 			}
 		}

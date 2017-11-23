@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(src/cigmar)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "-pthread")
 include_directories(${PROJECT_SOURCE_DIR}/src)
 set(SOURCE_FILES
         src/cigmar/base64.hpp
@@ -42,6 +43,7 @@ set(SOURCE_FILES
         src/cigmar/types/pos_t.hpp
         src/cigmar/unittests.hpp
         src/cigmar/utils/Hasher.hpp
+        src/cigmar/utils/Initializable.hpp
         src/cigmar/whirlpool.hpp
         src/cpp/base64.cpp
         src/cpp/cigmar.cpp
@@ -70,11 +72,27 @@ set(SOURCE_FILES
         src/tests/test_time.cpp
         src/tests/test_TreeMap.cpp
         src/tests/test_video.cpp
-        src/video/database.hpp
         src/video/ffmpeg.cpp
         src/video/ffmpeg.hpp
+        src/video/manager/Database.cpp
+        src/video/manager/Database.hpp
+        src/video/manager/DbVideo.cpp
+        src/video/manager/DbVideo.hpp
+        src/video/manager/Folder.cpp
+        src/video/manager/Folder.hpp
+        src/video/manager/Library.cpp
+        src/video/manager/Library.hpp
+        src/video/manager/MultipleProperties.hpp
+        src/video/manager/MultipleProperty.hpp
+        src/video/manager/PropertyType.hpp
+        src/video/manager/PropertyTypes.hpp
+        src/video/manager/Report.hpp
+        src/video/manager/RowMapping.hpp
+        src/video/manager/TableRow.hpp
+        src/video/manager/UniqueProperties.hpp
+        src/video/manager/UniqueProperty.hpp
         src/video/Video.hpp
-        src/cigmar/utils/Initializable.hpp src/video/videomanager.cpp src/video/videomanager.hpp)
+        src/video/manager/manager.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 

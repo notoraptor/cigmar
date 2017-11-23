@@ -10,12 +10,27 @@ namespace cigmar {
 
 template<typename K, typename V>
 class HashMap: public Streamable {
+private:
+	template<typename Iterator, typename Value>
+	class value_iterator {
+		Iterator it;
+	public:
+		value_iterator(Iterator iterator): it(iterator) {}
+		value_iterator& operator++() {++it;}
+		bool operator==(const value_iterator& other) const {return it == other.it;}
+		bool operator!=(const value_iterator& other) const {return it != other.it;}
+		Value& operator*() {
+			return it->second;
+		}
+	};
 public:
 	typedef std::unordered_map<K, V, Hasher> map_type;
 	typedef typename map_type::iterator iterator_t;
 	typedef typename map_type::const_iterator const_iterator_t;
 	typedef typename map_type::value_type pair_type;
 	/// iterator->first, iterator->second
+	typedef value_iterator<iterator_t, V> value_iterator_t;
+	typedef value_iterator<const_iterator_t, const V> const_value_iterator_t;
 private:
 	map_type m;
 public:
@@ -26,7 +41,7 @@ public:
 
 	size_t size() const {return m.size();}
 	V& get(const K& key) {return m.at(key);}
-	V& get(const K& key) const {return m.at(key);}
+	const V& get(const K& key) const {return m.at(key);}
 	bool contains(const K& key) const {return m.count(key) != 0;}
 	HashMap& put(const K& key, const V& val) {
 		m.insert(pair_type(key, val));
@@ -64,6 +79,10 @@ public:
 	const_iterator_t end() const {return m.end();}
 	iterator_t iterator(const K& key) {return m.find(key);}
 	const_iterator_t iterator(const K& key) const {return m.find(key);}
+	value_iterator_t begin_values() {return value_iterator_t(m.begin());}
+	value_iterator_t end_values() {return value_iterator_t(m.end());}
+	const_value_iterator_t begin_values() const {return const_value_iterator_t(m.begin());}
+	const_value_iterator_t end_values() const {return const_value_iterator_t(m.end());}
 
 	HashMap& operator=(HashMap&&) noexcept = default;
 	HashMap& operator=(std::initializer_list<pair_type> il) {

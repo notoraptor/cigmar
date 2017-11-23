@@ -96,5 +96,35 @@ namespace cigmar {
 			}
 			return supportedExtensions.contains(extension);
 		}
+		void Video::collect(const char *dirpath, const std::function<void(Video&&)>& collector) {
+			sys::Dir dir(dirpath);
+			for (const String pathname: dir) {
+				if (pathname != "." && pathname != "..") {
+					String path = sys::path::join(dirpath, pathname);
+					if (sys::path::isDirectory((const char *) path)) {
+						collect((const char *) path, collector);
+					} else {
+						String extension = sys::path::extension((const char *) pathname);
+						if (extensionIsSupported(extension.lower()))
+							collector(Video(path));
+					}
+				}
+			}
+		}
+		void Video::collectPaths(const char *dirpath, const std::function<void(const String&)>& collector) {
+			sys::Dir dir(dirpath);
+			for (const String pathname: dir) {
+				if (pathname != "." && pathname != "..") {
+					const String path = sys::path::join(dirpath, pathname);
+					if (sys::path::isDirectory((const char *) path)) {
+						collectPaths((const char *) path, collector);
+					} else {
+						String extension = sys::path::extension((const char *) pathname);
+						if (cigmar::video::Video::extensionIsSupported(extension.lower()))
+							collector(path);
+					}
+				}
+			}
+		}
 	}
 }

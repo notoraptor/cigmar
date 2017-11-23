@@ -1,12 +1,8 @@
 #include <iostream>
 #include <cigmar/unittests.hpp>
-#include <cigmar/file/Lines.hpp>
+#include <video/manager/manager.hpp>
 #include <cigmar/print.hpp>
-#include <cigmar/file/writer/Binary.hpp>
-#include <video/database.hpp>
-#include <cigmar/sqlite.hpp>
-#include <cigmar/file/text/read.hpp>
-#include <cigmar/utils/Hasher.hpp>
+#include <video/Video.hpp>
 
 using std::cout;
 using std::cerr;
@@ -28,46 +24,36 @@ const char* jstring = R"(
 */
 
 void testDatabase() {
-	video::database::Database database("res/work/video/model.db");
-	String libraryName = "myTestLibrary";
+	String libraryName = "testLibrary";
 	String folderName = "res/video";
-	video::database::Library library;
-	video::database::Folder folder;
-	if (database.libraryExists(libraryName)) {
-		sys::err::println("Library", libraryName, "already exists.");
-		library = database.getLibrary(libraryName);
+	videomanager::Database db("res/work/video/model.db");
+	videomanager::Library* library;
+	videomanager::Folder* folder;
+	sys::err::println(db.countLibraries(), "libraries.");
+	if (db.hasLibrary(libraryName)) {
+		library = &db.getLibrary(libraryName);
+		sys::err::println("Library already exists:", libraryName);
 	} else {
-		library = database.createLibrary(libraryName);
+		library = &db.addLibrary(libraryName, video::Video::thumbnailExtension);
+		sys::err::println("Library created:", libraryName);
 	}
-	if (sys::path::isDirectory((const char*)folderName)) {
-		if (library.folderExists(folderName)) {
-			sys::err::println("Folder", folderName, "already exists.");
-			folder = library.getFolder(folderName);
-		} else {
-			folder = library.createFolder(folderName);
-		}
+	sys::err::println(library->countFolders(), "folders.");
+	if (library->hasFolder(folderName)) {
+		folder = &library->getFolder(folderName);
+		sys::err::println("Folder already registered:", folderName);
+	} else {
+		folder = &library->addFolder(folderName);
+		sys::err::println("Folder added:", folderName);
 	}
-	sys::err::println(database.countLibraries(), "librarie(s)");
-	sys::err::println(library.countFolders(), "folder(s)");
-	sys::err::println(library.getFolders().size(), "folder(s) loaded");
-	sys::err::println("Library details:", library.getId(), library.getName(), library.getThumbnailExtension());
-	sys::err::println("Folder details    :", folder.getId(), folder.getAbsolutePath());
-	sys::err::println(folder.countVideos(), "videos.");
-
-	if (database.uniqueProperties.has("notation"))
-		sys::err::println("Unique property notation already exists.");
-	else
-		database.uniqueProperties.addInteger("notation", "0");
-
-	if (database.multipleProperties.has("category"))
-		sys::err::println("Multiple property category already exists.");
-	else
-		database.multipleProperties.addText("category");
+	sys::err::println("<a>");
+	sys::err::println(folder->getAbsolutePath());
+	sys::err::println("<b>");
+	sys::err::println(folder->countVideos(), "videos.");
 }
 
 int main() {
 	 testDatabase();
-	 tests::run();
+	 // tests::run();
 	return 0;
 }
 

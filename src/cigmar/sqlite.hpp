@@ -11,6 +11,7 @@
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/base64.hpp>
+#include <cigmar/classes/Exception.hpp>
 
 namespace cigmar::sqlite {
 	typedef void(*Destructor)(void*);
@@ -22,19 +23,19 @@ namespace cigmar::sqlite {
 		Binding(bool isDynamic, const T* data, int dataSize, Destructor dataDestructor):
 			dynamic(isDynamic), pointer(data), size(dataSize), destructor(dataDestructor) {}
 	};
-	Binding<void> zeros(int size) {
+	Binding<void> inline zeros(int size) {
 		return {false, nullptr, size, nullptr};
 	}
-	Binding<void> Static(const void* data, int size) {
+	Binding<void> inline Static(const void* data, int size) {
 		return {false, data, size, nullptr};
 	};
-	Binding<char> Static(const char* data, int size = -1) {
+	Binding<char> inline Static(const char* data, int size = -1) {
 		return {false, data, size, nullptr};
 	};
-	Binding<void> Dynamic(const void* data, int size, Destructor destructor = nullptr) {
+	Binding<void> inline Dynamic(const void* data, int size, Destructor destructor = nullptr) {
 		return {true, data, size, destructor};
 	};
-	Binding<char> Dynamic(const char* data, int size = -1, Destructor destructor = nullptr) {
+	Binding<char> inline Dynamic(const char* data, int size = -1, Destructor destructor = nullptr) {
 		return {true, data, size, destructor};
 	};
 

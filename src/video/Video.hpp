@@ -114,6 +114,8 @@ namespace cigmar::video {
 	public:
 		static const char* thumbnailExtension;
 		static bool extensionIsSupported(const String& extension);
+		static void collect(const char *dirpath, const std::function<void(Video&&)>& collector);
+		static void collectPaths(const char *dirpath, const std::function<void(const String&)>& collector);
 	public:
 		explicit Video(const String& filepath):
 				absolutePath(filepath), format(), audioCodec(), videoCodec(), absolutePathHash(), dateAddedMicroseconds(0),
@@ -126,7 +128,7 @@ namespace cigmar::video {
 			getInfos();
 		};
 		Video(const Video&) = default;
-		Video(Video&&) = default;
+		Video(Video&&) noexcept = default;
 
 		const String& getAbsolutePath() const { return absolutePath; }
 		const String& getFormat() const { return format; }
@@ -158,6 +160,7 @@ namespace cigmar::video {
 		bool operator<(const Video& other) const {
 			return absolutePath < other.absolutePath;
 		}
+
 	};
 
 }

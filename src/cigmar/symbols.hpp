@@ -88,7 +88,7 @@ namespace cigmar {
 	namespace {
 		template<typename T>
 		auto is_streamable_impl(int)
-		-> decltype(std::ostringstream() << std::declval<T&>(), std::true_type{});
+		-> decltype(std::declval<std::ostream&> << std::declval<T&>(), std::true_type{});
 
 		template<typename T>
 		std::false_type is_streamable_impl(...);

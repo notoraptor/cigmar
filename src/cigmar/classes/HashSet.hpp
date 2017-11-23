@@ -36,7 +36,7 @@ public:
 		return std::get<0>(details);
 	}
 	iterator_t add(T&& val) {
-		auto details = s.insert(std::move(val));
+		std::pair<iterator_t, bool> details = s.insert(std::move(val));
 		return std::get<0>(details);
 	}
 	HashSet& remove(const T& val) {
