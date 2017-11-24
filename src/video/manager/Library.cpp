@@ -74,7 +74,7 @@ namespace cigmar::video::manager {
 		auto query = db->query("SELECT windows_absolute_path, unix_absolute_path FROM video_folder WHERE video_folder_id = ?",
 							   folderId);
 		String absolutePath, windowsAbsolutePath, unixAbsolutePath;
-		size_t count;
+		size_t count = 0;
 		while (query) {
 			windowsAbsolutePath = query.isNull(0) ? "" : query.getText(0);
 			unixAbsolutePath = query.isNull(1) ? "" : query.getText(1);

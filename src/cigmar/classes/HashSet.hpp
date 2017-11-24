@@ -22,7 +22,7 @@ public:
 private:
 	set_type s;
 public:
-	HashSet(): s() {}
+	HashSet() noexcept : s() {}
 	template<typename A, typename I, typename C>
 	HashSet(const Collection<A, I, C>& container): s(container.begin(), container.end()) {}
 	HashSet(std::initializer_list<T> il): s(il) {}

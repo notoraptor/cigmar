@@ -1,0 +1,60 @@
+Widget
+	INTERNAL
+		Directions<T>
+			T top
+			T left
+			T bottom
+			T right
+		Color
+			red: byte_t
+			green: byte_t
+			blue: byte_t
+		GradientElement
+			distance: size_t
+			color: Color
+		ColorGradient
+			points: GradientElement[] // first point must have distance 0
+		Image
+			n_channels: size_t
+			width: size_t
+			height: size_t
+			data: byte_t*
+		ImageView
+			imagePointer: Image*
+			x: size_t
+			y: size_t
+			width: size_t
+			height: size_t
+		Motif
+			image_view: ImageView
+			repeat_horizontal: bool
+			repeat_vertical: bool
+		Canvas
+		    virtual void paint(Surface*)
+		    // canvas.paint(surface) is called at every frame generation on the associated object.
+		Coloration: Color | ColorGradient | Motif | Canvas
+		Border
+			thickness: size_t
+			coloration: Coloration
+		Surface
+			width: size_t
+			height: size_t
+			coloration: Coloration
+	Division
+		borders: Directions<Border>
+		surface: Surface
+		style
+			padding: Directions<size_t>
+			margin: Directions<size_t>
+	TextFormat
+		text: utf8_string_t // to be defined
+		size: size_t
+		color: Color
+		background: Color
+		italic: bool
+		bold: bool
+		underline: bool
+		strike: bool
+	Text
+		text: TextFormat[] // to define
+		parent: Division*
