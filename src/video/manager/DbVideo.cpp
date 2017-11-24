@@ -15,22 +15,19 @@ namespace cigmar::video::manager {
 		query = db->query(
 			"SELECT multiple_property_id, value FROM multiple_property_to_video WHERE video_id = ?", video_id);
 		while (query) {
-			const MultipleProperty* pp = db.polyprops().get(query.getInt64(0));
-			if (multiple_properties.contains(pp)) {
-				multiple_properties[pp].add(query.getText(1));
+			const MultipleProperty& pp = db.polyprops().get(query.getInt64(0));
+			if (multiple_properties.contains(&pp)) {
+				multiple_properties[&pp].add(query.getText(1));
 			} else {
-				multiple_properties.put(pp, {query.getText(1)});
+				multiple_properties.put(&pp, {query.getText(1)});
 			}
 			++query;
 		}
 	}
-	void DbVideo::initRelativePath() {
-		relative_path = sys::path::relativePath(video_folder.getAbsolutePath(), video.getAbsolutePath());
-	}
-	DbVideo::DbVideo(Database& database, Folder& folder, int64_t id, const cigmar::video::Video& diskVideo):
-		db(database), video_folder(folder), video_id(id), relative_path(), video(diskVideo),
+	DbVideo::DbVideo(Database& database, const String& absoluteParent, int64_t id, const cigmar::video::Video& diskVideo):
+		db(database), absolute_parent(absoluteParent), video_id(id), relative_path(), video(diskVideo),
 		unique_properties(), multiple_properties() {
-		initRelativePath();
+		relative_path = sys::path::relative(absolute_parent, video.getAbsolutePath());
 		setId(video_id);
 		setKey(relative_path);
 		loadProperties();
@@ -46,11 +43,11 @@ namespace cigmar::video::manager {
 			unique_properties.put(unique_property, value);
 		}
 	};
-	void DbVideo::addMultipleProperty(const MultipleProperty* multiple_property, const String& value) {
-		if (!multiple_properties.contains(multiple_property) || !multiple_properties[multiple_property].contains(value)) {
+	void DbVideo::addMultipleProperty(const MultipleProperty& multiple_property, const String& value) {
+		if (!multiple_properties.contains(&multiple_property) || !multiple_properties[&multiple_property].contains(value)) {
 			db->run("INSERT INTO multiple_property_to_video (video_id, multiple_property_id, value) VALUES(?, ?, ?)",
-					video_id, multiple_property->multiple_property_id, value);
-			multiple_properties[multiple_property].add(value);
+					video_id, multiple_property.multiple_property_id, value);
+			multiple_properties[&multiple_property].add(value);
 		}
 	};
 	void DbVideo::clearUniqueProperty(const UniqueProperty* unique_property) {

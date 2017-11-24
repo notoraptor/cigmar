@@ -50,7 +50,7 @@ namespace cigmar {
 			String basename(const char* pathname);
 			String filename(const char* pathname);
 			String extension(const char* pathname);
-			String relativePath(const String& parent, const String& path);
+			String relative(const String& parent, const String& path);
 			template<typename... Args> String join(Args... args);
 			bool isDirectory(const char* pathname);
 			bool isFile(const char* pathname);
@@ -63,11 +63,11 @@ namespace cigmar {
 		}
 
 		String run(const char* command);
-
 		int makeDirectory(const char* pathname);
 		int removeDirectory(const char* pathname);
 		/**< Remove empty directory. **/
-
+		bool isWindows();
+		bool isUnix();
 	}
 }
 

@@ -3,6 +3,7 @@
 #include <video/manager/manager.hpp>
 #include <cigmar/print.hpp>
 #include <video/Video.hpp>
+#include <cigmar/numbers.hpp>
 
 using std::cout;
 using std::cerr;
@@ -45,10 +46,33 @@ void testDatabase() {
 		folder = &library->addFolder(folderName);
 		sys::err::println("Folder added:", folderName);
 	}
-	sys::err::println("<a>");
-	sys::err::println(folder->getAbsolutePath());
-	sys::err::println("<b>");
+	sys::err::println("Folder path:", folder->getAbsolutePath());
 	sys::err::println(folder->countVideos(), "videos.");
+	String multipleProperties[] = {"category", "person", "place"};
+	for (const String& mp: multipleProperties) {
+		if (db.polyprops().contains(mp)) {
+			sys::err::println("Multiple property", mp, "already registered.");
+		} else {
+			db.polyprops().addString(mp);
+			sys::err::println("Multiple property", mp, "registered.");
+		}
+	}
+	int count = numbers::random::uniform(3, 6);
+	sys::err::println("Adding", count, "values for each property");
+	for (videomanager::DbVideo& video: *folder) {
+		for (const String& mp: multipleProperties) {
+			auto& property = db.polyprops().get(mp);
+			for (int i = 0; i < count; ++i) {
+				String val = String::write(mp, ":value:", i + 1);
+				if (video.hasMultiplePropertyValue(property, val)) {
+					sys::err::println("Video already has value", val, "for property", mp, ":", video->getAbsolutePath());
+				} else {
+					video.addMultipleProperty(property, val);
+					sys::err::println("Set value", val, "for property", mp, "for video", video->getAbsolutePath());
+				}
+			}
+		}
+	}
 }
 
 int main() {

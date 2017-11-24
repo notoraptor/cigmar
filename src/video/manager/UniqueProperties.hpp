@@ -45,6 +45,9 @@ namespace cigmar::video::manager {
 				++query;
 			}
 		}
+		bool contains(const String& name) const {
+			return properties.contains(name);
+		}
 		void addInteger(const String& unique_property_name, const String& default_value = "") {
 			add(unique_property_name, default_value, types->integer());
 		};
@@ -57,6 +60,9 @@ namespace cigmar::video::manager {
 		void addString(const String& unique_property_name, const String& default_value = "") {
 			add(unique_property_name, default_value, types->text());
 		};
+		void addBool(const String& unique_property_name, bool default_value = false) {
+			add(unique_property_name, default_value ? "1" : "0", types->text());
+		}
 		void remove(const String& unique_property_name) {
 			if (properties.contains(unique_property_name)) {
 				db->run("DELETE FROM unique_property WHERE unique_property_name = ?", unique_property_name);

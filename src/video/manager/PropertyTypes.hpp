@@ -12,6 +12,7 @@
 
 namespace cigmar::video::manager {
 	class PropertyTypes {
+		PropertyType bool_type;
 		PropertyType int_type;
 		PropertyType uint_type;
 		PropertyType double_type;
@@ -29,7 +30,7 @@ namespace cigmar::video::manager {
 				++query;
 				++count;
 			}
-			assert(count == 4);
+			assert(count == 5);
 
 			auto it = mapping.iterator("int");
 			int_type = {it->second, it->first};
@@ -46,6 +47,10 @@ namespace cigmar::video::manager {
 			it = mapping.iterator("string");
 			string_type = {it->second, it->first};
 			index[string_type.property_type_id] = &string_type;
+
+			it = mapping.iterator("bool");
+			bool_type = {it->second, it->first};
+			index[bool_type.property_type_id] = &bool_type;
 		}
 		const PropertyType& get(int64_t id) const {
 			return *index.get(id);
@@ -54,6 +59,7 @@ namespace cigmar::video::manager {
 		const PropertyType& unsignedInteger() const {return uint_type;}
 		const PropertyType& floating() const {return double_type;}
 		const PropertyType& text() const {return string_type;}
+		const PropertyType& boolean() const {return bool_type;}
 	};
 }
 

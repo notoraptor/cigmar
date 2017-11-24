@@ -145,11 +145,37 @@ namespace random {
 		typedef typename COLLECTION::dtype dtype;
 		static_assert(
 			std::is_signed<dtype>{},
-			"normal distribution is forbidden for signed types, as it may generate negative values."
+			"normal distribution is forbidden for non-signed types, as it may generate negative values."
 		);
 		std::normal_distribution<double> distribution(mu, sigma);
 		for (dtype& x: arr) x = (dtype)distribution(rng.get());
 		return arr;
+	}
+
+	template<typename A, typename B>
+	A uniform(A a, B b) {
+		typedef typename std::conditional<
+			std::is_integral<A>::value,
+			std::uniform_int_distribution<A>,
+			std::uniform_real_distribution<A>
+		>::type distribution_t;
+		distribution_t distribution(a, b);
+		return distribution(rng.get());
+	};
+
+	template<typename N>
+	N binomial(N n, double p) {
+		static_assert(
+			std::is_integral<N>{},
+			"binomial distribution: parameter 'n' must be an integer type."
+		);
+		std::binomial_distribution<N> distribution(n, p);
+		return distribution(rng.get());
+	}
+
+	inline double normal(double mu, double sigma) {
+		std::normal_distribution<double> distribution(mu, sigma);
+		return distribution(rng.get());
 	}
 }
 

@@ -43,6 +43,9 @@ namespace cigmar::video::manager {
 				++query;
 			}
 		}
+		bool contains(const String& name) const {
+			return properties.contains(name);
+		}
 		void addInteger(const String& multiple_property_name) {
 			add(multiple_property_name, types->integer());
 		};
@@ -67,11 +70,11 @@ namespace cigmar::video::manager {
 				properties.remove(multiple_property_id);
 			}
 		};
-		const MultipleProperty* get(const String& multiple_property_name) const {
-			return &properties.get(multiple_property_name);
+		const MultipleProperty& get(const String& multiple_property_name) const {
+			return properties.get(multiple_property_name);
 		};
-		const MultipleProperty* get(int64_t multiple_property_id) const {
-			return &properties.get(multiple_property_id);
+		const MultipleProperty& get(int64_t multiple_property_id) const {
+			return properties.get(multiple_property_id);
 		};
 	};
 }

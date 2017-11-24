@@ -6,9 +6,12 @@ CREATE TABLE IF NOT EXISTS library (
 
 CREATE TABLE IF NOT EXISTS video_folder (
     video_folder_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    absolute_path TEXT NOT NULL,
+    windows_absolute_path TEXT,
+    unix_absolute_path TEXT,
     library_id INTEGER REFERENCES library(library_id) ON DELETE CASCADE,
-    UNIQUE (library_id, absolute_path)
+    UNIQUE (library_id, windows_absolute_path),
+    UNIQUE (library_id, unix_absolute_path),
+    CHECK (windows_absolute_path IS NOT NULL OR unix_absolute_path IS NOT NULL)
 );
 
 CREATE TABLE IF NOT EXISTS video (
@@ -62,4 +65,4 @@ CREATE TABLE IF NOT EXISTS multiple_property_to_video (
     PRIMARY KEY (video_id, multiple_property_id, value)
 );
 
-INSERT OR IGNORE INTO property_type (property_type_name) VALUES ('int'), ('uint'), ('double'), ('string')
+INSERT OR IGNORE INTO property_type (property_type_name) VALUES ('bool'), ('int'), ('uint'), ('double'), ('string')

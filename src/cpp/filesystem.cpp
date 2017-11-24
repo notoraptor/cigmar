@@ -110,7 +110,7 @@ namespace cigmar {
 			String extension(const char* pathname) {
 				return hasExtension(pathname) ? String(strchr(pathname, '.') + 1) : "";
 			};
-			String relativePath(const String& parent, const String& path) {
+			String relative(const String& parent, const String& path) {
 				String absoluteParent = sys::path::absolute((const char*)parent);
 				String absolutePath = sys::path::absolute((const char*)path);
 				if (!sys::path::isDirectory((const char*)absoluteParent))
@@ -170,6 +170,14 @@ namespace cigmar {
 				}
 			}
 			return out;
+		}
+		bool isWindows() {
+			String absolutePath = path::absolute(".");
+			return absolutePath.length() > 2 && isalpha(absolutePath[0]) && absolutePath[1] == ':' && absolutePath[2] == '\\';
+		}
+		bool isUnix() {
+			String absolutePath = path::absolute(".");
+			return absolutePath && absolutePath[0] == '/';
 		}
 	}
 }

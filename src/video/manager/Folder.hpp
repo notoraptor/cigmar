@@ -17,10 +17,9 @@ namespace cigmar::video::manager {
 	using namespace cigmar;
 
 	class Database;
-	class Library;
 	class Folder: public TableRow {
 		Database& db;
-		Library& library;
+		const int64_t library_id;
 		int64_t video_folder_id;
 		String absolute_path;
 		RowMapping<DbVideo> videos;
@@ -29,7 +28,7 @@ namespace cigmar::video::manager {
 		void recordVideo(const cigmar::video::Video &video);
 		void init();
 	public:
-		Folder(Database& database, Library& lib, int64_t id, const String& folder_path);
+		Folder(Database& database, int64_t libraryId, int64_t id, const String& folder_path);
 		size_t countVideos() const {return videos.size();};
 		DbVideo& getVideo(const String& video_relative_path) {return videos.get(video_relative_path);};
 		DbVideo& getVideo(int64_t video_id) {return videos.get(video_id);};

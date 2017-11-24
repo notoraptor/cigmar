@@ -39,5 +39,7 @@ script:
   - file cigmar
   - cd ..
   - pwd
+  # Run it twice.
+  - ./Build/cigmar
   - ./Build/cigmar
 

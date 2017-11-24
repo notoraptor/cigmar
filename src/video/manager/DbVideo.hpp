@@ -17,24 +17,26 @@ namespace cigmar::video::manager {
 	class Folder;
 	class DbVideo: public TableRow {
 		Database& db;
-		Folder& video_folder;
+		String absolute_parent;
 		int64_t video_id;
 		String relative_path;
 		cigmar::video::Video video;
 		HashMap<const UniqueProperty*, String> unique_properties;
 		HashMap<const MultipleProperty*, HashSet<String>> multiple_properties;
-		void initRelativePath();
 		void loadProperties();
 	public:
-		DbVideo(Database& database, Folder& folder, int64_t id, const cigmar::video::Video& diskVideo);
+		DbVideo(Database& database, const String& absoluteParent, int64_t id, const cigmar::video::Video& diskVideo);
 		bool hasUniqueProperty(const UniqueProperty& unique_property) const {
 			return unique_properties.contains(&unique_property);
 		};
 		bool hasMultipleProperty(const MultipleProperty& multiple_property) const {
 			return multiple_properties.contains(&multiple_property);
 		};
+		bool hasMultiplePropertyValue(const MultipleProperty& multiple_property, const String& value) const {
+			return multiple_properties.contains(&multiple_property) && multiple_properties.get(&multiple_property).contains(value);
+		}
 		void setUniqueProperty(const UniqueProperty* unique_property, const String& value);
-		void addMultipleProperty(const MultipleProperty* multiple_property, const String& value);
+		void addMultipleProperty(const MultipleProperty& multiple_property, const String& value);
 		void clearUniqueProperty(const UniqueProperty* unique_property);
 		void clearMultipleProperty(const MultipleProperty* multiple_property);
 		void removeMultiplePropertyValue(const MultipleProperty* multiple_property, const String& value);
@@ -49,7 +51,8 @@ namespace cigmar::video::manager {
 				throw Exception("No multiple property '", multiple_property.multiple_property_name,
 								"' for video '", video.getAbsolutePath(), "'");
 		};
-		const cigmar::video::Video onDisk() const {return video;}
+		cigmar::video::Video* operator->() {return &video;}
+		const cigmar::video::Video* operator->() const {return &video;}
 		bool operator==(const DbVideo& other) const {
 			return video_id == other.video_id;
 		}

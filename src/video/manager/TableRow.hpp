@@ -24,7 +24,7 @@ namespace cigmar::video::manager {
 		}
 	public:
 		int64_t id() const {return m_id;}
-		const String& key() const {return m_key;}
+		virtual const String& key() const {return m_key;}
 		size_t hash() const override {
 			return (size_t)m_id;
 		}

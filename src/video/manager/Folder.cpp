@@ -13,10 +13,10 @@ namespace cigmar::video::manager {
 				video.getDateAddedMicroseconds(), video.getSize(), video.getFormat(),
 				video.getAudioCodec(), video.getVideoCodec(), video.getSampleRate(), video.getFrameRate(),
 				video.getDuration(), video.getWidth(), video.getHeight(),
-				sys::path::relativePath(absolute_path, video.getAbsolutePath()),
+				sys::path::relative(absolute_path, video.getAbsolutePath()),
 				video.getAbsolutePathHash(), video_folder_id
 		);
-		videos.add(DbVideo(db, *this, db->lastId(), video));
+		videos.add(DbVideo(db, absolute_path, db->lastId(), video));
 	}
 	void Folder::init() {
 		TreeSet<cigmar::video::Video> diskVideos;
@@ -39,7 +39,7 @@ namespace cigmar::video::manager {
 			videosAbsolutePathsFromDisk.add(videoAbsolutePath);
 			if (videosAbsolutePathsFromDb.contains(videoAbsolutePath)) {
 				// Load database video.
-				videos.add(DbVideo(db, *this, videosAbsolutePathsFromDb.get(videoAbsolutePath), video));
+				videos.add(DbVideo(db, absolute_path, videosAbsolutePathsFromDb.get(videoAbsolutePath), video));
 			} else {
 				// We must add this video to the database.
 				recordVideo(video);
@@ -55,8 +55,8 @@ namespace cigmar::video::manager {
 			}
 		}
 	}
-	Folder::Folder(Database& database, Library& lib, int64_t id, const String& folder_path):
-		db(database), library(lib), video_folder_id(id), absolute_path(folder_path), videos(), report() {
+	Folder::Folder(Database& database, int64_t libraryId, int64_t id, const String& folder_path):
+		db(database), library_id(libraryId), video_folder_id(id), absolute_path(folder_path), videos(), report() {
 		setId(video_folder_id);
 		setKey(absolute_path);
 		init();
@@ -66,7 +66,7 @@ namespace cigmar::video::manager {
 		report.total = report.added = report.removed = 0;
 		cigmar::video::Video::collectPaths((const char*)absolute_path,
 										   [&relativePaths, this](const String& path) {
-											   relativePaths.add(sys::path::relativePath(absolute_path, path));
+											   relativePaths.add(sys::path::relative(absolute_path, path));
 										   });
 		report.total = relativePaths.size();
 		for (const String& relativePath: relativePaths) {
