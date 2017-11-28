@@ -13,3 +13,4 @@ cigmar.layout
 cmake-build-debug
 obj
 release
+res/work/video/.*
