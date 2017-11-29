@@ -25,6 +25,7 @@ set(SOURCE_FILES
         src/cigmar/file/writer/Binary.hpp
         src/cigmar/file/writer/Text.hpp
         src/cigmar/filesystem.hpp
+        src/cigmar/gui.hpp
         src/cigmar/format/tsv.hpp
         src/cigmar/hex.hpp
         src/cigmar/init.hpp

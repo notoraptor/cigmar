@@ -27,7 +27,7 @@ public:
 	HashSet(const Collection<A, I, C>& container): s(container.begin(), container.end()) {}
 	HashSet(std::initializer_list<T> il): s(il) {}
 	HashSet(const HashSet& other): s(other.s) {}
-	HashSet(HashSet&&) = default;
+	HashSet(HashSet&&) noexcept = default;
 
 	size_t size() const {return s.size();}
 	bool contains(const T& val) const {return s.count(val) != 0;}
@@ -71,7 +71,7 @@ public:
 	iterator_t iterator(const T& val) {return s.find(val);}
 	const_iterator_t iterator(const T& val) const {return s.find(val);}
 
-	HashSet& operator=(HashSet&&) = default;
+	HashSet& operator=(HashSet&&) noexcept = default;
 	HashSet& operator=(std::initializer_list<T> il) {
 		s = il;
 		return *this;

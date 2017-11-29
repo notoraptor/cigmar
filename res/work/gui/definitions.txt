@@ -1,60 +1,199 @@
-Widget
-	INTERNAL
-		Directions<T>
-			T top
-			T left
-			T bottom
-			T right
-		Color
-			red: byte_t
-			green: byte_t
-			blue: byte_t
-		GradientElement
-			distance: size_t
-			color: Color
-		ColorGradient
-			points: GradientElement[] // first point must have distance 0
-		Image
-			n_channels: size_t
-			width: size_t
-			height: size_t
-			data: byte_t*
-		ImageView
-			imagePointer: Image*
-			x: size_t
-			y: size_t
-			width: size_t
-			height: size_t
-		Motif
-			image_view: ImageView
-			repeat_horizontal: bool
-			repeat_vertical: bool
-		Canvas
-		    virtual void paint(Surface*)
-		    // canvas.paint(surface) is called at every frame generation on the associated object.
-		Coloration: Color | ColorGradient | Motif | Canvas
-		Border
-			thickness: size_t
-			coloration: Coloration
-		Surface
-			width: size_t
-			height: size_t
-			coloration: Coloration
-	Division
-		borders: Directions<Border>
-		surface: Surface
-		style
-			padding: Directions<size_t>
-			margin: Directions<size_t>
-	TextFormat
-		text: utf8_string_t // to be defined
-		size: size_t
-		color: Color
-		background: Color
-		italic: bool
-		bold: bool
-		underline: bool
-		strike: bool
-	Text
-		text: TextFormat[] // to define
-		parent: Division*
+// We must internally only use utf-8 strings.
+// Here, String is a ASCII-String, UString is a utf-8 string.
+
+Angle<typename Type, Type min, Type max>
+VerticalPosition: enum {TOP, CENTER, BOTTOM}
+HorizontalPosition: enum {LEFT, CENTER, RIGHT, JUSTIFY}
+Directions<T>
+    T top
+    T left
+    T bottom
+    T right
+Occurrences<T, U>
+    values: HashSet<T>
+    usages: U[]
+Coordinate
+    x: size_t
+    y: size_t
+Interval:
+    start: size_t
+    length: size_t
+Color
+    red:    ubyte_t
+    green:  ubyte_t
+    blue:   ubyte_t
+Font
+    // Class to be defined
+    static Font* get(const String& font_name)
+Format
+    value: union {
+        font: Font*
+        size: size_t
+        color: Color
+        background: Color
+        italic: bool
+        bold: bool
+        underline: bool
+        strike: bool
+    }
+    type: enum {FONT, SIZE, COLOR, BACKGROUND, ITALIC, BOLD, UNDERLINE, STRIKE}
+Href
+    url: String
+FormatPosition
+    Format* format
+    size_t start
+    size_t length
+HrefPosition
+    Href* href
+    size_t start
+    size_t length
+TextBlock
+Paragraph: TextBlock
+    content: UString
+    formats: Occurrences<Format, Interval>
+    hrefs: Occurrences<Href, Interval>
+    orientation: HorizontalPosition
+List: TextBlock
+    entries: TextBlock[]
+OrderedList: List
+EventType {
+    // window; other informed
+    bool closed() const
+    // widget
+    bool resized() const
+    bool focusIn() const
+    bool focusOut() const
+    bool mouseScroll() const
+    bool mouseDown() const
+    bool mouseUp() const
+    bool mouseMoved() const
+    bool mouseIn() const
+    bool mouseOut() const
+    // windows and object focused
+    bool text() const
+    bool keyDown() const
+    bool keyUp() const
+    /// Need other methods to access events specific properties.
+}
+EventHandler {
+    typedef std::function<bool()> default_handler_t;
+    typedef std::function<bool(size_t width, size_t height)> size_handler_t;
+    typedef std::function<bool(uint32_t unicode)> unicode_handler_t;
+    typedef std::function<bool(KeyCode code, bool alt, bool ctrl, bool shift, bool system)> key_handler_t;
+    typedef std::function<bool(bool vertical, float delta, int x, int y)> mouse_scroll_handler_t;
+    typedef std::function<bool(MouseButton button, int x, int y)> mouse_button_handler_t;
+    typedef std::function<bool(int x, int y)> mouse_handler_t;
+    // Setters.
+    void setOnClosed(default_handler_t)
+    void setOnResized(size_handler_t)
+    void setOnFocusIn(default_handler_t)
+    void setOnFocusOut(default_handler_t)
+    void setOnMouseScroll(mouse_scroll_handler_t)
+    void setOnMouseDown(mouse_button_handler_t)
+    void setOnMouseUp(mouse_button_handler_t)
+    void setOnMouseMoved(mouse_handler_t)
+    void setOnMouseIn(default_handler_t)
+    void setOnMouseOut(default_handler_t)
+    void setOnText(unicode_handler_t)
+    void setOnKeyDown(key_handler_t)
+    void setOnKeyUp(key_handler_t)
+    // Cleaners.
+    void resetOnClosed()
+    void resetOnResized()
+    void resetOnFocusIn()
+    void resetOnFocusOut()
+    void resetOnMouseScroll()
+    void resetOnMouseDown()
+    void resetOnMouseUp()
+    void resetOnMouseMoved()
+    void resetOnMouseIn()
+    void resetOnMouseOut()
+    void resetOnText()
+    void resetOnKeyDown()
+    void resetOnKeyUp()
+    // Executors.
+    bool onClosed()
+    bool onResized(size_t width, size_t height)
+    bool onFocusIn()
+    bool onFocusOut()
+    bool onMouseScroll(bool vertical, float delta, int x, int y)
+    bool onMouseDown(MouseButton button, int x, int y)
+    bool onMouseUp(MouseButton button, int x, int y)
+    bool onMouseMoved(int x, int y)
+    bool onMouseIn()
+    bool onMouseOut()
+    bool onText(uint32_t unicode)
+    bool onKeyDown(KeyCode code, bool alt, bool ctrl, bool shift, bool system)
+    bool onKeyUp(KeyCode code, bool alt, bool ctrl, bool shift, bool system)
+}
+GradientPoint
+    distance: size_t
+    color: Color
+ColorGradient
+    first: Color
+    points: GradientPoint[]
+    angle: Angle<float, 0, 360>
+Image
+    n_channels: size_t
+    width: size_t
+    height: size_t
+    data: byte_t*
+ImageView
+    imagePointer: Image*
+    x: size_t
+    y: size_t
+    width: size_t
+    height: size_t
+Motif
+    image_view: ImageView
+    repeat_horizontal: bool
+    repeat_vertical: bool
+Canvas
+    virtual void paint(Surface*)
+    // canvas.paint(surface) is called at every frame generation on the associated object.
+Background: Color | ColorGradient | Motif | Canvas
+Border
+    width: size_t
+    background: Background
+Surface
+    width: size_t
+    height: size_t
+    background: Background
+Text:
+    content: TextBlock[]
+Widget: EventHandler
+    parent: Widget*
+    children: Widget*[]
+    surface: Surface
+StyledWidget: Widget
+    borders: Directions<Border>
+    style
+        padding: Directions<size_t>
+        margin: Directions<size_t>
+Window: Widget
+    // root element: parent is always nullptr
+    focus: Widget*
+Division: StyledWidget // leaf widget
+    // children is always empty
+    text: Text* // default: nullptr
+Layout: StyledWidget // internal node widget
+HorizontalLayout: Layout
+    internal_alignments: VerticalPosition[]
+    global_internal_alignment: VerticalPosition
+VerticalLayout: Layout
+    internal_alignments: HorizontalPosition[]
+    global_internal_alignment: HorizontalPosition
+BorderLayout: Layout
+    // children is a constant-size vector of 5 widgets.
+    // children[0]: top
+    // children[0]: left
+    // children[0]: bottom
+    // children[0]: right
+    // children[0]: center
+    top_on_left: bool
+    top_on_right: bool
+    bottom_on_left: bool
+    bottom_on_right: bool
+    internal_padding: Directions<size_t>
+FreeLayout: Layout
+    coordinates: Coordinate[]

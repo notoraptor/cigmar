@@ -24,7 +24,7 @@ public:
 	TreeMap(less_type c = less_than): m(c) {}
 	TreeMap(std::initializer_list<pair_type> il, less_type c = less_than): m(il, c) {}
 	TreeMap(const TreeMap& other): m(other.m) {}
-	TreeMap(TreeMap&&) = default;
+	TreeMap(TreeMap&&) noexcept = default;
 
 	size_t size() const {return m.size();}
 	bool contains(const K& key) const {return m.count(key) != 0;}
@@ -67,7 +67,7 @@ public:
 	const_iterator_t begin() const {return m.begin();}
 	const_iterator_t end() const {return m.end();}
 
-	TreeMap& operator=(TreeMap&&) = default;
+	TreeMap& operator=(TreeMap&&) noexcept = default;
 	TreeMap& operator=(std::initializer_list<pair_type> il) {
 		m = il;
 		return *this;
