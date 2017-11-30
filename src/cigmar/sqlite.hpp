@@ -286,6 +286,7 @@ namespace cigmar::sqlite {
 			sqlite3_stmt* statement = NULL;
 			if (sqlite3_prepare_v2(db, sql, -1, &statement, NULL) != SQLITE_OK) {
 				String message = String::println("Unable to prepare SQL query:", sqlite3_errmsg(db));
+				message << "Query:" << ENDL << sql << ENDL;
 				sqlite3_finalize(statement);
 				throw Exception(message);
 			}

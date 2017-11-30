@@ -75,9 +75,23 @@ void testDatabase() {
 	}
 }
 
+template<typename T>
+class A {
+public:
+	void f() {
+		sys::err::println(sizeof(T));
+	}
+};
+
+typedef A<char> A_;
+
 int main() {
-	 testDatabase();
+	 // testDatabase();
 	 // tests::run();
+	A_ a;
+	A<int> b;
+	a.f();
+	b.f();
 	return 0;
 }
 
