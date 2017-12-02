@@ -20,9 +20,9 @@ namespace cigmar::tests {
 	};
 
 	static Dynamic<TestList> tests;
-	static bool initialized = false;
 
 	static void init() {
+		static bool initialized = false;
 		if (!initialized) {
 			tests.pointer = new TestList();
 			initialized = true;

@@ -23,7 +23,7 @@
 namespace cigmar {
 	/// Local definitons.
 	static std::locale loc;
-	static const char* hexDigits = "0123456789ABCDEF";
+	static const char* const hexDigits = "0123456789ABCDEF";
 
 	/// Global variables.
 	last_t LAST;

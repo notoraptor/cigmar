@@ -112,7 +112,7 @@ namespace cigmar::video {
 							std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 		}
 	public:
-		static const char* thumbnailExtension;
+		static const char* const thumbnailExtension;
 		static bool extensionIsSupported(const String& extension);
 		static void collect(const char *dirpath, const std::function<void(Video&&)>& collector);
 		static void collectPaths(const char *dirpath, const std::function<void(const String&)>& collector);

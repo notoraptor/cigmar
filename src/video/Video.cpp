@@ -7,21 +7,20 @@
 #include <video/Video.hpp>
 
 namespace cigmar::video {
-	static const char *supportedExtensions[] = {"3g2", "3gp", "asf", "avi", "drc", "f4a", "f4b", "f4p", "f4v",
-	                                            "flv", "gifv", "m2v", "m4p", "m4v", "mkv", "mng", "mov", "mp2",
-	                                            "mp4", "mpe", "mpeg", "mpg", "mpv", "mxf", "nsv", "ogg", "ogv",
-	                                            "qt", "rm", "rmvb", "roq", "svi", "vob", "webm", "wmv", "yuv",
-	                                            nullptr};
-	static HashSet<String> supportedExtensionsSet;
-	static bool supportedExtensionsInitialized = false;
-	const char *Video::thumbnailExtension = "jpg";
+	static const char* const supportedExtensions[] = {
+			"3g2", "3gp", "asf", "avi", "drc", "f4a", "f4b", "f4p", "f4v", "flv", "gifv", "m2v", "m4p", "m4v", "mkv",
+			"mng", "mov", "mp2", "mp4", "mpe", "mpeg", "mpg", "mpv", "mxf", "nsv", "ogg", "ogv", "qt", "rm", "rmvb",
+			"roq", "svi", "vob", "webm", "wmv", "yuv",
+			nullptr // !nullptr at the end of this array is mandatory!
+	};
+	const char* const Video::thumbnailExtension = "jpg";
 
 	bool Video::extensionIsSupported(const String &extension) {
-		if (!supportedExtensionsInitialized) {
+		static HashSet<String> supportedExtensionsSet;
+		if (!supportedExtensionsSet) {
 			for (size_t i = 0; supportedExtensions[i]; ++i) {
 				supportedExtensionsSet << supportedExtensions[i];
 			}
-			supportedExtensionsInitialized = true;
 		}
 		return supportedExtensionsSet.contains(extension);
 	}
