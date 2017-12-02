@@ -6,11 +6,10 @@
 #include <cigmar/classes/StringView.hpp>
 #include <cigmar/init.hpp>
 #include <cigmar/numbers.hpp>
-#include <video/Video.hpp>
 #include <cigmar/classes/HashSet.hpp>
 #include <cigmar/file/Lines.hpp>
-
-// #define STRING(a) const char* a = #a
+#include <libraries/base64/base64.hpp>
+#include <libraries/whirlpool/nessie.h>
 
 /* NB:
  * To have all C++11 thread functionalities available, compiler must be POSIX compliant.
@@ -21,15 +20,10 @@
  * http://www.programering.com/q/MTM5UzNwATg.html
 */
 
-/** Initialization of global symbols and variables. **/
-
 namespace cigmar {
 	/// Local definitons.
 	static std::locale loc;
-	namespace video {
-		static HashSet<String> supportedExtensions;
-		static bool supportedExtensionsInitialized = false;
-	}
+	static const char* hexDigits = "0123456789ABCDEF";
 
 	/// Global variables.
 	last_t LAST;
@@ -60,6 +54,75 @@ namespace cigmar {
 	}
 
 	/// Namespace definitions.
+	namespace base64 {
+		String encode(const String& in) {
+			String out;
+			Base64::Encode(in.cppstring(), out.cppstring());
+			return out;
+		}
+		String decode(const String& in) {
+			String out;
+			Base64::Decode(in.cppstring(), out.cppstring());
+			return out;
+		}
+		namespace bytes {
+			String encode(const byte_t* in, size_t len) {
+				ArrayList<char> out(Base64::EncodedLength(len) + 1, '\0');
+				Base64::Encode((const char*)in, len, (char*)out, out.size());
+				return String((const char*)out);
+			};
+			ArrayList<byte_t> decode(const String& in) {
+				ArrayList<byte_t> out((size_t)Base64::DecodedLength((const char*)in, in.length()));
+				Base64::Decode((const char*)in, in.length(), (char*)(byte_t*)out, out.size());
+				return out;
+			};
+		}
+	}
+	namespace crypto::hash {
+		// TODO: Move it in cigmar hex module.
+		static String toHex(const u8 array[], size_t length) {
+			String hexString(2 * length, '0');
+			for (size_t i = 0; i < length; ++i) {
+				hexString[2 * i] = hexDigits[array[i] >> 4];
+				hexString[2 * i + 1] = hexDigits[array[i] & ((1 << 4) - 1)];
+			}
+			return hexString;
+		}
+		String whirlpool(const String& in) {
+			if (in.length() > std::numeric_limits<unsigned long>::max() / 8) {
+				throw Exception("Current implementation of Whirlpool hashing algorithm supports maximum input size ",
+				                std::numeric_limits<unsigned long>::max() / 8, ", got ", in.length(), '.');
+			}
+			u8 digest[DIGESTBYTES];
+			struct NESSIEstruct w;
+			NESSIEinit(&w);
+			NESSIEadd((const unsigned char*)in.cstring(), 8 * (unsigned long)in.length(), &w);
+			NESSIEfinalize(&w, digest);
+			return toHex(digest, DIGESTBYTES);
+		};
+	}
+	namespace file::text {
+		String read(const char* filename) {
+			String text;
+			file::Lines file(filename);
+			for (const String& line : file) {
+				text << line;
+			}
+			return text;
+		};
+		String read(const std::string& filename){
+			String text;
+			file::Lines file(filename);
+			for (const String& line : file) text << line;
+			return text;
+		};
+		String read(const String& filename) {
+			String text;
+			file::Lines file(filename);
+			for (const String& line : file) text << line;
+			return text;
+		};
+	}
 	namespace numbers::random {
 		RNG rng;
 	}
@@ -81,50 +144,6 @@ namespace cigmar {
 		}
 		namespace hours {
 			void sleep(size_t count) {std::this_thread::sleep_for (std::chrono::hours(count));};
-		}
-	}
-	namespace video {
-		const char* Video::thumbnailExtension = "jpg";
-		bool Video::extensionIsSupported(const String& extension) {
-			if (!supportedExtensionsInitialized) {
-				file::Lines file("res/video/extensions.txt");
-				for (String& line: file) {
-					line.trim();
-					if (line && line[0] != '#') supportedExtensions << line;
-				}
-				supportedExtensionsInitialized = true;
-			}
-			return supportedExtensions.contains(extension);
-		}
-		void Video::collect(const char *dirpath, const std::function<void(Video&&)>& collector) {
-			sys::Dir dir(dirpath);
-			for (const String pathname: dir) {
-				if (pathname != "." && pathname != "..") {
-					String path = sys::path::join(dirpath, pathname);
-					if (sys::path::isDirectory((const char *) path)) {
-						collect((const char *) path, collector);
-					} else {
-						String extension = sys::path::extension((const char *) pathname);
-						if (extensionIsSupported(extension.lower()))
-							collector(Video(path));
-					}
-				}
-			}
-		}
-		void Video::collectPaths(const char *dirpath, const std::function<void(const String&)>& collector) {
-			sys::Dir dir(dirpath);
-			for (const String pathname: dir) {
-				if (pathname != "." && pathname != "..") {
-					const String path = sys::path::join(dirpath, pathname);
-					if (sys::path::isDirectory((const char *) path)) {
-						collectPaths((const char *) path, collector);
-					} else {
-						String extension = sys::path::extension((const char *) pathname);
-						if (cigmar::video::Video::extensionIsSupported(extension.lower()))
-							collector(path);
-					}
-				}
-			}
 		}
 	}
 }

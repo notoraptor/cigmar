@@ -76,8 +76,6 @@ void testDatabase() {
 
 
 int main() {
-	 // testDatabase();
-	/*
 	const char* s = "部首 国字 木, 神 !";
 	std::cout << "Hello World!" << std::endl;
 	std::cout << "部首 国字 木, 神 !" << std::endl;
@@ -100,8 +98,10 @@ int main() {
 	std::cout << utf8 << std::endl;
 	std::cout << decoded << std::endl;
 	std::cout << (utf8 == decoded) << std::endl;
-	*/
+
+	testDatabase();
 	tests::run();
+
 	return 0;
 }
 

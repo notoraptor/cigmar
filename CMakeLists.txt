@@ -49,14 +49,11 @@ set(SOURCE_FILES
         src/cigmar/utils/Hasher.hpp
         src/cigmar/utils/Initializable.hpp
         src/cigmar/whirlpool.hpp
-        src/cpp/base64.cpp
         src/cpp/cigmar.cpp
-        src/cpp/file/text/read.cpp
         src/cpp/filesystem.cpp
         src/cpp/filesystem_unix.inc
         src/cpp/filesystem_windows.inc
         src/cpp/unittests.cpp
-        src/cpp/whirlpool.cpp
         src/libraries/base64/base64.hpp
         src/libraries/json/json.hpp
         src/libraries/sqlite/sqlite3.c
@@ -98,7 +95,7 @@ set(SOURCE_FILES
         src/video/manager/UniqueProperties.hpp
         src/video/manager/UniqueProperty.hpp
         src/video/Video.hpp
-        )
+        src/video/Video.cpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 
