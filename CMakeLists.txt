@@ -58,6 +58,7 @@ set(SOURCE_FILES
         src/libraries/json/json.hpp
         src/libraries/sqlite/sqlite3.c
         src/libraries/sqlite/sqlite3.h
+        src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
         src/main.cpp
@@ -93,7 +94,7 @@ set(SOURCE_FILES
         src/video/manager/UniqueProperties.hpp
         src/video/manager/UniqueProperty.hpp
         src/video/Video.hpp
-        src/video/manager/manager.hpp)
+        src/video/manager/manager.hpp src/cigmar/classes/AbstractString.hpp src/cigmar/unicode.hpp src/cigmar/classes/UnicodeString.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 

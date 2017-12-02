@@ -2,8 +2,7 @@
 #include <cigmar/unittests.hpp>
 #include <video/manager/manager.hpp>
 #include <cigmar/print.hpp>
-#include <video/Video.hpp>
-#include <cigmar/numbers.hpp>
+#include <cigmar/classes/UnicodeString.hpp>
 
 using std::cout;
 using std::cerr;
@@ -75,23 +74,34 @@ void testDatabase() {
 	}
 }
 
-template<typename T>
-class A {
-public:
-	void f() {
-		sys::err::println(sizeof(T));
-	}
-};
-
-typedef A<char> A_;
 
 int main() {
 	 // testDatabase();
-	 // tests::run();
-	A_ a;
-	A<int> b;
-	a.f();
-	b.f();
+	/*
+	const char* s = "部首 国字 木, 神 !";
+	std::cout << "Hello World!" << std::endl;
+	std::cout << "部首 国字 木, 神 !" << std::endl;
+	std::cout << s << std::endl;
+
+	std::string utf8 =  u8"z\u00df\u6c34\U0001d10b"; // or u8"zß水𝄋"
+						// or "\x7a\xc3\x9f\xe6\xb0\xb4\xf0\x9d\x84\x8b";
+	std::cout << "original UTF-8 string size: " << utf8.size() << '\n';
+	std::cout << utf8 << std::endl;
+
+	// UTF-8 to UTF-32
+	std::vector<uint32_t> utf32;
+	unicode::convert(utf8, utf32);
+	std::cout << "UTF-32 string size: " << utf32.size() << '\n';
+
+	// UTF-32 to UTF-8
+	std::string decoded;
+	unicode::convert(utf32, decoded);
+	std::cout << "new UTF-8 string size: " << decoded.size() << '\n';
+	std::cout << utf8 << std::endl;
+	std::cout << decoded << std::endl;
+	std::cout << (utf8 == decoded) << std::endl;
+	*/
+	tests::run();
 	return 0;
 }
 

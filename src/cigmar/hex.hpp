@@ -32,12 +32,12 @@ namespace cigmar::hex {
 			value = (value >> 8);
 		}
 		if (trimFirstZeroPairs) {
-			size_t first_zeros = out.ltrimmable("0");
+			size_t first_zeros = out.leftTrimmable("0");
 			if (first_zeros) {
 				if (first_zeros == out.length())
 					out = "00";
 				else if (first_zeros % 2 == 0)
-					out.ltrim("0");
+					out.trimLeft("0");
 				else
 					out = String(out, first_zeros - 1);
 			}

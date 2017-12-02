@@ -1,16 +1,17 @@
 // We must internally only use utf-8 strings.
-// Here, String is a ASCII-String, UnicodeString is a utf-8 string.
 
 #include <cstddef>
 #include <cigmar/classes/HashSet.hpp>
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/classes/String.hpp>
+#include <cigmar/classes/UnicodeString.hpp>
 
 namespace cigmar::gui {
 
+	class Surface;
 	class Background;
 	class TextBlock;
-	typedef std::basic_string<uint32_t> UnicodeString;
+
 	class MouseButton {
 	public:
 		bool left() const;
@@ -66,7 +67,7 @@ namespace cigmar::gui {
 
 	class Font { // TODO
 	public:
-		static Font *get(const String &font_name);
+		static Font *get(const String& font_name);
 	};
 
 	struct Format {
@@ -93,7 +94,7 @@ namespace cigmar::gui {
 	};
 
 	struct HrefPosition {
-		String *href;
+		String* href;
 		size_t start;
 		size_t length;
 	};

@@ -36,9 +36,6 @@ public:
 		else
 			o << -1;
 	}
-	static pos_t _stringpos(size_t pos) {
-		return pos_t(pos != std::string::npos, pos);
-	}
 	pos_t& operator=(size_t v) {
 		valid = true;
 		value = v;
