@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "-pthread")
 include_directories(${PROJECT_SOURCE_DIR}/src)
 set(SOURCE_FILES
         src/cigmar/base64.hpp
+        src/cigmar/classes/AbstractString.hpp
         src/cigmar/classes/array_t.hpp
         src/cigmar/classes/ArrayList.hpp
         src/cigmar/classes/Char.hpp
@@ -20,13 +21,14 @@ set(SOURCE_FILES
         src/cigmar/classes/Timer.hpp
         src/cigmar/classes/TreeMap.hpp
         src/cigmar/classes/TreeSet.hpp
+        src/cigmar/classes/UnicodeString.hpp
         src/cigmar/file/Lines.hpp
         src/cigmar/file/text/read.hpp
         src/cigmar/file/writer/Binary.hpp
         src/cigmar/file/writer/Text.hpp
         src/cigmar/filesystem.hpp
-        src/cigmar/gui.hpp
         src/cigmar/format/tsv.hpp
+        src/cigmar/gui.hpp
         src/cigmar/hex.hpp
         src/cigmar/init.hpp
         src/cigmar/interfaces/Collection.hpp
@@ -42,6 +44,7 @@ set(SOURCE_FILES
         src/cigmar/symbols.hpp
         src/cigmar/time.hpp
         src/cigmar/types/pos_t.hpp
+        src/cigmar/unicode.hpp
         src/cigmar/unittests.hpp
         src/cigmar/utils/Hasher.hpp
         src/cigmar/utils/Initializable.hpp
@@ -84,6 +87,7 @@ set(SOURCE_FILES
         src/video/manager/Folder.hpp
         src/video/manager/Library.cpp
         src/video/manager/Library.hpp
+        src/video/manager/manager.hpp
         src/video/manager/MultipleProperties.hpp
         src/video/manager/MultipleProperty.hpp
         src/video/manager/PropertyType.hpp
@@ -94,7 +98,7 @@ set(SOURCE_FILES
         src/video/manager/UniqueProperties.hpp
         src/video/manager/UniqueProperty.hpp
         src/video/Video.hpp
-        src/video/manager/manager.hpp src/cigmar/classes/AbstractString.hpp src/cigmar/unicode.hpp src/cigmar/classes/UnicodeString.hpp)
+        )
 
 add_executable(cigmar ${SOURCE_FILES})
 
