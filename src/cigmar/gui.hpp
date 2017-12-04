@@ -5,34 +5,40 @@
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/UnicodeString.hpp>
+#include <cigmar/classes/HashMap.hpp>
 
 namespace cigmar::gui {
 
-	class Surface;
-	class Background;
-	class TextBlock;
+	namespace backend {
+		class Font;
+	}
 
-	class MouseButton {
-	public:
-		bool left() const;
-		bool right() const;
-		bool middle() const;
-		bool extra1() const;
-		bool extra2() const;
+	/// Enumerations MouseButton and KeyCode are inspired from SFML 2.4.2
+	enum class MouseButton { UNKNOWN = -1, LEFT = 0, RIGHT, MIDDLE, EXTRA1, EXTRA2, COUNT };
+	enum class KeyCode {
+		UNKNOWN = -1,
+		A = 0, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+		NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9,
+		ESCAPE,
+		CONTROL_LEFT, SHIFT_LEFT, ALT_LEFT, SYSTEM_LEFT,
+		CONTROL_RIGHT, SHIFT_RIGHT, ALT_RIGHT, SYSTEM_RIGHT,
+		MENU,
+		BRACKET_LEFT, BRACKET_RIGHT,
+		SEMICOLON, COMMA, PERIOD, QUOTE, SLASH, BACKSLASH, TILDE, EQUAL, DASH, SPACE, RETURN, BACKSPACE, TAB,
+		PAGEUP, PAGEDOWN, END, HOME, INSERT, DELETE, ADD, SUBTRACT, MULTIPLY, DIVIDE, LEFT, RIGHT, UP, DOWN,
+		NUMPAD0, NUMPAD1, NUMPAD2, NUMPAD3, NUMPAD4, NUMPAD5, NUMPAD6, NUMPAD7, NUMPAD8, NUMPAD9,
+		F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15,
+		PAUSE,
+		COUNT
 	};
-	class KeyCode {}; // TODO
+	enum class VerticalPosition { TOP, CENTER, BOTTOM };
+	enum class HorizontalPosition { LEFT, CENTER, RIGHT, JUSTIFY };
+
+	class Surface;
 
 	template<typename Type, Type min, Type max>
 	struct Angle {
 		Type value;
-	};
-
-	enum class VerticalPosition {
-		TOP, CENTER, BOTTOM
-	};
-
-	enum class HorizontalPosition {
-		LEFT, CENTER, RIGHT, JUSTIFY
 	};
 
 	template<typename T>
@@ -54,43 +60,124 @@ namespace cigmar::gui {
 		size_t y;
 	};
 
-	struct Interval {
-		size_t start;
-		size_t length;
-	};
-
-	struct Color : public Background {
-		ubyte_t red;
-		ubyte_t green;
-		ubyte_t blue;
-	};
-
-	class Font { // TODO
-	public:
-		static Font *get(const String& font_name);
-	};
-
-	struct Format {
-		enum class Type {
-			FONT, SIZE, COLOR, BACKGROUND, ITALIC, BOLD, UNDERLINE, STRIKE
+	namespace primitive {
+		struct Background {
+			enum class Type {CANVAS, COLOR, GRADIENT, MOTIF};
+			Type type;
 		};
-		union {
-			Font* font;
-			size_t size;
-			Color color;
-			Color background;
-			bool italic;
-			bool bold;
-			bool underline;
-			bool strike;
-		} value;
-		Type type;
+	}
+
+	struct Color : public primitive::Background {
+		unsigned char red;
+		unsigned char green;
+		unsigned char blue;
+		unsigned char alpha; // 0: transparent, 255: opaque
 	};
 
-	struct FormatPosition {
-		Format *format;
-		size_t start;
-		size_t length;
+	namespace primitive {
+
+		struct Size {
+			size_t width;
+			size_t height;
+		};
+
+		struct Outline {
+			size_t width;
+			Color color;
+		};
+
+		struct Rectangle;
+
+		struct Primitive {
+			Outline outline;
+			Background* background;
+			virtual Size getSize() const = 0;
+			virtual Rectangle getBox() const = 0;
+			virtual void paint(Surface* surface, const Coordinate& topLeft) = 0;
+		};
+
+		struct Ellipse: public Primitive {
+			size_t hradius;
+			size_t vradius;
+			Coordinate center;
+		};
+
+		struct Rectangle: public Primitive {
+			size_t width;
+			size_t height;
+		};
+
+		class Coordinates: public Primitive {
+			/* List of coordinates to define a geometric form.
+			 * When drawn, the coordinates are transposed to a space
+			 * where the reference point if the top-left vertex of the smallest
+			 * rectangle surrounding these coordinates. */
+			ArrayList<Coordinate> coordinates;
+		public:
+			virtual void paint(Surface* surface, const ArrayList<Coordinate>& normalized) = 0;
+			void normalize(ArrayList<Coordinate>& out, const Coordinate& topLeft = {0, 0});
+			void paint(Surface* surface, const Coordinate& topLeft) override {
+				ArrayList<Coordinates> normalized;
+				normalize(normalized, topLeft);
+				paint(surface,normalized);
+			}
+		};
+
+		struct Polygon: public Coordinates {};
+
+		struct RegularPolygon: public Coordinates {
+			RegularPolygon(size_t radius, size_t n_vertices);
+		};
+
+		struct PolyLine: public Coordinates {
+			/// Connected series of line segments.
+		};
+
+		struct Bezier: public Coordinates {};
+
+		struct Segment: public Coordinates {
+			// Only 2 coordinates allowed.
+		};
+
+		struct Line: public Segment {};
+
+		struct WindowHandler {
+			void drawPoints(const Coordinates& vertices);
+			void drawSegments(const Coordinates& vertices);
+			void drawPolygon(const Coordinates& vertices);
+			void drawEllipse(const Ellipse& ellipse);
+			/// NB: To draw a Bezier curve, we could calculate coordinates ourselves
+			/// and use either drawPoints() or drawSegments().
+		};
+
+	}
+
+	struct Font {
+	public:
+		backend::Font* handler;
+		static HashMap<String, backend::Font*> loadedFonts;
+		static Font* get(const String& font_name);
+
+		struct Format {
+			enum class Type { FONT, SIZE, COLOR, BACKGROUND, ITALIC, BOLD, UNDERLINE, STRIKE, COUNT };
+			union {
+				Font* font;
+				size_t size;
+				Color color;
+				Color background;
+				bool italic;
+				bool bold;
+				bool underline;
+				bool strike;
+			} value;
+			Type type;
+
+			struct Position {
+				Font::Format* format;
+				size_t start;
+				size_t length;
+			};
+		};
 	};
 
 	struct HrefPosition {
@@ -99,10 +186,12 @@ namespace cigmar::gui {
 		size_t length;
 	};
 
+	class TextBlock;
+
 	class Paragraph : public TextBlock {
 		UnicodeString content;
-		Occurrences<Format, Interval> formats;
-		Occurrences<String, Interval> hrefs;
+		Occurrences<Font::Format, Font::Format::Position> formats;
+		Occurrences<String, HrefPosition> hrefs;
 		HorizontalPosition orientation;
 	};
 
@@ -112,29 +201,43 @@ namespace cigmar::gui {
 
 	class OrderedList : public List {};
 
-	struct EventType {
-		// window; other informed
-		bool closed() const;
-
-		// widget
-		bool resized() const;
-		bool focusIn() const;
-		bool focusOut() const;
-		bool mouseScroll() const;
-		bool mouseDown() const;
-		bool mouseUp() const;
-		bool mouseMoved() const;
-		bool mouseIn() const;
-		bool mouseOut() const;
-
-		// windows and object focused
-		bool text() const;
-		bool keyDown() const;
-		bool keyUp() const;
-		/// Maybe need other methods to access events specific properties ?
+	struct Event {
+		enum class Type {
+			CLOSED, RESIZED, FOCUS_IN, FOCUS_OUT,
+			MOUSE_SCROLL, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVED, MOUSE_IN, MOUSE_OUT,
+			TEXT, KEY_DOWN, KEY_UP,
+			COUNT
+		};
+		union {
+			struct {
+				size_t width;
+				size_t height;
+			} size;
+			struct {
+				KeyCode code;
+				bool alt;
+				bool ctrl;
+				bool shift;
+				bool system;
+			} code;
+			struct {
+				int x;
+				int y;
+				union {
+					struct {
+						bool vertical;
+						float delta;
+					} scroll;
+					MouseButton button;
+				};
+			} mouse;
+			uint32_t unicode;
+		};
+		Type type;
 	};
 
-	struct EventHandler {
+	class EventHandler {
+	public:
 		typedef std::function<bool()> default_handler_t;
 		typedef std::function<bool(size_t, size_t)> size_handler_t;
 		typedef std::function<bool(uint32_t)> unicode_handler_t;
@@ -142,7 +245,21 @@ namespace cigmar::gui {
 		typedef std::function<bool(bool, float, int, int)> mouse_scroll_handler_t;
 		typedef std::function<bool(MouseButton, int, int)> mouse_button_handler_t;
 		typedef std::function<bool(int x, int y)> mouse_handler_t;
-
+	private:
+		default_handler_t onClosedHandler;
+		size_handler_t onResizedHandler;
+		default_handler_t onFocusInHandler;
+		default_handler_t onFocusOutHandler;
+		mouse_scroll_handler_t onMouseScrollHandler;
+		mouse_button_handler_t onMouseDownHandler;
+		mouse_button_handler_t onMouseUpHandler;
+		mouse_handler_t onMouseMovedHandler;
+		default_handler_t onMouseInHandler;
+		default_handler_t onMouseOutHandler;
+		unicode_handler_t onTextHandler;
+		key_handler_t onKeyDownHandler;
+		key_handler_t onKeyUpHandler;
+	public:
 		// Setters.
 		void setOnClosed(default_handler_t);
 		void setOnResized(size_handler_t);
@@ -157,7 +274,6 @@ namespace cigmar::gui {
 		void setOnText(unicode_handler_t);
 		void setOnKeyDown(key_handler_t);
 		void setOnKeyUp(key_handler_t);
-
 		// Cleaners.
 		void resetOnClosed();
 		void resetOnResized();
@@ -172,7 +288,6 @@ namespace cigmar::gui {
 		void resetOnText();
 		void resetOnKeyDown();
 		void resetOnKeyUp();
-
 		// Executors.
 		bool onClosed();
 		bool onResized(size_t width, size_t height);
@@ -194,36 +309,42 @@ namespace cigmar::gui {
 		Color color;
 	};
 
-	class ColorGradient : public Background {
+	class ColorGradient : public primitive::Background {
 		Color first;
 		ArrayList <GradientPoint> nextPoints;
 		Angle<float, 0, 180> rotationFromLeft;
 	};
 
-	class Image {
+	struct Image {
 		size_t n_channels;
 		size_t width;
 		size_t height;
 		byte_t *data;
+
+		struct View {
+			Image *image;
+			size_t x;
+			size_t y;
+			size_t width;
+			size_t height;
+		};
 	};
 
-	class ImageView {
-		Image *image;
-		size_t x;
-		size_t y;
-		size_t width;
-		size_t height;
+	class Motif : public primitive::Background {
+		Image::View imageView;
+		bool hrepeat;
+		bool vrepeat;
 	};
 
-	class Motif : public Background {
-		ImageView imageView;
-		bool repeat_horizontal;
-		bool repeat_vertical;
-	};
-
-	class Canvas : public Background {
-		virtual void paint(Surface *) = 0;
-		// canvas.paint(surface) is called at every frame generation on the associated object.
+	class Canvas : public primitive::Background {
+		// A canvas is always defined wrt/ the surrounding rectangle
+		// of the primitive for which it's a background.
+		enum class Scaling {FIXED, FORCED, SCALED};
+		ArrayList<primitive::Primitive*> primitives;
+		ArrayList<Coordinate> coordinates;
+		Scaling scaling;
+	public:
+		size_t size() const ;
 	};
 
 	struct Border {
