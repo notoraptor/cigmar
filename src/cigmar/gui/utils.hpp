@@ -1,0 +1,118 @@
+//
+// Created by notoraptor on 17-12-04.
+//
+
+#ifndef SRC_CIGMAR_UTILS_HPP
+#define SRC_CIGMAR_UTILS_HPP
+
+#include <cstddef>
+#include <cigmar/classes/ArrayList.hpp>
+#include <cigmar/classes/HashSet.hpp>
+
+namespace cigmar::gui {
+
+	template<typename T, typename U>
+	struct Occurrences<T, U> {
+		HashSet <T> values;
+		ArrayList <U> usages;
+	};
+
+	template<typename T>
+	struct TextPosition {
+		T* element;
+		size_t start;
+		size_t length;
+	};
+
+	struct Coordinate {
+		int x;
+		int y;
+	};
+
+	struct Image {
+		size_t n_channels;
+		size_t width;
+		size_t height;
+		char* data;
+
+		struct View {
+			Image *image;
+			size_t x;
+			size_t y;
+			size_t width;
+			size_t height;
+		};
+	};
+
+	struct WindowResolution {
+		size_t width;
+		size_t height;
+		size_t bitsPerPixels;
+	};
+
+	struct WindowProperties {
+		WindowResolution resolution;
+		bool resizable;
+		bool closeable;
+		bool fullscreen;
+		bool decored;
+		bool titled;
+	};
+
+	/// Enumerations MouseButton and KeyCode are inspired from SFML 2.4.2
+	enum class MouseButton { UNKNOWN = -1, LEFT = 0, RIGHT, MIDDLE, EXTRA1, EXTRA2, COUNT };
+	enum class KeyCode {
+		UNKNOWN = -1,
+		A = 0, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+		NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9,
+		NUMPAD0, NUMPAD1, NUMPAD2, NUMPAD3, NUMPAD4, NUMPAD5, NUMPAD6, NUMPAD7, NUMPAD8, NUMPAD9,
+		ADD, SUBTRACT, MULTIPLY, DIVIDE,
+		ESCAPE, MENU, PAUSE,
+		CONTROL_LEFT, SHIFT_LEFT, ALT_LEFT, SYSTEM_LEFT,
+		CONTROL_RIGHT, SHIFT_RIGHT, ALT_RIGHT, SYSTEM_RIGHT,
+		BRACKET_LEFT, BRACKET_RIGHT,
+		TAB, SEMICOLON, COMMA, PERIOD, QUOTE, SLASH, BACKSLASH, TILDE, EQUAL, DASH, SPACE,
+		RETURN, BACKSPACE, INSERT, DELETE, PAGEUP, PAGEDOWN, END, HOME,  LEFT, RIGHT, UP, DOWN,
+		F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15,
+		COUNT
+	};
+
+	struct Event {
+		enum class Type {
+			UNKNOWN = -1,
+			CLOSED = 0, RESIZED, FOCUS_IN, FOCUS_OUT,
+			MOUSE_SCROLL, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVED, MOUSE_IN, MOUSE_OUT,
+			TEXT, KEY_DOWN, KEY_UP,
+			COUNT
+		};
+		union {
+			struct {
+				size_t width;
+				size_t height;
+			} size;
+			struct {
+				KeyCode code;
+				bool alt;
+				bool ctrl;
+				bool shift;
+				bool system;
+			} code;
+			struct {
+				int x;
+				int y;
+				union {
+					struct {
+						bool vertical;
+						float delta;
+					} scroll;
+					MouseButton button;
+				};
+			} mouse;
+			uint32_t unicode;
+		};
+		Type type;
+	};
+
+}
+
+#endif //SRC_CIGMAR_UTILS_HPP

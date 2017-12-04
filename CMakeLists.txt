@@ -28,7 +28,7 @@ set(SOURCE_FILES
         src/cigmar/file/writer/Text.hpp
         src/cigmar/filesystem.hpp
         src/cigmar/format/tsv.hpp
-        src/cigmar/gui.hpp
+        src/cigmar/gui/gui.hpp
         src/cigmar/hex.hpp
         src/cigmar/init.hpp
         src/cigmar/interfaces/Collection.hpp
@@ -95,7 +95,7 @@ set(SOURCE_FILES
         src/video/manager/UniqueProperties.hpp
         src/video/manager/UniqueProperty.hpp
         src/video/Video.hpp
-        src/video/Video.cpp)
+        src/video/Video.cpp src/cigmar/gui/primitive.hpp src/cigmar/gui/utils.hpp src/cigmar/gui/backend.hpp src/cigmar/gui/gui.cpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 
