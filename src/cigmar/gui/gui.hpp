@@ -10,6 +10,26 @@
 #include <cigmar/gui/backend.hpp>
 #include <cigmar/gui/utils.hpp>
 
+/*
+Notes.
+Rectangle {
+ 	x, y, width, height
+}
+widget {
+	Rectangle draw(x, y, width, height) {
+ 		// LEAF:
+ 		// Compute / set primitives
+ 		// Send primitives to window handler
+ 		// NODE:
+ 		// ::LEAF
+ 		// for each child: .. .draw(child, _x, _y, _width, _height) ...
+ 	};
+}
+parent {
+ 	Rectangle regionDrawed = draw(child, x, y, width, height)
+}
+*/
+
 namespace cigmar::gui {
 
 	enum class VerticalPosition { TOP, CENTER, BOTTOM };
