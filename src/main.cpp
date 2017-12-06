@@ -3,6 +3,7 @@
 #include <video/manager/manager.hpp>
 #include <cigmar/print.hpp>
 #include <cigmar/classes/UnicodeString.hpp>
+#include <cigmar/tree.hpp>
 
 using std::cout;
 using std::cerr;
@@ -74,8 +75,13 @@ void testDatabase() {
 	}
 }
 
+struct Test: public tree::Node<Test> {
+	int val = 10;
+	using tree::Node<Test>::Node;
+};
 
 int main() {
+	/*
 	const char* s = "部首 国字 木, 神 !";
 	std::cout << "Hello World!" << std::endl;
 	std::cout << "部首 国字 木, 神 !" << std::endl;
@@ -101,7 +107,8 @@ int main() {
 
 	testDatabase();
 	tests::run();
-
+	*/
+	Test root;
 	return 0;
 }
 

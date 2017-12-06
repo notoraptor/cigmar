@@ -62,6 +62,11 @@ public:
 		vec.erase(vec.begin() + from, vec.begin() + to_excluded);
 		return *this;
 	}
+	bool remove(const T& val) {
+		pos_t position = indexOf(val);
+		if (position) remove((size_t)position);
+		return (bool)position;
+	}
 	ArrayList& swap(ArrayList& other) {
 		vec.swap(other.vec);
 		return *this;

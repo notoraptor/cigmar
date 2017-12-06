@@ -11,7 +11,9 @@
 
 namespace cigmar::gui::backend {
 	struct WindowHandler {
-		// Init, and return real properties of initialized handler (to check if properties queried are indeed retrieved).
+		/** Initialize the window handler. Must raise an Exception on any failure.
+		 * If ``windowProperties.required`` is true, should initialize the handler with
+		 * exactly the properties provided, else should raise an exception. **/
 		virtual WindowProperties init(const WindowProperties& windowProperties) = 0;
 		virtual bool isOpen() = 0;
 		virtual bool close() = 0;

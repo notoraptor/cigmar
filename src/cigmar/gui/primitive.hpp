@@ -20,6 +20,7 @@ namespace cigmar::gui::primitive {
 		enum class Type {CANVAS, COLOR, GRADIENT, MOTIF};
 		Type type;
 		virtual bool isTransparent() const = 0;
+		explicit Background(Type backgroundType) noexcept : type(backgroundType) {}
 	};
 
 	struct Color : public Background {
@@ -27,6 +28,9 @@ namespace cigmar::gui::primitive {
 		unsigned char green;
 		unsigned char blue;
 		unsigned char alpha; // 0: transparent, 255: opaque
+		Color(unsigned char r = 0, unsigned char g = 0, unsigned char b = 0, unsigned char a = 255) noexcept :
+			Background(Type::COLOR), red(r), green(g), blue(b), alpha(a) {}
+		bool isTransparent() const override {return alpha == 0;}
 		static Color white;
 		static Color black;
 		static Color transparent;
@@ -78,7 +82,11 @@ namespace cigmar::gui::primitive {
 		size_t vradius;
 	};
 
-	struct Surface: public Primitive, public Size {};
+	struct Surface: public Primitive, public Size {
+		Size getBoxSize() const override {
+			return {width, height};
+		}
+	};
 
 	class Coordinates: public Primitive {
 		/* List of coordinates to define a geometric form.
@@ -113,31 +121,48 @@ namespace cigmar::gui::primitive {
 		// A border is a "regular" trapeze.
 		enum class Type {TOP, LEFT, BOTTOM, RIGHT};
 		Type type;
-		size_t width;
+		size_t length; // should be no public
+		size_t width; // thickness
 		size_t padding1;
 		size_t padding2;
+		Size getBoxSize() const override {
+			size_t boxWidth = 0, boxHeight = 0;
+			switch (type) {
+				case Type::TOP:
+				case Type::BOTTOM:
+					boxWidth = length;
+					boxHeight = width;
+					break;
+				case Type::LEFT:
+				case Type::RIGHT:
+					boxWidth = width;
+					boxHeight = length;
+					break;
+			}
+			return {boxWidth, boxHeight};
+		}
 	};
 
 	struct Font {
 		const size_t id; // Internal (back-end) font ID, understandable by WindowHandler.
-
-		struct Format {
-			enum class Type { FONT, SIZE, COLOR, BACKGROUND, ITALIC, BOLD, UNDERLINE, STRIKE, COUNT };
-			union {
-				Font font;
-				size_t size;
-				primitive::Color color;
-				primitive::Color background;
-				bool italic;
-				bool bold;
-				bool underline;
-				bool strike;
-			} value;
-			Type type;
-		};
 	};
 
-	typedef Occurrences<Font::Format, TextPosition<Font::Format>> TextFormat;
+	struct FontFormat {
+		enum class Type { FONT, SIZE, COLOR, BACKGROUND, ITALIC, BOLD, UNDERLINE, STRIKE, COUNT };
+		union {
+			Font font;
+			size_t size;
+			primitive::Color color;
+			primitive::Color background;
+			bool italic;
+			bool bold;
+			bool underline;
+			bool strike;
+		} value;
+		Type type;
+	};
+
+	typedef Occurrences<FontFormat, TextPosition<FontFormat>> TextFormat;
 	typedef Occurrences<String, TextPosition<String>> TextUrlMapping;
 
 }

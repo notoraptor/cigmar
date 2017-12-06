@@ -12,7 +12,7 @@
 namespace cigmar::gui {
 
 	template<typename T, typename U>
-	struct Occurrences<T, U> {
+	struct Occurrences {
 		HashSet <T> values;
 		ArrayList <U> usages;
 	};
@@ -48,6 +48,9 @@ namespace cigmar::gui {
 		size_t width;
 		size_t height;
 		size_t bitsPerPixels;
+		bool operator==(const WindowResolution& o) const {
+			return width == o.width && height == o.height && bitsPerPixels == o.bitsPerPixels;
+		}
 	};
 
 	struct WindowProperties {
@@ -57,6 +60,18 @@ namespace cigmar::gui {
 		bool fullscreen;
 		bool decored;
 		bool titled;
+		bool required; // True if values defined for properties above are mandatory, for any reason.
+		bool operator==(const WindowProperties& o) const {
+			return (resolution == o.resolution
+					&& resizable == o.resizable
+					&& closeable == o.closeable
+					&& fullscreen == o.fullscreen
+					&& decored == o.decored
+					&& titled == o.titled);
+		}
+		bool operator!=(const WindowProperties& o) const {
+			return !(*this == o);
+		}
 	};
 
 	/// Enumerations MouseButton and KeyCode are inspired from SFML 2.4.2

@@ -95,7 +95,7 @@ set(SOURCE_FILES
         src/video/manager/UniqueProperties.hpp
         src/video/manager/UniqueProperty.hpp
         src/video/Video.hpp
-        src/video/Video.cpp src/cigmar/gui/primitive.hpp src/cigmar/gui/utils.hpp src/cigmar/gui/backend.hpp src/cigmar/gui/gui.cpp)
+        src/video/Video.cpp src/cigmar/gui/primitive.hpp src/cigmar/gui/utils.hpp src/cigmar/gui/backend.hpp src/cigmar/gui/gui.cpp src/cigmar/tree.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 
