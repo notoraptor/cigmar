@@ -75,11 +75,6 @@ void testDatabase() {
 	}
 }
 
-struct Test: public tree::Node<Test> {
-	int val = 10;
-	using tree::Node<Test>::Node;
-};
-
 int main() {
 	/*
 	const char* s = "部首 国字 木, 神 !";
@@ -108,7 +103,20 @@ int main() {
 	testDatabase();
 	tests::run();
 	*/
-	Test root;
+	tree::Root a;
+	tree::Node a1;
+	tree::Node b(&a);
+	tree::Leaf c(b);
+	tree::Node d(&b);
+	sys::err::println(a.isRoot());
+	sys::err::println(b.isInternal());
+	sys::err::println(c.isLeaf());
+	sys::err::println(b.size());
+	sys::err::println(c.parent() == d.parent());
+	sys::err::println(c.parent() == &b);
+	sys::err::println(d.parent() == &b);
+	a1.add(&c);
+	b.add(&a1);
 	return 0;
 }
 

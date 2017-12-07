@@ -14,7 +14,6 @@
 
 namespace cigmar::tree {
 
-	template <typename Type, typename RootType = Type>
 	class Node {
 	public:
 		typedef ArrayList<Node*> container_t;
@@ -22,12 +21,12 @@ namespace cigmar::tree {
 		typedef typename container_t::const_iterator_t const_iterator_t;
 	private:
 		Node* m_parent;
-		container_t m_children;
-		size_t max_children;
 		bool is_root;
-	public:
-		explicit Node(Node* parentNode = nullptr, bool isRoot = false, size_t maxChildren = SIZE_MAX, bool preallocate = false):
-			m_parent(nullptr), m_children(), max_children(maxChildren), is_root(isRoot) {
+		size_t max_children;
+		container_t m_children;
+	protected:
+		explicit Node(Node* parentNode, bool isRoot, size_t maxChildren, bool preallocate):
+			m_parent(nullptr), is_root(isRoot), max_children(maxChildren), m_children() {
 			if (parentNode) {
 				if (is_root)
 					throw Exception("Node: a root cannot have a parent.");
@@ -36,6 +35,11 @@ namespace cigmar::tree {
 			if (preallocate)
 				m_children.resize(max_children, nullptr);
 		}
+	public:
+		explicit Node(Node& parentNode, size_t maxChildren = SIZE_MAX, bool preallocate = false):
+			Node(&parentNode, false, maxChildren, preallocate) {};
+		explicit Node(Node* parentNode = nullptr, size_t maxChildren = SIZE_MAX, bool preallocate = false):
+			Node(parentNode, false, maxChildren, preallocate) {};
 		size_t max() const {
 			return max_children;
 		}
@@ -50,6 +54,8 @@ namespace cigmar::tree {
 			if (child) {
 				if (child->is_root)
 					throw Exception("Node: a root cannot have a parent.");
+				if (hasAncestor(child))
+					throw Exception("Node: cannot add an ancestor.");
 				if (!m_children.indexOf(child)) {
 					if (m_children.size() == max_children)
 						throw Exception("Node: reached maximum number of allowed children (", max_children, ").");
@@ -66,6 +72,7 @@ namespace cigmar::tree {
 		Node& remove(Node* child) {
 			if (child && m_children.remove(child))
 				child->m_parent = nullptr;
+			return *this;
 		}
 		Node& setParent(Node* newParent) {
 			if (is_root)
@@ -79,9 +86,39 @@ namespace cigmar::tree {
 		Node* parent() const {
 			return m_parent;
 		}
-		RootType& root() const {
-			return m_parent ? m_parent->root() : dynamic_cast<RootType&>(this);
+		Node& root() {
+			if (m_parent)
+				return m_parent->root();
+			return *this;
 		}
+		bool contains(Node* child) const {
+			return (bool)m_children.indexOf(child);
+		}
+		bool hasAncestor(Node* node) const {
+			if (!node)
+				return true;
+			Node* currentParent = m_parent;
+			while (currentParent) {
+				if (currentParent == node)
+					return true;
+				currentParent = currentParent->m_parent;
+			}
+			return false;
+		}
+		bool isRoot() const {return !m_parent;};
+		bool isLeaf() const {return !m_children;};
+		bool isInternal() const {return m_parent && m_children;};
+	};
+
+	struct Root: public Node {
+		Root(size_t maxChildren = SIZE_MAX, bool preallocate = false): Node(nullptr, true, maxChildren, preallocate) {
+			if (!maxChildren)
+				throw Exception("Cannot create a root with max children count 0.");
+		}
+	};
+
+	struct Leaf: public Node {
+		explicit Leaf(Node& parentNode): Node(&parentNode, false, 0, false) {}
 	};
 }
 

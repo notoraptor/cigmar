@@ -83,14 +83,13 @@ public:
 	ArrayList& reserve(size_t n) {vec.reserve(n); return *this;}
 
 	pos_t indexOf(const T& val) const {
-		size_t pos = 0;
-		for (size_t i = 0; i < vec.size(); ++i) {
+		size_t i;
+		for (i = 0; i < vec.size(); ++i) {
 			if (vec[i] == val) {
-				pos = i;
 				break;
 			}
 		}
-		return pos_t(pos != vec.size(), pos);
+		return pos_t(i != vec.size(), i);
 	}
 
 	void operator=(const ArrayList&) = delete;
@@ -104,7 +103,7 @@ public:
 
 	explicit operator T*() {return vec.data();}
 	explicit operator const T*() const {return vec.data();}
-	explicit operator bool() const {return vec.empty();}
+	explicit operator bool() const {return !vec.empty();}
 
 	bool operator==(const ArrayList& other) const {
 		return vec == other.vec;
