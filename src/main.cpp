@@ -75,6 +75,10 @@ void testDatabase() {
 	}
 }
 
+class MyNode: public tree::NodeWrapper<MyNode> {
+	using tree::NodeWrapper<MyNode>::NodeWrapper;
+};
+
 int main() {
 	/*
 	const char* s = "部首 国字 木, 神 !";
@@ -103,15 +107,15 @@ int main() {
 	testDatabase();
 	tests::run();
 	*/
-	tree::Root a;
-	tree::Node a1;
-	tree::Node b(&a);
-	tree::Leaf c(b);
-	tree::Node d(&b);
+	MyNode a;
+	MyNode a1;
+	MyNode b(&a);
+	MyNode c(&b);
+	MyNode d(&b);
 	sys::err::println(a.isRoot());
 	sys::err::println(b.isInternal());
 	sys::err::println(c.isLeaf());
-	sys::err::println(b.size());
+	sys::err::println(b.children().size());
 	sys::err::println(c.parent() == d.parent());
 	sys::err::println(c.parent() == &b);
 	sys::err::println(d.parent() == &b);
