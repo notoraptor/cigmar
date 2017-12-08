@@ -17,26 +17,8 @@ namespace cigmar::tree {
 	class Node {
 	public:
 		typedef ArrayList<Node*> container_t;
-		class Children {
-		public:
-			typedef typename container_t::iterator_t iterator_t;
-			container_t& container;
-		public:
-			Children(container_t& children): container(children) {}
-			iterator_t begin() {return container.begin();}
-			iterator_t end() {return container.end();}
-			size_t size() const {return container.size();}
-		};
-		class ConstChildren {
-		public:
-			typedef typename container_t::const_iterator_t iterator_t;
-			const container_t& container;
-		public:
-			ConstChildren(const container_t& children): container(children) {}
-			iterator_t begin() const {return container.begin();}
-			iterator_t end() const {return container.end();}
-			size_t size() const {return container.size();}
-		};
+		typedef container_t::iterator_t iterator_t;
+		typedef container_t::const_iterator_t const_iterator_t;
 	private:
 		Node* m_parent;
 		bool is_root;
@@ -59,8 +41,11 @@ namespace cigmar::tree {
 		size_t max() const {
 			return max_children;
 		}
-		Children children() {return Children(m_children);}
-		ConstChildren children() const {return ConstChildren(m_children);}
+		size_t size() const {return m_children.size();}
+		iterator_t begin() {return m_children.begin();}
+		iterator_t end() {return m_children.end();}
+		const_iterator_t begin() const {return m_children.begin();}
+		const_iterator_t end() const {return m_children.end();}
 		bool contains(Node* child) const {
 			return (bool)m_children.indexOf(child);
 		}
@@ -78,7 +63,7 @@ namespace cigmar::tree {
 		bool isRoot() const {return !m_parent;};
 		bool isLeaf() const {return !m_children;};
 		bool isInternal() const {return m_parent && m_children;};
-		Node& addNode(Node* child) {
+		void addNode(Node* child) {
 			if (child) {
 				if (child->is_root)
 					throw Exception("Node: a root cannot have a parent.");
@@ -95,9 +80,8 @@ namespace cigmar::tree {
 					child->m_parent = this;
 				}
 			}
-			return *this;
 		}
-		Node& setChildNode(size_t pos, Node* newChild) {
+		void setChildNode(size_t pos, Node* newChild) {
 			if (pos >= m_children.size())
 				throw Exception("Node: cannot set a child: index out of bound (", pos + 1, "/", m_children.size(), ")");
 			if (m_children[pos]) {
@@ -112,21 +96,18 @@ namespace cigmar::tree {
 				m_children[pos] = newChild;
 				newChild->m_parent = this;
 			}
-			return *this;
 		}
-		Node& removeNode(Node* child) {
+		void removeNode(Node* child) {
 			if (child && m_children.remove(child))
 				child->m_parent = nullptr;
-			return *this;
 		}
-		Node& setParentNode(Node* newParent) {
+		void setParentNode(Node* newParent) {
 			if (is_root)
 				throw Exception("Node: cannot set parent for a root.");
 			if (newParent)
 				newParent->addNode(this);
 			else
 				m_parent->removeNode(this);
-			return *this;
 		}
 		Node* getParent() const {
 			return m_parent;
@@ -154,31 +135,14 @@ namespace cigmar::tree {
 		};
 	public:
 
-		typedef NodeWrapperIterator<Node::Children::iterator_t> iterator_t;
-		typedef NodeWrapperIterator<Node::ConstChildren::iterator_t> const_iterator_t;
+		typedef NodeWrapperIterator<Node::children_t::iterator_t> iterator_t;
+		typedef NodeWrapperIterator<Node::const_children_t::iterator_t> const_iterator_t;
 
 		iterator_t begin() {return iterator_t(children().begin());}
 		iterator_t end() {return iterator_t(children().end());}
 		const_iterator_t begin() const {return const_iterator_t(children().begin());}
 		const_iterator_t end() const {return const_iterator_t(children().end());}
 
-		NodeType& add(NodeType* child) {
-			addNode((Node*)child);
-			auto& x = *this;
-			return (NodeType&)(*this);
-		}
-		NodeType& setChild(size_t pos, NodeType* newChild) {
-			setChildNode(pos, newChild);
-			return (NodeType&)(*this);
-		}
-		NodeType& remove(NodeType* child) {
-			removeNode((Node*)child);
-			return *this;
-		}
-		NodeType& setParent(NodeType* newParent) {
-			setParentNode((Node*)newParent);
-			return *this;
-		}
 		NodeType* parent() const {
 			return (NodeType*)getParent();
 		}
@@ -188,17 +152,6 @@ namespace cigmar::tree {
 		NodeType* child(size_t pos) {
 			return (NodeType*)getChild(pos);
 		}
-	};
-
-	struct Root: public Node {
-		Root(size_t maxChildren = SIZE_MAX, bool preallocate = false): Node(nullptr, true, maxChildren, preallocate) {
-			if (!maxChildren)
-				throw Exception("Cannot create a root with max children count 0.");
-		}
-	};
-
-	struct Leaf: public Node {
-		explicit Leaf(Node& parentNode): Node(&parentNode, false, 0, false) {}
 	};
 }
 

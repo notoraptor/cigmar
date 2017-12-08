@@ -115,7 +115,7 @@ int main() {
 	sys::err::println(a.isRoot());
 	sys::err::println(b.isInternal());
 	sys::err::println(c.isLeaf());
-	sys::err::println(b.children().size());
+	sys::err::println(b.size());
 	sys::err::println(c.parent() == d.parent());
 	sys::err::println(c.parent() == &b);
 	sys::err::println(d.parent() == &b);
