@@ -75,8 +75,14 @@ void testDatabase() {
 	}
 }
 
-class MyNode: public tree::NodeWrapper<MyNode> {
-	using tree::NodeWrapper<MyNode>::NodeWrapper;
+class MyNode: public tree::Node {
+protected:
+	using tree::Node::Node;
+public:
+	static handler_t node(const String& name = String(), handler_t parentNode = nullptr, size_t maxChildren = SIZE_MAX, bool preallocate = false) {
+		MyNode* node = new MyNode(name, parentNode, false, maxChildren, preallocate);
+		return node->m_handler;
+	}
 };
 
 int main() {
@@ -107,20 +113,28 @@ int main() {
 	testDatabase();
 	tests::run();
 	*/
-	MyNode a;
-	MyNode a1;
-	MyNode b(&a);
-	MyNode c(&b);
-	MyNode d(&b);
-	sys::err::println(a.isRoot());
-	sys::err::println(b.isInternal());
-	sys::err::println(c.isLeaf());
-	sys::err::println(b.size());
-	sys::err::println(c.parent() == d.parent());
-	sys::err::println(c.parent() == &b);
-	sys::err::println(d.parent() == &b);
-	a1.add(&c);
-	b.add(&a1);
+	MyNode::handler_t a = MyNode::node("a");
+	MyNode::handler_t a1 = MyNode::node("a1");
+	MyNode::handler_t b = MyNode::node("b", a);
+	MyNode::handler_t c = MyNode::node("c", b);
+	MyNode::node("d", b);
+	sys::err::println(a->isRoot());
+	sys::err::println(b->isInternal());
+	sys::err::println(c->isLeaf());
+	sys::err::println(b->size());
+	sys::err::println(c->getParent() == b);
+	sys::err::println(a);
+	sys::err::println(a1);
+	sys::err::println();
+	a1->add(c);
+	sys::err::println(a);
+	sys::err::println(a1);
+	sys::err::println();
+	b->add(a1);
+	sys::err::println(a);
+	sys::err::println(a1);
+	sys::err::println();
+	sys::err::println("a", a.count(), "a1", a1.count(), "b", b.count(), "c", c.count());
 	return 0;
 }
 
