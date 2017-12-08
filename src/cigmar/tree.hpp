@@ -10,49 +10,135 @@
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/classes/Exception.hpp>
 #include <cigmar/classes/HashMap.hpp>
-#include <cigmar/classes/HashSet.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
 
 namespace cigmar::tree {
 
-	class Node {
+	template <typename T>
+	class NodeHandler: public Streamable {
+		T* ptr;
+		size_t* ptr_count;
+		void clear() {
+			if (ptr) {
+				if (*ptr_count)
+					--(*ptr_count);
+				if (*ptr_count == 0) {
+					sys::err::println("Deleting an object", ptr->name());
+					delete ptr;
+					delete ptr_count;
+					ptr = nullptr;
+					ptr_count = nullptr;
+				}
+			}
+		}
 	public:
-		typedef ArrayList<Node*> container_t;
+		NodeHandler(): ptr(nullptr), ptr_count(nullptr) {}
+		NodeHandler(nullptr_t): NodeHandler() {}
+		NodeHandler(T& reference): ptr(&reference), ptr_count(nullptr) {
+			ptr_count = new size_t(1);
+		};
+		NodeHandler(const NodeHandler& copied): ptr(copied.ptr), ptr_count(copied.ptr_count) {
+			if (ptr)
+				++(*ptr_count);
+		};
+		NodeHandler(NodeHandler&& moved): ptr(moved.ptr), ptr_count(moved.ptr_count) {
+			moved.ptr = nullptr;
+			moved.ptr_count = nullptr;
+		};
+		~NodeHandler() {
+			clear();
+		};
+		NodeHandler& operator=(const NodeHandler& copied) {
+			clear();
+			ptr = copied.ptr;
+			ptr_count = copied.ptr_count;
+			if (ptr)
+				++(*ptr_count);
+			return *this;
+		};
+		NodeHandler& operator=(NodeHandler&& moved) {
+			clear();
+			ptr = moved.ptr;
+			ptr_count = moved.ptr_count;
+			moved.ptr = nullptr;
+			moved.ptr_count = nullptr;
+			return *this;
+		};
+		NodeHandler& operator=(nullptr_t) {
+			clear();
+			return *this;
+		}
+		NodeHandler* operator&() = delete;
+		template<typename E>
+		operator NodeHandler<E>() {
+			if (ptr)
+				return NodeHandler<E>(dynamic_cast<E&>(*ptr));
+			return NodeHandler<E>();
+		}
+		explicit operator bool() const {return (bool)ptr;}
+		bool operator==(const NodeHandler& other) const {return ptr == other.ptr;}
+		bool operator!=(const NodeHandler& other) const {return ptr != other.ptr;}
+		T* operator->() {return ptr;}
+		const T* operator->() const {return ptr;}
+		size_t count() const {
+			return ptr ? *ptr_count : 0;
+		}
+		void toStream(std::ostream& o) const override {
+			if (ptr)
+				o << (*ptr);
+			else
+				o << "nullptr";
+		}
+	};
+
+	class Node: public Streamable {
+	public:
+		typedef NodeHandler<Node> handler_t;
+		typedef ArrayList<handler_t> container_t;
 		typedef container_t::iterator_t iterator_t;
 		typedef container_t::const_iterator_t const_iterator_t;
+	protected:
+		handler_t m_handler;
 	private:
-		Node* m_parent;
+		String m_name;
+		handler_t m_parent;
 		bool is_root;
 		size_t max_children;
 		container_t m_children;
 	protected:
-		explicit Node(Node* parentNode, bool isRoot, size_t maxChildren, bool preallocate):
-			m_parent(nullptr), is_root(isRoot), max_children(maxChildren), m_children() {
+		explicit Node(const String& name, handler_t parentNode, bool isRoot, size_t maxChildren, bool preallocate):
+			m_name(name), m_handler(*this), m_parent(), is_root(isRoot), max_children(maxChildren), m_children() {
 			if (parentNode) {
 				if (is_root)
 					throw Exception("Node: a root cannot have a parent.");
-				parentNode->addNode(this);
+				parentNode->add(m_handler);
 			}
 			if (preallocate)
 				m_children.resize(max_children, nullptr);
+			if (!m_name)
+				m_name = String::write('<', this, '>');
 		}
 	public:
-		explicit Node(Node* parentNode = nullptr, size_t maxChildren = SIZE_MAX, bool preallocate = false):
-			Node(parentNode, false, maxChildren, preallocate) {};
+		static handler_t node(const String& name = String(), handler_t parentNode = nullptr, size_t maxChildren = SIZE_MAX, bool preallocate = false) {
+			Node* node = new Node(name, parentNode, false, maxChildren, preallocate);
+			return node->m_handler;
+		}
 		size_t max() const {
 			return max_children;
 		}
 		size_t size() const {return m_children.size();}
+		const String& name() const {return m_name;}
 		iterator_t begin() {return m_children.begin();}
 		iterator_t end() {return m_children.end();}
 		const_iterator_t begin() const {return m_children.begin();}
 		const_iterator_t end() const {return m_children.end();}
-		bool contains(Node* child) const {
+		bool contains(handler_t child) const {
 			return (bool)m_children.indexOf(child);
 		}
-		bool hasAncestor(Node* node) const {
+		bool hasAncestor(handler_t node) const {
 			if (!node)
-				return true;
-			Node* currentParent = m_parent;
+				return false;
+			handler_t currentParent = m_parent;
 			while (currentParent) {
 				if (currentParent == node)
 					return true;
@@ -63,7 +149,7 @@ namespace cigmar::tree {
 		bool isRoot() const {return !m_parent;};
 		bool isLeaf() const {return !m_children;};
 		bool isInternal() const {return m_parent && m_children;};
-		void addNode(Node* child) {
+		void add(handler_t child) {
 			if (child) {
 				if (child->is_root)
 					throw Exception("Node: a root cannot have a parent.");
@@ -77,11 +163,11 @@ namespace cigmar::tree {
 						child->m_parent = nullptr;
 					}
 					m_children.add(child);
-					child->m_parent = this;
+					child->m_parent = m_handler;
 				}
 			}
 		}
-		void setChildNode(size_t pos, Node* newChild) {
+		void setChild(size_t pos, handler_t newChild) {
 			if (pos >= m_children.size())
 				throw Exception("Node: cannot set a child: index out of bound (", pos + 1, "/", m_children.size(), ")");
 			if (m_children[pos]) {
@@ -94,63 +180,42 @@ namespace cigmar::tree {
 					newChild->m_parent = nullptr;
 				}
 				m_children[pos] = newChild;
-				newChild->m_parent = this;
+				newChild->m_parent = m_handler;
 			}
 		}
-		void removeNode(Node* child) {
+		void remove(handler_t child) {
 			if (child && m_children.remove(child))
 				child->m_parent = nullptr;
 		}
-		void setParentNode(Node* newParent) {
+		void setParent(handler_t newParent) {
 			if (is_root)
 				throw Exception("Node: cannot set parent for a root.");
 			if (newParent)
-				newParent->addNode(this);
+				newParent->add(m_handler);
 			else
-				m_parent->removeNode(this);
+				m_parent->remove(m_handler);
 		}
-		Node* getParent() const {
+		handler_t getParent() const {
 			return m_parent;
 		}
-		Node* getRoot() {
-			return m_parent ? m_parent->getRoot() : this;
+		handler_t getRoot() {
+			return m_parent ? m_parent->getRoot() : m_handler;
 		}
-		Node* getChild(size_t pos) {
+		handler_t getChild(size_t pos) {
 			return m_children[pos];
 		}
-	};
-
-	template <typename NodeType, typename RootType=NodeType>
-	class NodeWrapper: public Node {
-		using Node::Node;
-
-		template <typename I>
-		struct NodeWrapperIterator {
-			I m_iterator;
-			NodeWrapperIterator(I iterator): m_iterator(iterator) {}
-			bool operator!=(const  NodeWrapperIterator& o) const {return m_iterator != o.m_iterator;}
-			NodeWrapperIterator& operator++() {++m_iterator;}
-			NodeType& operator*() {return *m_iterator;}
-			const NodeType& operator*() const {return *m_iterator;}
-		};
-	public:
-
-		typedef NodeWrapperIterator<Node::children_t::iterator_t> iterator_t;
-		typedef NodeWrapperIterator<Node::const_children_t::iterator_t> const_iterator_t;
-
-		iterator_t begin() {return iterator_t(children().begin());}
-		iterator_t end() {return iterator_t(children().end());}
-		const_iterator_t begin() const {return const_iterator_t(children().begin());}
-		const_iterator_t end() const {return const_iterator_t(children().end());}
-
-		NodeType* parent() const {
-			return (NodeType*)getParent();
-		}
-		RootType* root() {
-			return (RootType*)getRoot();
-		}
-		NodeType* child(size_t pos) {
-			return (NodeType*)getChild(pos);
+		void toStream(std::ostream& o) const override {
+			o << m_name;
+			if (m_children) {
+				size_t count = 0;
+				o << " (";
+				for (auto x: m_children) {
+					if (count) o << ", ";
+					o << x;
+					++count;
+				}
+				o << ")";
+			}
 		}
 	};
 }
