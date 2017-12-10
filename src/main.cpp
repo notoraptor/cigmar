@@ -81,7 +81,7 @@ protected:
 public:
 	static handler_t node(const String& name = String(), handler_t parentNode = nullptr, size_t maxChildren = SIZE_MAX, bool preallocate = false) {
 		MyNode* node = new MyNode(name, parentNode, false, maxChildren, preallocate);
-		return node->m_handler;
+		return handler_t(*node, node->m_refcount);
 	}
 };
 
@@ -117,7 +117,7 @@ int main() {
 	MyNode::handler_t a1 = MyNode::node("a1");
 	MyNode::handler_t b = MyNode::node("b", a);
 	MyNode::handler_t c = MyNode::node("c", b);
-	MyNode::node("d", b);
+	MyNode::handler_t d = MyNode::node("d", b);
 	sys::err::println(a->isRoot());
 	sys::err::println(b->isInternal());
 	sys::err::println(c->isLeaf());

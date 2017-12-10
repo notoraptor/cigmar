@@ -5,6 +5,7 @@
 #ifndef SRC_CIGMAR_TREE_HPP
 #define SRC_CIGMAR_TREE_HPP
 
+#include <cstddef>
 #include <type_traits>
 #include <cigmar/interfaces/Collection.hpp>
 #include <cigmar/classes/ArrayList.hpp>
@@ -16,9 +17,9 @@ namespace cigmar::tree {
 
 	template <typename T>
 	class NodeHandler: public Streamable {
-		bool internal = false;
 		T* ptr;
 		size_t* ptr_count;
+		bool external;
 		void clear() {
 			if (ptr) {
 				if (*ptr_count)
@@ -26,45 +27,44 @@ namespace cigmar::tree {
 				if (*ptr_count == 0) {
 					sys::err::println("Deleting an object", ptr->name());
 					delete ptr;
-					delete ptr_count;
-					ptr = nullptr;
-					ptr_count = nullptr;
+					if (!external) {
+						sys::err::println("Deleting internal counter");
+						delete ptr_count;
+					}
 				}
+				ptr = nullptr;
+				ptr_count = nullptr;
 			}
 		}
+		NodeHandler(T& object, size_t& count, bool isExternal): ptr(&object), ptr_count(&count), external(isExternal) {
+			++(*ptr_count);
+		}
 	public:
-		NodeHandler(): ptr(nullptr), ptr_count(nullptr) {}
-		NodeHandler(nullptr_t): NodeHandler() {}
-		NodeHandler(T& reference, bool isInternal = false): ptr(&reference), ptr_count(nullptr), internal(isInternal) {
-			ptr_count = new size_t(internal ? 0 : 1);
+		NodeHandler(): ptr(nullptr), ptr_count(nullptr), external(false) {}
+		NodeHandler(std::nullptr_t): NodeHandler() {}
+		NodeHandler(T& reference): ptr(&reference), ptr_count(nullptr), external(false) {
+			ptr_count = new size_t(1);
 		};
-		NodeHandler(const NodeHandler& copied): ptr(copied.ptr), ptr_count(copied.ptr_count) {
+		NodeHandler(T& reference, size_t& refcount): ptr(&reference), ptr_count(&refcount), external(true) {
+			++(*ptr_count);
+		}
+		NodeHandler(const NodeHandler& copied): ptr(copied.ptr), ptr_count(copied.ptr_count), external(copied.external) {
 			if (ptr)
 				++(*ptr_count);
 		};
-		NodeHandler(NodeHandler&& moved): ptr(moved.ptr), ptr_count(moved.ptr_count) {
+		NodeHandler(NodeHandler&& moved): ptr(moved.ptr), ptr_count(moved.ptr_count), external(moved.external) {
 			moved.ptr = nullptr;
 			moved.ptr_count = nullptr;
+			moved.external = false;
 		};
 		~NodeHandler() {
-			if (ptr) {
-				if (*ptr_count)
-					--(*ptr_count);
-				if (*ptr_count == 0) {
-					if (!internal) {
-						sys::err::println("Deleting an object", ptr->name());
-						delete ptr;
-						delete ptr_count;
-					}
-					ptr = nullptr;
-					ptr_count = nullptr;
-				}
-			}
+			clear();
 		};
 		NodeHandler& operator=(const NodeHandler& copied) {
 			clear();
 			ptr = copied.ptr;
 			ptr_count = copied.ptr_count;
+			external = copied.external;
 			if (ptr)
 				++(*ptr_count);
 			return *this;
@@ -73,11 +73,13 @@ namespace cigmar::tree {
 			clear();
 			ptr = moved.ptr;
 			ptr_count = moved.ptr_count;
+			external = moved.external;
 			moved.ptr = nullptr;
 			moved.ptr_count = nullptr;
+			moved.external = false;
 			return *this;
 		};
-		NodeHandler& operator=(nullptr_t) {
+		NodeHandler& operator=(std::nullptr_t) {
 			clear();
 			return *this;
 		}
@@ -85,7 +87,7 @@ namespace cigmar::tree {
 		template<typename E>
 		operator NodeHandler<E>() {
 			if (ptr)
-				return NodeHandler<E>(dynamic_cast<E&>(*ptr));
+				return NodeHandler<E>(dynamic_cast<E&>(*ptr), *ptr_count, external);
 			return NodeHandler<E>();
 		}
 		explicit operator bool() const {return (bool)ptr;}
@@ -94,9 +96,7 @@ namespace cigmar::tree {
 		bool operator==(const T* pointer) const {return ptr == pointer;}
 		T* operator->() {return ptr;}
 		const T* operator->() const {return ptr;}
-		size_t count() const {
-			return ptr ? *ptr_count : 0;
-		}
+		size_t count() const { return ptr ? *ptr_count : 0; }
 		void toStream(std::ostream& o) const override {
 			if (ptr)
 				o << (*ptr);
@@ -117,14 +117,15 @@ namespace cigmar::tree {
 		bool is_root;
 		size_t max_children;
 		container_t m_children;
+	public:
+		size_t m_refcount;
 	protected:
-		handler_t m_handler;
 		explicit Node(const String& name, handler_t parentNode, bool isRoot, size_t maxChildren, bool preallocate):
-			m_name(name), m_handler(*this, true), m_parent(nullptr), is_root(isRoot), max_children(maxChildren), m_children() {
+			m_name(name), m_refcount(0), m_parent(nullptr), is_root(isRoot), max_children(maxChildren), m_children() {
 			if (parentNode) {
 				if (is_root)
 					throw Exception("Node: a root cannot have a parent.");
-				parentNode->add(m_handler);
+				parentNode->add(handler_t(*this, m_refcount));
 			}
 			if (preallocate)
 				m_children.resize(max_children, nullptr);
@@ -134,7 +135,7 @@ namespace cigmar::tree {
 	public:
 		static handler_t node(const String& name = String(), handler_t parentNode = nullptr, size_t maxChildren = SIZE_MAX, bool preallocate = false) {
 			Node* node = new Node(name, parentNode, false, maxChildren, preallocate);
-			return node->m_handler;
+			return handler_t(*node, node->m_refcount);
 		}
 		size_t max() const {
 			return max_children;
@@ -204,15 +205,15 @@ namespace cigmar::tree {
 			if (is_root)
 				throw Exception("Node: cannot set parent for a root.");
 			if (newParent)
-				newParent->add(m_handler);
+				newParent->add(handler_t(*this, m_refcount));
 			else
-				m_parent->remove(m_handler);
+				m_parent->remove(handler_t(*this, m_refcount));
 		}
 		handler_t getParent() const {
-			return m_parent ? m_parent->m_handler : handler_t();
+			return m_parent ? handler_t(*m_parent, m_parent->m_refcount) : handler_t();
 		}
 		handler_t getRoot() {
-			return m_parent ? m_parent->getRoot() : m_handler;
+			return m_parent ? m_parent->getRoot() : handler_t(*this, m_refcount);
 		}
 		handler_t getChild(size_t pos) {
 			return m_children[pos];
