@@ -1,6 +1,7 @@
-// We must internally only use utf-8 strings.
+// We must internally use only utf-8 strings.
 
 #include <cstddef>
+#include <cigmar/tree.hpp>
 #include <cigmar/classes/HashSet.hpp>
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/classes/String.hpp>
@@ -9,26 +10,6 @@
 #include <cigmar/gui/utils.hpp>
 #include <cigmar/gui/backend.hpp>
 #include <cigmar/gui/utils.hpp>
-
-/*
-Notes.
-Rectangle {
- 	x, y, width, height
-}
-widget {
-	Rectangle draw(x, y, width, height) {
- 		// LEAF:
- 		// Compute / set primitives
- 		// Send primitives to window handler
- 		// NODE:
- 		// ::LEAF
- 		// for each child: .. .draw(child, _x, _y, _width, _height) ...
- 	};
-}
-parent {
- 	Rectangle regionDrawed = draw(child, x, y, width, height)
-}
-*/
 
 namespace cigmar::gui {
 
@@ -169,28 +150,15 @@ namespace cigmar::gui {
 		};
 	};
 
-	class Widget : public EventHandler {
-	private:
-		Widget* ancestor;
-		ArrayList<Widget*> descendants;
+	class Widget: public tree::Content<Widget, Window, Widget, Widget>, public EventHandler {
 	protected:
 		primitive::Surface surface;
-		void setParent(Widget* newAncestor);
-		void reserveChildren(size_t size);
-		void addChild(Widget* child);
-		void setChild(size_t pos, Widget* child);
-		void removeChild(size_t pos);
-		size_t countChildren() const;
-		Widget* getChild(size_t pos);
-		const Widget* getChild(size_t pos) const;
 		virtual void draw(Coordinate origin, size_t width, size_t height) = 0;
 	public:
 		Widget();
-		virtual ~Widget();
-		virtual bool accepts(size_t width, size_t height) const = 0; // TODO: useful ?
+		~Widget();
 		size_t width() const;
 		size_t height() const;
-		const Widget* parent() const;
 		Window& window() const;
 	};
 
@@ -265,7 +233,7 @@ namespace cigmar::gui {
 		void display();
 	public:
 		Window(backend::WindowHandler* windowHandler, const WindowProperties& windowProperties);
-		~Window() override;
+		~Window();
 		Window& setChild(Widget* widget);
 		Widget* child();
 		const Widget* child() const;

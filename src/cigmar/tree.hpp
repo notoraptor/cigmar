@@ -11,19 +11,22 @@
 namespace cigmar::tree {
 	template <typename T> class Node;
 
-	template <typename T>
+	template <typename Type, typename RootType=Type, typename ParentType=Type, typename ChildType=Type>
 	class Content {
-		friend class Node<T>;
-		typedef Node<T> node_t;
-		typedef ArrayList<node_t> container_t;
+		friend class Node<Type>;
+		typedef Node<Type> node_t;
+		typedef Node<RootType> root_t;
+		typedef Node<ParentType> parent_t;
+		typedef Node<ChildType> child_t;
+		typedef ArrayList<child_t> container_t;
 		size_t refcount;
 		String m_name;
-		Content* m_parent;
+		Content<ParentType>* m_parent;
 		container_t children;
 	public:
 		typedef typename container_t::iterator_t iterator_t;
 		typedef typename container_t::const_iterator_t const_iterator_t;
-		Content(const String& nodeName, const node_t& nodeParent): refcount(0), m_name(nodeName), m_parent(nodeParent.internal), children() {
+		Content(const String& nodeName, const parent_t& nodeParent): refcount(0), m_name(nodeName), m_parent(nodeParent.internal), children() {
 			if (m_parent) {
 				if (forceRoot())
 					throw Exception("Node: cannot add a parent to a root.");
@@ -34,6 +37,7 @@ namespace cigmar::tree {
 			if (!m_name)
 				m_name = String::write('<', this, '>');
 		};
+		Content(): Content(String(), nullptr) {}
 		iterator_t begin() { return children.begin(); };
 		iterator_t end() { return children.end(); };
 		const_iterator_t begin() const { return children.begin(); };
@@ -45,12 +49,12 @@ namespace cigmar::tree {
 		bool isRoot() const { return !m_parent; };
 		bool isLeaf() const { return !children; };
 		bool isInternal() const { return m_parent && children; };
-		bool contains(const node_t& node) const {
+		bool contains(const child_t& node) const {
 			return node ? (bool)children.indexOf(node) : false;
 		};
-		bool hasAncestor(const node_t& node) const {
+		bool hasAncestor(const parent_t& node) const {
 			if (node) {
-				Content<T>* currentParent = m_parent;
+				Content<ParentType>* currentParent = m_parent;
 				while (currentParent) {
 					if (currentParent == node.internal)
 						return true;
@@ -59,20 +63,20 @@ namespace cigmar::tree {
 			}
 			return false;
 		};
-		node_t parent() const { return m_parent ? node_t(*m_parent): node_t(nullptr); };
-		node_t root() {
+		parent_t parent() const { return m_parent ? parent_t(*m_parent): parent_t(nullptr); };
+		root_t root() {
 			Content* pointer = this;
 			while (pointer->m_parent)
 				pointer = pointer->m_parent;
-			return node_t(*pointer);
+			return root_t(*pointer);
 		};
-		node_t child(size_t position) const {
+		child_t child(size_t position) const {
 			if (position >= children.size())
 				throw Exception("Node: child position out of bounds (", position, " not in [0; ", children.size() - 1 , "]).");
 			return children[position];
 		};
 		const String& name() const { return m_name; };
-		void add(const node_t& child) {
+		void add(const child_t& child) {
 			if (child) {
 				if (child.internal->forceRoot())
 					throw Exception("Node: a root cannot have a parent.");
@@ -90,7 +94,7 @@ namespace cigmar::tree {
 				}
 			}
 		};
-		void remove(const node_t& child) {
+		void remove(const child_t& child) {
 			if (child && children.remove(child))
 				child.internal->m_parent = nullptr;
 		};
@@ -100,7 +104,7 @@ namespace cigmar::tree {
 				children.remove(position);
 			}
 		};
-		void setChild(size_t position, const node_t& child) {
+		void setChild(size_t position, const child_t& child) {
 			if (position >= children.size())
 				throw Exception("Node: cannot set a child: index out of bound (", position + 1, "/", children.size(), ")");
 			if (children[position]) {

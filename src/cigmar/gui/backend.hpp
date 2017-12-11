@@ -21,8 +21,8 @@ namespace cigmar::gui::backend {
 		virtual bool pollEvent(Event& event) = 0;
 		virtual void clear(const primitive::Color& color) = 0;
 		virtual void display() = 0;
-		virtual void setDesktopMode(WindowResolution& windowResolution) = 0;
-		virtual void getFullscreenModes(ArrayList<WindowResolution>& out) = 0;
+		virtual void getDesktopMode(WindowProperties& windowProperties) = 0;
+		virtual void getFullscreenModes(ArrayList<WindowProperties>& out) = 0;
 		virtual primitive::Font getFont(const String& fontPath) = 0;
 		virtual void drawPoints(const primitive::Coordinates& vertices) = 0;
 		virtual void drawSegments(const primitive::Coordinates& vertices) = 0;

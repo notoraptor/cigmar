@@ -44,17 +44,10 @@ namespace cigmar::gui {
 		};
 	};
 
-	struct WindowResolution {
+	struct WindowProperties: public Streamable {
 		size_t width;
 		size_t height;
 		size_t bitsPerPixels;
-		bool operator==(const WindowResolution& o) const {
-			return width == o.width && height == o.height && bitsPerPixels == o.bitsPerPixels;
-		}
-	};
-
-	struct WindowProperties {
-		WindowResolution resolution;
 		bool resizable;
 		bool closeable;
 		bool fullscreen;
@@ -62,7 +55,9 @@ namespace cigmar::gui {
 		bool titled;
 		bool required; // True if values defined for properties above are mandatory, for any reason.
 		bool operator==(const WindowProperties& o) const {
-			return (resolution == o.resolution
+			return (width == o.width
+					&& height == o.height
+					&& bitsPerPixels == o.bitsPerPixels
 					&& resizable == o.resizable
 					&& closeable == o.closeable
 					&& fullscreen == o.fullscreen
@@ -71,6 +66,10 @@ namespace cigmar::gui {
 		}
 		bool operator!=(const WindowProperties& o) const {
 			return !(*this == o);
+		}
+		void toStream(std::ostream& o) const override {
+			// TODO
+			o << "WindowProperties()";
 		}
 	};
 
