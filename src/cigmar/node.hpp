@@ -165,7 +165,7 @@ namespace cigmar::node {
 			++internal->refcount;
 		}
 		template <typename... Args>
-		Node(const String& name, Args&&... contentArgs) {
+		explicit Node(const String& name, Args&&... contentArgs) {
 			internal = new internal_t(name, nullptr, std::forward<Args>(contentArgs)...);
 			++internal->refcount;
 		}
@@ -176,7 +176,7 @@ namespace cigmar::node {
 		Node(const Node& copied): internal(copied.internal) {
 			++internal->refcount;
 		}
-		Node(Node&& moved): internal(moved.internal) {
+		Node(Node&& moved) noexcept : internal(moved.internal) {
 			moved.internal = nullptr;
 		}
 		~Node() {
@@ -188,7 +188,7 @@ namespace cigmar::node {
 			++internal->refcount;
 			return *this;
 		}
-		Node& operator=(Node&& moved) {
+		Node& operator=(Node&& moved) noexcept {
 			clear();
 			internal = moved.internal;
 			moved.internal = nullptr;
