@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 if test -e $HOME/.cache/cmake ; then
     echo "cmake already installed."
+    $HOME/.cache/cmake --version
+    $HOME/.cache/cmake/usr/local/bin/cmake --version
 else
     echo "Installing cmake."
     sudo apt-get purge cmake
