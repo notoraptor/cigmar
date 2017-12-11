@@ -3,7 +3,7 @@
 #include <video/manager/manager.hpp>
 #include <cigmar/print.hpp>
 #include <cigmar/classes/UnicodeString.hpp>
-#include <cigmar/tree.hpp>
+#include <cigmar/node.hpp>
 
 using std::cout;
 using std::cerr;
@@ -75,15 +75,10 @@ void testDatabase() {
 	}
 }
 
-class MyNode: public tree::Node {
-protected:
-	using tree::Node::Node;
-public:
-	static handler_t node(const String& name = String(), handler_t parentNode = nullptr, size_t maxChildren = SIZE_MAX, bool preallocate = false) {
-		MyNode* node = new MyNode(name, parentNode, false, maxChildren, preallocate);
-		return handler_t(*node, node->m_refcount);
-	}
+struct MyContent: public node::Content {
+	int val = 11101;
 };
+using MyNode = node::Node<MyContent>;
 
 int main() {
 	/*
@@ -113,16 +108,16 @@ int main() {
 	testDatabase();
 	tests::run();
 	*/
-	MyNode::handler_t a = MyNode::node("a");
-	MyNode::handler_t a1 = MyNode::node("a1");
-	MyNode::handler_t b = MyNode::node("b", a);
-	MyNode::handler_t c = MyNode::node("c", b);
-	MyNode::handler_t d = MyNode::node("d", b);
+	MyNode a("a", nullptr);
+	MyNode a1("a1", nullptr);
+	MyNode b("b", a);
+	MyNode c("c", b);
+	MyNode d("d", b);
 	sys::err::println(a->isRoot());
 	sys::err::println(b->isInternal());
 	sys::err::println(c->isLeaf());
 	sys::err::println(b->size());
-	sys::err::println(c->getParent() == b);
+	sys::err::println(c->parent() == b);
 	sys::err::println(a);
 	sys::err::println(a1);
 	sys::err::println();
@@ -135,6 +130,8 @@ int main() {
 	sys::err::println(a1);
 	sys::err::println();
 	sys::err::println("a", a.count(), "a1", a1.count(), "b", b.count(), "c", c.count());
+	sys::err::println(a->val);
+	sys::err::println(d->val);
 	return 0;
 }
 

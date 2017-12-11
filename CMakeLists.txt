@@ -101,7 +101,7 @@ set(SOURCE_FILES
         src/video/manager/UniqueProperty.hpp
         src/video/Video.cpp
         src/video/Video.hpp
-        )
+        src/cigmar/node.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 
