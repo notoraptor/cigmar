@@ -75,8 +75,9 @@ void testDatabase() {
 	}
 }
 
-struct MyContent: public node::Content {
+struct MyContent: public node::TemplateContent<MyContent> {
 	int val = 11101;
+	using node::TemplateContent<MyContent>::TemplateContent;
 };
 using MyNode = node::Node<MyContent>;
 
@@ -130,8 +131,8 @@ int main() {
 	sys::err::println(a1);
 	sys::err::println();
 	sys::err::println("a", a.count(), "a1", a1.count(), "b", b.count(), "c", c.count());
-	sys::err::println(a->val);
-	sys::err::println(d->val);
+	sys::err::println(a->val, b->val);
+	sys::err::println(a.s(), b->parent().s());
 	return 0;
 }
 
