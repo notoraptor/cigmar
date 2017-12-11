@@ -3,7 +3,7 @@
 #include <video/manager/manager.hpp>
 #include <cigmar/print.hpp>
 #include <cigmar/classes/UnicodeString.hpp>
-#include <cigmar/node.hpp>
+#include <cigmar/tree.hpp>
 
 using std::cout;
 using std::cerr;
@@ -75,11 +75,11 @@ void testDatabase() {
 	}
 }
 
-struct MyContent: public node::TemplateContent<MyContent> {
+struct MyContent: public tree::Content<MyContent> {
 	int val = 11101;
-	using node::TemplateContent<MyContent>::TemplateContent;
+	using tree::Content<MyContent>::Content;
 };
-using MyNode = node::Node<MyContent>;
+using MyNode = tree::Node<MyContent>;
 
 int main() {
 	/*
@@ -130,9 +130,9 @@ int main() {
 	sys::err::println(a);
 	sys::err::println(a1);
 	sys::err::println();
-	sys::err::println("a", a.count(), "a1", a1.count(), "b", b.count(), "c", c.count());
+	sys::err::println("a", a.refcount(), "a1", a1.refcount(), "b", b.refcount(), "c", c.refcount());
 	sys::err::println(a->val, b->val);
-	sys::err::println(a.s(), b->parent().s());
+	sys::err::println(a.typesize(), b->parent().typesize());
 	return 0;
 }
 

@@ -47,7 +47,6 @@ set(SOURCE_FILES
         src/cigmar/std.hpp
         src/cigmar/symbols.hpp
         src/cigmar/time.hpp
-        src/cigmar/tree.hpp
         src/cigmar/types/pos_t.hpp
         src/cigmar/unicode.hpp
         src/cigmar/unittests.hpp
@@ -101,7 +100,7 @@ set(SOURCE_FILES
         src/video/manager/UniqueProperty.hpp
         src/video/Video.cpp
         src/video/Video.hpp
-        src/cigmar/node.hpp)
+        src/cigmar/tree.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 
