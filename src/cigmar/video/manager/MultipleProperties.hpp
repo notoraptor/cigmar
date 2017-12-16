@@ -5,9 +5,9 @@
 #ifndef SRC_CIGMAR_MULTIPLEPROPERTIES_HPP
 #define SRC_CIGMAR_MULTIPLEPROPERTIES_HPP
 
-#include <video/manager/RowMapping.hpp>
-#include <video/manager/MultipleProperty.hpp>
-#include <video/manager/PropertyTypes.hpp>
+#include <cigmar/video/manager/RowMapping.hpp>
+#include <cigmar/video/manager/MultipleProperty.hpp>
+#include <cigmar/video/manager/PropertyTypes.hpp>
 #include <cigmar/classes/Exception.hpp>
 
 namespace cigmar::video::manager {

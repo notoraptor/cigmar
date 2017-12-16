@@ -7,11 +7,11 @@
 
 #include <cigmar/classes/TreeSet.hpp>
 #include <cigmar/classes/Stack.hpp>
-#include <video/Video.hpp>
-#include <video/manager/TableRow.hpp>
-#include <video/manager/Report.hpp>
-#include <video/manager/RowMapping.hpp>
-#include <video/manager/DbVideo.hpp>
+#include <cigmar/video/Video.hpp>
+#include <cigmar/video/manager/TableRow.hpp>
+#include <cigmar/video/manager/Report.hpp>
+#include <cigmar/video/manager/RowMapping.hpp>
+#include <cigmar/video/manager/DbVideo.hpp>
 
 namespace cigmar::video::manager {
 	using namespace cigmar;

@@ -5,8 +5,8 @@
 #ifndef SRC_CIGMAR_UNIQUEPROPERTY_HPP
 #define SRC_CIGMAR_UNIQUEPROPERTY_HPP
 
-#include <video/manager/TableRow.hpp>
-#include <video/manager/PropertyType.hpp>
+#include <cigmar/video/manager/TableRow.hpp>
+#include <cigmar/video/manager/PropertyType.hpp>
 
 namespace cigmar::video::manager {
 	struct UniqueProperty: public TableRow {

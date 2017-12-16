@@ -7,10 +7,10 @@
 
 #include <cigmar/classes/HashMap.hpp>
 #include <cigmar/classes/HashSet.hpp>
-#include <video/manager/TableRow.hpp>
-#include <video/manager/UniqueProperty.hpp>
-#include <video/manager/MultipleProperty.hpp>
-#include <video/Video.hpp>
+#include <cigmar/video/manager/TableRow.hpp>
+#include <cigmar/video/manager/UniqueProperty.hpp>
+#include <cigmar/video/manager/MultipleProperty.hpp>
+#include <cigmar/video/Video.hpp>
 
 namespace cigmar::video::manager {
 	class Database;

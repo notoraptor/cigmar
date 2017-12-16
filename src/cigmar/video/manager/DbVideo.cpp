@@ -1,9 +1,9 @@
 //
 // Created by notoraptor on 17-11-23.
 //
-#include <video/manager/DbVideo.hpp>
-#include <video/manager/Database.hpp>
-#include <video/manager/Folder.hpp>
+#include <cigmar/video/manager/DbVideo.hpp>
+#include <cigmar/video/manager/Database.hpp>
+#include <cigmar/video/manager/Folder.hpp>
 namespace cigmar::video::manager {
 	void DbVideo::loadProperties() {
 		auto query = db->query(

@@ -2,8 +2,8 @@
 // Created by notoraptor on 17-11-23.
 //
 
-#include <video/manager/Library.hpp>
-#include <video/manager/Database.hpp>
+#include <cigmar/video/manager/Library.hpp>
+#include <cigmar/video/manager/Database.hpp>
 namespace cigmar::video::manager {
 	Library::Library(Database& database, int64_t id, const String& name, const String& thumbnailExtension):
 		db(database), library_id(id), library_name(name), thumbnail_extension(thumbnailExtension), folders() {

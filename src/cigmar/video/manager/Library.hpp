@@ -5,9 +5,9 @@
 #ifndef SRC_CIGMAR_LIBRARY_HPP
 #define SRC_CIGMAR_LIBRARY_HPP
 
-#include <video/manager/TableRow.hpp>
-#include <video/manager/RowMapping.hpp>
-#include <video/manager/Folder.hpp>
+#include <cigmar/video/manager/TableRow.hpp>
+#include <cigmar/video/manager/RowMapping.hpp>
+#include <cigmar/video/manager/Folder.hpp>
 
 namespace cigmar::video::manager {
 	class Database;

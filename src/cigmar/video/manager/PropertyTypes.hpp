@@ -5,7 +5,7 @@
 #ifndef SRC_CIGMAR_PROPERTYTYPES_HPP
 #define SRC_CIGMAR_PROPERTYTYPES_HPP
 
-#include <video/manager/PropertyType.hpp>
+#include <cigmar/video/manager/PropertyType.hpp>
 #include <cigmar/classes/HashMap.hpp>
 #include <cigmar/sqlite.hpp>
 #include <cassert>

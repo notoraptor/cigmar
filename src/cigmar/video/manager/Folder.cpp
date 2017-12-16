@@ -2,8 +2,8 @@
 // Created by notoraptor on 17-11-22.
 //
 
-#include <video/manager/Folder.hpp>
-#include <video/manager/Database.hpp>
+#include <cigmar/video/manager/Folder.hpp>
+#include <cigmar/video/manager/Database.hpp>
 namespace cigmar::video::manager {
 	void Folder::recordVideo(const cigmar::video::Video &video) {
 		db->run(R"(INSERT INTO video (

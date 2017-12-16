@@ -4,7 +4,7 @@
 
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/HashSet.hpp>
-#include <video/Video.hpp>
+#include <cigmar/video/Video.hpp>
 
 namespace cigmar::video {
 	static const char* const supportedExtensions[] = {

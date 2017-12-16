@@ -47,17 +47,52 @@ set(SOURCE_FILES
         src/cigmar/std.hpp
         src/cigmar/symbols.hpp
         src/cigmar/time.hpp
+        src/cigmar/tree.hpp
         src/cigmar/types/pos_t.hpp
         src/cigmar/unicode.hpp
         src/cigmar/unittests.hpp
         src/cigmar/utils/Hasher.hpp
         src/cigmar/utils/Initializable.hpp
+        src/cigmar/video/ffmpeg.cpp
+        src/cigmar/video/ffmpeg.hpp
+        src/cigmar/video/manager/Database.cpp
+        src/cigmar/video/manager/Database.hpp
+        src/cigmar/video/manager/DbVideo.cpp
+        src/cigmar/video/manager/DbVideo.hpp
+        src/cigmar/video/manager/Folder.cpp
+        src/cigmar/video/manager/Folder.hpp
+        src/cigmar/video/manager/Library.cpp
+        src/cigmar/video/manager/Library.hpp
+        src/cigmar/video/manager/manager.hpp
+        src/cigmar/video/manager/MultipleProperties.hpp
+        src/cigmar/video/manager/MultipleProperty.hpp
+        src/cigmar/video/manager/PropertyType.hpp
+        src/cigmar/video/manager/PropertyTypes.hpp
+        src/cigmar/video/manager/Report.hpp
+        src/cigmar/video/manager/RowMapping.hpp
+        src/cigmar/video/manager/TableRow.hpp
+        src/cigmar/video/manager/UniqueProperties.hpp
+        src/cigmar/video/manager/UniqueProperty.hpp
+        src/cigmar/video/Video.cpp
+        src/cigmar/video/Video.hpp
         src/cigmar/whirlpool.hpp
         src/cpp/cigmar.cpp
         src/cpp/filesystem.cpp
         src/cpp/filesystem_unix.inc
         src/cpp/filesystem_windows.inc
-        src/cpp/unittests.cpp
+        src/cpp/main.cpp
+        src/cpp/tests/test_arrays.cpp
+        src/cpp/tests/test_cigmar.cpp
+        src/cpp/tests/test_encodings.cpp
+        src/cpp/tests/test_filesystem.cpp
+        src/cpp/tests/test_HashMap.cpp
+        src/cpp/tests/test_math.cpp
+        src/cpp/tests/test_Queue.cpp
+        src/cpp/tests/test_Stack.cpp
+        src/cpp/tests/test_String.cpp
+        src/cpp/tests/test_time.cpp
+        src/cpp/tests/test_TreeMap.cpp
+        src/cpp/tests/test_video.cpp
         src/libraries/base64/base64.hpp
         src/libraries/json/json.hpp
         src/libraries/sqlite/sqlite3.c
@@ -65,42 +100,7 @@ set(SOURCE_FILES
         src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        src/main.cpp
-        src/tests/test_arrays.cpp
-        src/tests/test_cigmar.cpp
-        src/tests/test_encodings.cpp
-        src/tests/test_filesystem.cpp
-        src/tests/test_HashMap.cpp
-        src/tests/test_math.cpp
-        src/tests/test_Queue.cpp
-        src/tests/test_Stack.cpp
-        src/tests/test_String.cpp
-        src/tests/test_time.cpp
-        src/tests/test_TreeMap.cpp
-        src/tests/test_video.cpp
-        src/video/ffmpeg.cpp
-        src/video/ffmpeg.hpp
-        src/video/manager/Database.cpp
-        src/video/manager/Database.hpp
-        src/video/manager/DbVideo.cpp
-        src/video/manager/DbVideo.hpp
-        src/video/manager/Folder.cpp
-        src/video/manager/Folder.hpp
-        src/video/manager/Library.cpp
-        src/video/manager/Library.hpp
-        src/video/manager/manager.hpp
-        src/video/manager/MultipleProperties.hpp
-        src/video/manager/MultipleProperty.hpp
-        src/video/manager/PropertyType.hpp
-        src/video/manager/PropertyTypes.hpp
-        src/video/manager/Report.hpp
-        src/video/manager/RowMapping.hpp
-        src/video/manager/TableRow.hpp
-        src/video/manager/UniqueProperties.hpp
-        src/video/manager/UniqueProperty.hpp
-        src/video/Video.cpp
-        src/video/Video.hpp
-        src/cigmar/tree.hpp)
+        )
 
 add_executable(cigmar ${SOURCE_FILES})
 

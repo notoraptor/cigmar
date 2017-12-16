@@ -6,8 +6,8 @@
 #define SRC_CIGMAR_MANAGER_HPP
 
 #include <cigmar/utils/Initializable.hpp>
-#include <video/manager/Database.hpp>
-#include <video/manager/DbVideo.hpp>
+#include <cigmar/video/manager/Database.hpp>
+#include <cigmar/video/manager/DbVideo.hpp>
 
 namespace cigmar::videomanager {
 	typedef video::manager::Database Database;

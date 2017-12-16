@@ -4,12 +4,15 @@
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/StringView.hpp>
+#include <cigmar/classes/Timer.hpp>
+#include <cigmar/classes/TreeMap.hpp>
 #include <cigmar/init.hpp>
 #include <cigmar/numbers.hpp>
 #include <cigmar/classes/HashSet.hpp>
 #include <cigmar/file/Lines.hpp>
 #include <libraries/base64/base64.hpp>
 #include <libraries/whirlpool/nessie.h>
+#include <cigmar/unittests.hpp>
 
 /* NB:
  * To have all C++11 thread functionalities available, compiler must be POSIX compliant.
@@ -125,6 +128,70 @@ namespace cigmar {
 	}
 	namespace numbers::random {
 		RNG rng;
+	}
+	namespace tests {
+		template<typename T> class Dynamic {
+		public:
+			T* pointer;
+		public:
+			~Dynamic() {
+				delete pointer;
+			}
+		};
+		typedef TreeMap<String, UttMethod> TestList;
+		static Dynamic<TestList> tests;
+		static void init() {
+			static bool initialized = false;
+			if (!initialized) {
+				tests.pointer = new TestList();
+				initialized = true;
+			}
+		}
+		UttRecorder::UttRecorder(UttMethod method, const char *className, const char *methodName) noexcept {
+			init();
+			TestList& treemap = *tests.pointer;
+			String s = String::write(className, ".", methodName);
+			treemap[s] = method;
+		}
+		void run() {
+			init();
+			TestList& treemap = *tests.pointer;
+			Timer timer;
+			timer.start();
+			for (TestList::iterator_t it = treemap.begin(); it != treemap.end(); ++it) {
+				// catch
+				try {
+					// turn
+					try {
+						std::cerr << it->first << " ...";
+						it->second();
+						std::cerr << " ok" << std::endl;
+					} catch (std::string &s) {
+						std::ostringstream os;
+						std::cerr << " ERROR" << std::endl;
+						os << "ERROR: " << it->first << std::endl << s;
+						throw os.str();
+					} catch (...) {
+						std::cerr << " ERROR" << std::endl << std::endl;
+						std::cerr << "ERROR: " << it->first << std::endl;
+						throw;
+					}
+				} catch (std::string& s) {
+					std::cerr << std::endl << s << std::endl;
+					exit(EXIT_FAILURE);
+				} catch(std::exception& e) {
+					std::cerr << std::endl << e.what() << std::endl;
+					exit(EXIT_FAILURE);
+				} catch (...) {
+					std::cerr << std::endl << "(unknown exception)" << std::endl;
+					exit(EXIT_FAILURE);
+				}
+			}
+			double elapsedSeconds = timer.microseconds() * 1e-6;
+			size_t testsCount = treemap.size();
+			std::cerr << std::endl << "Ran " << testsCount << " test" << (testsCount == 1 ? "" : "s") << " in " << elapsedSeconds << 's' << std::endl;
+			std::cerr << std::endl << "OK" << std::endl;
+		}
 	}
 	namespace time {
 		namespace nanoseconds {

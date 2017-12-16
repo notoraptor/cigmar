@@ -6,9 +6,9 @@
 #define SRC_CIGMAR_UNIQUEPROPERTIES_HPP
 
 #include <cigmar/sqlite.hpp>
-#include <video/manager/RowMapping.hpp>
-#include <video/manager/UniqueProperty.hpp>
-#include <video/manager/PropertyTypes.hpp>
+#include <cigmar/video/manager/RowMapping.hpp>
+#include <cigmar/video/manager/UniqueProperty.hpp>
+#include <cigmar/video/manager/PropertyTypes.hpp>
 #include <cigmar/classes/Exception.hpp>
 
 namespace cigmar::video::manager {

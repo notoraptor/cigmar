@@ -6,7 +6,7 @@
 #define SRC_CIGMAR_ROWMAPPING_HPP
 
 #include <cigmar/classes/HashSet.hpp>
-#include <video/manager/TableRow.hpp>
+#include <cigmar/video/manager/TableRow.hpp>
 #include <cigmar/classes/HashMap.hpp>
 
 namespace cigmar::video::manager {

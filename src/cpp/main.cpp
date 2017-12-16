@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cigmar/unittests.hpp>
-#include <video/manager/manager.hpp>
+#include <cigmar/video/manager/manager.hpp>
 #include <cigmar/print.hpp>
 #include <cigmar/classes/UnicodeString.hpp>
 #include <cigmar/tree.hpp>
@@ -24,6 +24,61 @@ const char* jstring = R"(
 
 */
 
+struct MyContent: public tree::Content<MyContent> {
+	int val = 11101;
+	using tree::Content<MyContent>::Content;
+};
+using MyNode = tree::Node<MyContent>;
+void testNodes() {
+	MyNode a("a", nullptr);
+	MyNode a1("a1", nullptr);
+	MyNode b("b", a);
+	MyNode c("c", b);
+	MyNode d("d", b);
+	sys::err::println(a->isRoot());
+	sys::err::println(b->isInternal());
+	sys::err::println(c->isLeaf());
+	sys::err::println(b->size());
+	sys::err::println(c->parent() == b);
+	sys::err::println(a);
+	sys::err::println(a1);
+	sys::err::println();
+	a1->add(c);
+	sys::err::println(a);
+	sys::err::println(a1);
+	sys::err::println();
+	b->add(a1);
+	sys::err::println(a);
+	sys::err::println(a1);
+	sys::err::println();
+	sys::err::println("a", a.refcount(), "a1", a1.refcount(), "b", b.refcount(), "c", c.refcount());
+	sys::err::println(a->val, b->val);
+	sys::err::println(a.typesize(), b->parent().typesize());
+}
+void testUnicode() {
+	const char* s = "部首 国字 木, 神 !";
+	std::cout << "Hello World!" << std::endl;
+	std::cout << "部首 国字 木, 神 !" << std::endl;
+	std::cout << s << std::endl;
+
+	std::string utf8 =  u8"z\u00df\u6c34\U0001d10b"; // or u8"zß水𝄋"
+	// or "\x7a\xc3\x9f\xe6\xb0\xb4\xf0\x9d\x84\x8b";
+	std::cout << "original UTF-8 string size: " << utf8.size() << '\n';
+	std::cout << utf8 << std::endl;
+
+	// UTF-8 to UTF-32
+	std::vector<uint32_t> utf32;
+	unicode::convert(utf8, utf32);
+	std::cout << "UTF-32 string size: " << utf32.size() << '\n';
+
+	// UTF-32 to UTF-8
+	std::string decoded;
+	unicode::convert(utf32, decoded);
+	std::cout << "new UTF-8 string size: " << decoded.size() << '\n';
+	std::cout << utf8 << std::endl;
+	std::cout << decoded << std::endl;
+	std::cout << (utf8 == decoded) << std::endl;
+}
 void testDatabase() {
 	String libraryName = "testLibrary";
 	String folderName = "res/video";
@@ -75,64 +130,11 @@ void testDatabase() {
 	}
 }
 
-struct MyContent: public tree::Content<MyContent> {
-	int val = 11101;
-	using tree::Content<MyContent>::Content;
-};
-using MyNode = tree::Node<MyContent>;
-
 int main() {
-	/*
-	const char* s = "部首 国字 木, 神 !";
-	std::cout << "Hello World!" << std::endl;
-	std::cout << "部首 国字 木, 神 !" << std::endl;
-	std::cout << s << std::endl;
-
-	std::string utf8 =  u8"z\u00df\u6c34\U0001d10b"; // or u8"zß水𝄋"
-						// or "\x7a\xc3\x9f\xe6\xb0\xb4\xf0\x9d\x84\x8b";
-	std::cout << "original UTF-8 string size: " << utf8.size() << '\n';
-	std::cout << utf8 << std::endl;
-
-	// UTF-8 to UTF-32
-	std::vector<uint32_t> utf32;
-	unicode::convert(utf8, utf32);
-	std::cout << "UTF-32 string size: " << utf32.size() << '\n';
-
-	// UTF-32 to UTF-8
-	std::string decoded;
-	unicode::convert(utf32, decoded);
-	std::cout << "new UTF-8 string size: " << decoded.size() << '\n';
-	std::cout << utf8 << std::endl;
-	std::cout << decoded << std::endl;
-	std::cout << (utf8 == decoded) << std::endl;
-
-	testDatabase();
 	tests::run();
-	*/
-	MyNode a("a", nullptr);
-	MyNode a1("a1", nullptr);
-	MyNode b("b", a);
-	MyNode c("c", b);
-	MyNode d("d", b);
-	sys::err::println(a->isRoot());
-	sys::err::println(b->isInternal());
-	sys::err::println(c->isLeaf());
-	sys::err::println(b->size());
-	sys::err::println(c->parent() == b);
-	sys::err::println(a);
-	sys::err::println(a1);
-	sys::err::println();
-	a1->add(c);
-	sys::err::println(a);
-	sys::err::println(a1);
-	sys::err::println();
-	b->add(a1);
-	sys::err::println(a);
-	sys::err::println(a1);
-	sys::err::println();
-	sys::err::println("a", a.refcount(), "a1", a1.refcount(), "b", b.refcount(), "c", c.refcount());
-	sys::err::println(a->val, b->val);
-	sys::err::println(a.typesize(), b->parent().typesize());
+	testUnicode();
+	testDatabase();
+	testNodes();
 	return 0;
 }
 

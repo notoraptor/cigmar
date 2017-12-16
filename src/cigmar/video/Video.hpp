@@ -13,7 +13,7 @@
 #include <cigmar/classes/Exception.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/whirlpool.hpp>
-#include <video/ffmpeg.hpp>
+#include <cigmar/video/ffmpeg.hpp>
 #include <chrono>
 
 // TODO: PNG: http://lodev.org/lodepng/

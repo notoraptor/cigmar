@@ -7,10 +7,10 @@
 
 #include <cigmar/sqlite.hpp>
 #include <cigmar/classes/HashSet.hpp>
-#include <video/manager/PropertyTypes.hpp>
-#include <video/manager/UniqueProperties.hpp>
-#include <video/manager/MultipleProperties.hpp>
-#include <video/manager/Library.hpp>
+#include <cigmar/video/manager/PropertyTypes.hpp>
+#include <cigmar/video/manager/UniqueProperties.hpp>
+#include <cigmar/video/manager/MultipleProperties.hpp>
+#include <cigmar/video/manager/Library.hpp>
 #include <cigmar/file/Lines.hpp>
 
 namespace cigmar::video::manager {

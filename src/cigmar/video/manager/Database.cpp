@@ -2,7 +2,7 @@
 // Created by notoraptor on 17-11-23.
 //
 
-#include <video/manager/Database.hpp>
+#include <cigmar/video/manager/Database.hpp>
 
 namespace cigmar::video::manager {
 	Database::Database(const char* dbname):

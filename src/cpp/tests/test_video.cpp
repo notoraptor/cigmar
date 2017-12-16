@@ -2,7 +2,7 @@
 #include <cigmar/classes/String.hpp>
 #include <cigmar/filesystem.hpp>
 #include <cigmar/print.hpp>
-#include <video/Video.hpp>
+#include <cigmar/video/Video.hpp>
 using namespace cigmar;
 
 /*

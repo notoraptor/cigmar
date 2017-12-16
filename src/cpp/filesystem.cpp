@@ -12,7 +12,7 @@
 #include <cpp/filesystem_unix.inc>
 #endif
 
-#define BUFFER_LENGTH 1025
+#define CIGMAR_SYS_RUN_BUFFER_LENGTH 1025
 
 /* Common code. */
 namespace cigmar {
@@ -153,12 +153,12 @@ namespace cigmar {
 		// Inspired from: https://stackoverflow.com/questions/478898/
 		String run(const char* command) {
 			String out;
-			char buffer[BUFFER_LENGTH];
+			char buffer[CIGMAR_SYS_RUN_BUFFER_LENGTH];
 			FileHandler pipe(popen(command, "r"), pclose);
 			if (!pipe)
 				throw Exception("cigmar::sys::run(): unable to open stdout. ", strerror(errno));
 			while (!feof(pipe)) {
-				if (fgets(buffer, BUFFER_LENGTH, pipe))
+				if (fgets(buffer, CIGMAR_SYS_RUN_BUFFER_LENGTH, pipe))
 					out << buffer;
 			}
 			errno = 0;

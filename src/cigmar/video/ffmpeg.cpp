@@ -1,5 +1,5 @@
-#include <video/ffmpeg.hpp>
-#include <video/Video.hpp>
+#include <cigmar/video/ffmpeg.hpp>
+#include <cigmar/video/Video.hpp>
 
 namespace cigmar::video::ffmpeg {
 	/** Call ``ffprobe`` to get video infos in JSON format. **/

@@ -5,7 +5,7 @@
 #ifndef SRC_CIGMAR_MULTIPLEPROPERTY_HPP
 #define SRC_CIGMAR_MULTIPLEPROPERTY_HPP
 
-#include <video/manager/TableRow.hpp>
+#include <cigmar/video/manager/TableRow.hpp>
 
 namespace cigmar::video::manager {
 	struct MultipleProperty: public TableRow {
