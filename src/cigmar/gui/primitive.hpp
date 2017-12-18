@@ -39,7 +39,6 @@ namespace cigmar::gui::primitive {
 
 		class Gradient: public Background {
 			ArrayList<Color> points;
-			// double rotation;
 		};
 	};
 
@@ -68,27 +67,47 @@ namespace cigmar::gui::primitive {
 		} outline;
 		Background* background;	// should be nullptr for non-closed figures.
 		Coordinate position;	// Position of the top-left point of the surrounding box.
-		double rotation;
-		virtual Size size() const {
-			// TODO: Override in derived classes.
-			return {0, 0};
-		};
-		/** Return size of bound box when drawed (with rotation applied). **/
-		Size space() const;
+		/** Must return width and height of the primitive box (smallest rectangle surrounding the primitive).
+		 * NB; Should take outline into account. **/
+		virtual Size size() const = 0;
 	};
 
 	struct Ellipse: public Primitive {
 		size_t hradius;
 		size_t vradius;
+		Size size() const override {
+			return {2 * (hradius + outline.width), 2 * (vradius + outline.width)};
+		}
 	};
 
-	struct Surface: public Primitive, public Size {};
+	struct Surface: public Primitive, public Size {
+		Size size() const override {
+			return {width + 2 * outline.width, height + 2 * outline.width};
+		}
+	};
 
 	struct Coordinates: public Primitive {
 		/* List of coordinates to define a geometric form.
 		 * NB: Coordinates are internally always stored in a same space (to be defined).
 		 * e.g. where the reference point is the top-left vertex of the bound box. */
 		ArrayList<Coordinate> coordinates;
+		Size size() const override {
+			if (!coordinates)
+				return {0, 0};
+			int min_x, min_y, max_x, max_y;
+			auto it = coordinates.begin(), end = coordinates.end();
+			min_x = max_x = it->x;
+			min_y = max_y = it->y;
+			++it;
+			while (it != end) {
+				if (min_x > it->x) min_x = it->x;
+				if (min_y > it->y) min_y = it->y;
+				if (max_x < it->x) max_x = it->x;
+				if (max_y < it->y) max_y = it->y;
+				++it;
+			}
+			return {size_t(max_x - min_x) + 2 * outline.width, size_t(max_y - min_y) + 2 * outline.width};
+		}
 	};
 
 	struct Polygon: public Coordinates {

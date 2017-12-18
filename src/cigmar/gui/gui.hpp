@@ -171,14 +171,15 @@ namespace cigmar::gui {
 		primitive::Surface surface;
 	public:
 		typedef root_t window_t;
-		typedef child_t widget_t;
+		typedef node_t widget_t;
 		bool visible;
 		bool transparent;
 		virtual void draw(Coordinate origin, size_t width, size_t height) = 0;
-		size_t width() const;
-		size_t height() const;
-		Window& window() const;
-		const Coordinate& position();
+		virtual size_t width() const;
+		virtual size_t height() const;
+		const Coordinate& position() const {
+			return surface.position;
+		}
 		widget_t position(Coordinate newPosition) {
 			surface.position = newPosition;
 			return node();
@@ -198,7 +199,7 @@ namespace cigmar::gui {
 	class Layout : public StyledWidget {
 		// Free layout.
 		// Exemple: set position of a widget and add this widget in one line:
-		// layout.add(myWidget->position(newPosition));
+		// layout->add(myWidget->position(newPosition));
 	};
 
 	struct BorderLayout : public Layout {
@@ -231,6 +232,48 @@ namespace cigmar::gui {
 
 	class VerticalLayout: public DirectedLayout<HorizontalPosition> {};
 
+	template <typename T>
+	class valid_iterator_t {
+		T it, it_end;
+	public:
+		valid_iterator_t(const T& iterator, const T& end): it(iterator), it_end(end) {
+			this->operator++();
+		}
+		bool operator==(const valid_iterator_t& other) const {return it == other.it;}
+		bool operator!=(const valid_iterator_t& other) const {return it != other.it;}
+		valid_iterator_t& operator++() {
+			while (it != it_end && !(*it))
+				++it;
+			return *this;
+		}
+		auto operator*() -> decltype(T::operator*()) {
+			return it.operator*();
+		}
+		auto operator->() -> decltype(T::operator->()) {
+			return it.operator->();
+		}
+	};
+
+	template <typename T>
+	class valid_t {
+		T& o;
+		typedef valid_iterator_t<decltype(T::begin())> iterator_t;
+		valid_t(T& object): o(object) {}
+		iterator_t begin() {return iterator_t(o.begin(), o.end());}
+		iterator_t end() {return iterator_t(o.end(), o.end());}
+	};
+
+	template <typename T>
+	class const_valid_t {
+		typedef const T const_t;
+		const_t& o;
+		typedef valid_iterator_t<decltype(const_t::begin())> const_iterator_t;
+		const_valid_t(const_t& object): o(object) {}
+		const_iterator_t begin() const {return const_iterator_t(o.begin(), o.end());}
+		const_iterator_t end() const {return const_iterator_t(o.end(), o.end());}
+	};
+
+	// full ?
 	class Window: public Layout {
 		// 2 children: the context menu and the windows content.
 		enum {CONTEXT, CONTENT, COUNT};
@@ -244,15 +287,6 @@ namespace cigmar::gui {
 			handler->display();
 		}
 	public:
-		void draw(Coordinate origin, size_t width, size_t height) override {
-			surface.position = origin;
-			surface.width = width;
-			surface.height = height;
-			handler->drawSurface(surface);
-			widget_t child = content();
-			if (child)
-				child->draw(origin, width, height);
-		};
 		Window(backend::WindowHandler* windowHandler, const WindowProperties& windowProperties):
 				Layout(), properties(), handler(windowHandler), focus(nullptr) {
 			if (!handler)
@@ -271,9 +305,8 @@ namespace cigmar::gui {
 		~Window() {
 			close();
 		}
-		Window& setContent(const widget_t& widget) {
+		void setContent(const widget_t& widget) {
 			setChild(CONTENT, widget);
-			return *this;
 		};
 		widget_t content() {
 			return child(CONTENT);
@@ -285,8 +318,17 @@ namespace cigmar::gui {
 			if (handler->isOpen())
 				handler->close();
 		};
-		// The display loop is here.
+		void draw(Coordinate origin, size_t width, size_t height) override {
+			surface.position = origin;
+			surface.width = width;
+			surface.height = height;
+			handler->drawSurface(surface);
+			widget_t child = content();
+			if (child)
+				child->draw(origin, width, height);
+		};
 		int show() {
+			// The display loop is here.
 			while (isOpen()) {
 				Event event;
 				while (handler->pollEvent(event)) {
@@ -342,7 +384,25 @@ namespace cigmar::gui {
 					display();
 				}
 			}
-		};
+		}
+		bool onClosedBefore() override {
+			bool close = true;
+			if (child(CONTEXT)) close = child(CONTEXT)->onClosed();
+			if (close && child(CONTENT)) close = child(CONTENT)->onClosed();
+			return close;
+		}
+		bool onResizedBefore(size_t width, size_t height) override {
+			properties.width = width;
+			properties.height = height;
+			// todo: pass to children.
+			return true;
+		}
+		size_t width() const override {
+			return properties.width;
+		}
+		size_t height() const override {
+			return properties.height;
+		}
 		size_t minChildren() const override {return COUNT;}
 		size_t maxChildren() const override {return COUNT;}
 		bool forceRoot() const override {return true;}
