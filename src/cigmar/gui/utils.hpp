@@ -36,7 +36,7 @@ namespace cigmar::gui {
 		char* data;
 
 		struct View {
-			Image *image;
+			Image* image;
 			size_t x;
 			size_t y;
 			size_t width;
@@ -54,6 +54,7 @@ namespace cigmar::gui {
 		bool decored;
 		bool titled;
 		bool required; // True if values defined for properties above are mandatory, for any reason.
+
 		bool operator==(const WindowProperties& o) const {
 			return (width == o.width
 					&& height == o.height
@@ -62,14 +63,22 @@ namespace cigmar::gui {
 					&& closeable == o.closeable
 					&& fullscreen == o.fullscreen
 					&& decored == o.decored
-					&& titled == o.titled);
+					&& titled == o.titled
+			        && required == o.required);
 		}
 		bool operator!=(const WindowProperties& o) const {
-			return !(*this == o);
+			return !this->operator==(o);
 		}
 		void toStream(std::ostream& o) const override {
 			// TODO
-			o << "WindowProperties()";
+			o << "WindowProperties(" << width << ", " << height << ", " << bitsPerPixels;
+			if (resizable) o << ", resizable";
+			if (closeable) o << ", closeable";
+			if (fullscreen) o << ", fullscreen";
+			if (decored) o << ", decored";
+			if (titled) o << ", titled";
+			if (required) o << ", required";
+			o << ")";
 		}
 	};
 
@@ -80,11 +89,8 @@ namespace cigmar::gui {
 		A = 0, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
 		NUM0, NUM1, NUM2, NUM3, NUM4, NUM5, NUM6, NUM7, NUM8, NUM9,
 		NUMPAD0, NUMPAD1, NUMPAD2, NUMPAD3, NUMPAD4, NUMPAD5, NUMPAD6, NUMPAD7, NUMPAD8, NUMPAD9,
-		ADD, SUBTRACT, MULTIPLY, DIVIDE,
-		ESCAPE, MENU, PAUSE,
-		CONTROL_LEFT, SHIFT_LEFT, ALT_LEFT, SYSTEM_LEFT,
-		CONTROL_RIGHT, SHIFT_RIGHT, ALT_RIGHT, SYSTEM_RIGHT,
-		BRACKET_LEFT, BRACKET_RIGHT,
+		ADD, SUBTRACT, MULTIPLY, DIVIDE, ESCAPE, MENU, PAUSE, BRACKET_LEFT, BRACKET_RIGHT,
+		CONTROL_LEFT, SHIFT_LEFT, ALT_LEFT, SYSTEM_LEFT, CONTROL_RIGHT, SHIFT_RIGHT, ALT_RIGHT, SYSTEM_RIGHT,
 		TAB, SEMICOLON, COMMA, PERIOD, QUOTE, SLASH, BACKSLASH, TILDE, EQUAL, DASH, SPACE,
 		RETURN, BACKSPACE, INSERT, DELETE, PAGEUP, PAGEDOWN, END, HOME,  LEFT, RIGHT, UP, DOWN,
 		F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15,
@@ -93,10 +99,8 @@ namespace cigmar::gui {
 
 	struct Event {
 		enum class Type {
-			UNKNOWN = -1,
-			CLOSED = 0, RESIZED, FOCUS_IN, FOCUS_OUT,
-			MOUSE_SCROLL, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVED, MOUSE_IN, MOUSE_OUT,
-			TEXT, KEY_DOWN, KEY_UP,
+			UNKNOWN = -1, CLOSED = 0, RESIZED, FOCUS_IN, FOCUS_OUT,
+			MOUSE_SCROLL, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVED, MOUSE_IN, MOUSE_OUT, TEXT, KEY_DOWN, KEY_UP,
 			COUNT
 		};
 		union {
@@ -124,7 +128,7 @@ namespace cigmar::gui {
 			} mouse;
 			uint32_t unicode;
 		};
-		Type type;
+		Type type = Type::UNKNOWN;
 	};
 
 }

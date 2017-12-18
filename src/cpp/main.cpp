@@ -24,6 +24,10 @@ const char* jstring = R"(
 
 */
 
+namespace cigmar::tree {
+	size_t nodes_count = 0;
+}
+
 struct MyContent: public tree::Content<MyContent> {
 	int val = 11101;
 	using tree::Content<MyContent>::Content;
@@ -54,6 +58,7 @@ void testNodes() {
 	sys::err::println("a", a.refcount(), "a1", a1.refcount(), "b", b.refcount(), "c", c.refcount());
 	sys::err::println(a->val, b->val);
 	sys::err::println(a.typesize(), b->parent().typesize());
+	sys::err::println("Node count is", tree::nodes_count);
 }
 void testUnicode() {
 	const char* s = "部首 国字 木, 神 !";
@@ -131,10 +136,11 @@ void testDatabase() {
 }
 
 int main() {
-	tests::run();
-	testUnicode();
-	testDatabase();
-	testNodes();
+	 tests::run();
+	 testUnicode();
+	 testDatabase();
+	 testNodes();
+	 sys::err::println("Node count is", tree::nodes_count);
 	return 0;
 }
 

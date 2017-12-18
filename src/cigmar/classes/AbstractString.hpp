@@ -139,6 +139,14 @@ namespace cigmar {
 			s.concatenate(args...);
 			return s;
 		}
+		template <typename C> static AbstractString join(const C& collection, const AbstractString& delimiter = "") {
+			AbstractString out;
+			for (auto& x: collection) {
+				if (out) out << delimiter;
+				out << x;
+			}
+			return out;
+		};
 
 		AbstractString& operator=(const Character* s) {
 			member = s;

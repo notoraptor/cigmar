@@ -11,22 +11,33 @@
 namespace cigmar::tree {
 	template <typename T> class Node;
 
+	extern size_t nodes_count;
+
 	template <typename Type, typename RootType=Type, typename ParentType=Type, typename ChildType=Type>
 	class Content {
 		friend class Node<Type>;
+	protected:
+		typedef Type content_type;
+		typedef RootType content_root_type;
+		typedef ParentType content_parent_type;
+		typedef ChildType content_child_type;
 		typedef Node<Type> node_t;
 		typedef Node<RootType> root_t;
 		typedef Node<ParentType> parent_t;
 		typedef Node<ChildType> child_t;
 		typedef ArrayList<child_t> container_t;
+	private:
 		size_t refcount;
 		String m_name;
-		Content<ParentType>* m_parent;
+		Content<ParentType, RootType, ParentType, Type>* m_parent;
 		container_t children;
 	public:
 		typedef typename container_t::iterator_t iterator_t;
 		typedef typename container_t::const_iterator_t const_iterator_t;
-		Content(const String& nodeName, const parent_t& nodeParent): refcount(0), m_name(nodeName), m_parent(nodeParent.internal), children() {
+		Content(const String& nodeName, const parent_t& nodeParent):
+				refcount(0), m_name(nodeName), m_parent(nodeParent.internal), children() {
+			if (minChildren() > maxChildren())
+				throw Exception("Node: minimum number of children must be <= maximum number of children.");
 			if (m_parent) {
 				if (forceRoot())
 					throw Exception("Node: cannot add a parent to a root.");
@@ -43,6 +54,8 @@ namespace cigmar::tree {
 		const_iterator_t begin() const { return children.begin(); };
 		const_iterator_t end() const { return children.end(); };
 		size_t size() const { return children.size(); };
+		// TODO: Take minChildren into account in the other methods.
+		virtual size_t minChildren() const {return 0;}
 		virtual size_t maxChildren() const {return std::numeric_limits<size_t>::max();};
 		virtual bool forceRoot() const {return false;};
 		virtual bool preallocate() const {return false;};
@@ -54,7 +67,7 @@ namespace cigmar::tree {
 		};
 		bool hasAncestor(const parent_t& node) const {
 			if (node) {
-				Content<ParentType>* currentParent = m_parent;
+				auto* currentParent = m_parent;
 				while (currentParent) {
 					if (currentParent == node.internal)
 						return true;
@@ -76,6 +89,24 @@ namespace cigmar::tree {
 			return children[position];
 		};
 		const String& name() const { return m_name; };
+		pos_t indexOf(const child_t& child) const {
+			return child ? pos_t() : children.indexOf(child);
+		}
+		void switchPositions(size_t posChild1, size_t posChild2) {
+			children.switchPosition(posChild1, posChild2);
+		};
+		void moveUp(size_t childPosition, size_t offset) {
+			children.moveUp(childPosition, offset);
+		};
+		void moveDown(size_t childPosition, size_t offset) {
+			children.moveDown(childPosition, offset);
+		};
+		void moveTop(size_t childPosition) {
+			children.moveUp(childPosition, childPosition);
+		};
+		void moveBottom(size_t childPosition) {
+			children.moveDown(childPosition, children.size());
+		};
 		void add(const child_t& child) {
 			if (child) {
 				if (child.internal->forceRoot())
@@ -120,11 +151,19 @@ namespace cigmar::tree {
 				child.internal->m_parent = this;
 			}
 		};
+		node_t node() const {return node_t(*this);}
 	};
 
-	template <typename T> class Node: public Streamable {
-		friend class Content<T>;
-		Content<T>* internal;
+	template <typename ContentType>
+	class Node: public Streamable {
+		typedef Content<
+				typename ContentType::content_type,
+				typename ContentType::content_root_type,
+				typename ContentType::content_parent_type,
+				typename ContentType::content_child_type
+		> content_t;
+		friend content_t;
+		content_t* internal;
 		void clear() {
 			if (internal) {
 				if (internal->refcount)
@@ -132,15 +171,16 @@ namespace cigmar::tree {
 				if (!internal->refcount) {
 					std::cerr << "Deleting: " << internal->name() << std::endl;
 					delete internal;
+					--nodes_count;
 				}
 				internal = nullptr;
 			}
 		}
-		Content<T>* get() {
+		content_t* get() {
 			if (!internal) throw Exception("Node: cannot dereference a null content.");
 			return internal;
 		}
-		const Content<T>* get() const {
+		const content_t* get() const {
 			if (!internal) throw Exception("Node: cannot dereference a null content.");
 			return internal;
 		}
@@ -153,14 +193,15 @@ namespace cigmar::tree {
 			// std::cerr << '-' << internal->name() << ':' << internal->refcount << std::endl;
 		}
 		Node(std::nullptr_t): internal(nullptr) {};
-		explicit Node(Content<T>& otherInternal): internal(&otherInternal) {
+		explicit Node(content_t& otherInternal): internal(&otherInternal) {
 			increment();
 		};
 	public:
 		template <typename... Args>
 		explicit Node(Args&&... contentArgs) {
-			internal = new T(std::forward<Args>(contentArgs)...);
+			internal = new ContentType(std::forward<Args>(contentArgs)...);
 			increment();
+			++nodes_count;
 		}
 		Node(const Node& copied): internal(copied.internal) {
 			if (internal)
@@ -190,12 +231,12 @@ namespace cigmar::tree {
 			return *this;
 		}
 		explicit operator bool() const {return (bool)internal;}
-		T* operator->() { return &dynamic_cast<T&>(*get()); };
-		const T* operator->() const { return &dynamic_cast<T&>(*get()); };
+		ContentType* operator->() { return &dynamic_cast<ContentType&>(*get()); };
+		const ContentType* operator->() const { return &dynamic_cast<ContentType&>(*get()); };
 		bool operator==(const Node& other) const { return internal == other.internal; };
 		size_t refcount() const {return get()->refcount;}
 		void toStream(std::ostream& o) const override {
-			const Content<T>* pointer = get();
+			const content_t* pointer = get();
 			o << pointer->m_name;
 			if (pointer->children) {
 				o << " (";
@@ -208,7 +249,7 @@ namespace cigmar::tree {
 				o << ')';
 			}
 		};
-		size_t typesize() const {return sizeof(T);}
+		size_t typesize() const {return sizeof(ContentType);}
 	};
 
 }

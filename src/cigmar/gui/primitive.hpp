@@ -18,9 +18,10 @@ namespace cigmar::gui::primitive {
 
 	struct Background {
 		enum class Type {CANVAS, COLOR, GRADIENT, MOTIF};
+
 		Type type;
+		explicit Background(Type backgroundType = Type::CANVAS) noexcept : type(backgroundType) {}
 		virtual bool isTransparent() const = 0;
-		explicit Background(Type backgroundType) noexcept : type(backgroundType) {}
 	};
 
 	struct Color : public Background {
@@ -34,31 +35,25 @@ namespace cigmar::gui::primitive {
 		static Color white;
 		static Color black;
 		static Color transparent;
-	};
+		// TODO: Define all standard HTML colors.
 
-	class ColorGradient : public Background {
-		struct Step {
-			size_t distance;
-			Color color;
+		class Gradient: public Background {
+			ArrayList<Color> points;
+			// double rotation;
 		};
-		ArrayList<Step> steps;
-		double rotation;
 	};
 
-	class Motif : public Background {
+	struct Motif: public Background {
 		Image::View imageView;
 		bool hrepeat;
 		bool vrepeat;
 	};
 
-	class Canvas : public Background {
+	struct Canvas : public Background {
 		// A canvas is always defined wrt/ the bound box the primitive for which it's a background.
-		enum class Scaling {FIXED, FORCED, SCALED};
+		enum class Scaling {NONE, SCALED, FIT};
 		ArrayList<Primitive*> primitives;
-		ArrayList<Coordinate> coordinates;
 		Scaling scaling;
-	public:
-		size_t size() const ;
 	};
 
 	struct Size {
@@ -74,7 +69,12 @@ namespace cigmar::gui::primitive {
 		Background* background;	// should be nullptr for non-closed figures.
 		Coordinate position;	// Position of the top-left point of the surrounding box.
 		double rotation;
-		virtual Size getBoxSize() const = 0;
+		virtual Size size() const {
+			// TODO: Override in derived classes.
+			return {0, 0};
+		};
+		/** Return size of bound box when drawed (with rotation applied). **/
+		Size space() const;
 	};
 
 	struct Ellipse: public Primitive {
@@ -82,26 +82,19 @@ namespace cigmar::gui::primitive {
 		size_t vradius;
 	};
 
-	struct Surface: public Primitive, public Size {
-		Size getBoxSize() const override {
-			return {width, height};
-		}
-	};
+	struct Surface: public Primitive, public Size {};
 
-	class Coordinates: public Primitive {
+	struct Coordinates: public Primitive {
 		/* List of coordinates to define a geometric form.
 		 * NB: Coordinates are internally always stored in a same space (to be defined).
 		 * e.g. where the reference point is the top-left vertex of the bound box. */
 		ArrayList<Coordinate> coordinates;
-	protected:
-		void set(const ArrayList<Coordinate>& points);
-		const ArrayList<Coordinate>& get() const;
 	};
 
-	struct Polygon: public Coordinates {};
-
-	struct RegularPolygon: public Coordinates {
-		RegularPolygon(size_t radius, size_t n_vertices);
+	struct Polygon: public Coordinates {
+		Polygon();
+		// Constructor for regular polygon.
+		Polygon(size_t radius, size_t nVertices);
 	};
 
 	struct Connection: public Coordinates {
@@ -115,36 +108,20 @@ namespace cigmar::gui::primitive {
 		 * If connection contains only two points, then the segment is extended as a line. **/
 	};
 
-	struct Bezier: public Coordinates {};
+	struct Bezier: public Connection {};
 
 	struct Border: public Polygon {
-		// A border is a "regular" trapeze.
+		// A border is a trapeze.
 		enum class Type {TOP, LEFT, BOTTOM, RIGHT};
 		Type type;
-		size_t length; // should be no public
-		size_t width; // thickness
-		size_t padding1;
-		size_t padding2;
-		Size getBoxSize() const override {
-			size_t boxWidth = 0, boxHeight = 0;
-			switch (type) {
-				case Type::TOP:
-				case Type::BOTTOM:
-					boxWidth = length;
-					boxHeight = width;
-					break;
-				case Type::LEFT:
-				case Type::RIGHT:
-					boxWidth = width;
-					boxHeight = length;
-					break;
-			}
-			return {boxWidth, boxHeight};
-		}
+		size_t length;      // should be no public
+		size_t width;       // thickness
+		size_t padding1;    // top or left
+		size_t padding2;    // bottom or right
 	};
 
 	struct Font {
-		const size_t id; // Internal (back-end) font ID, understandable by WindowHandler.
+		const size_t id; // Internal (back-end) font ID, understandable by WindowHandler only.
 	};
 
 	struct FontFormat {

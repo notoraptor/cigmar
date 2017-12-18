@@ -71,6 +71,29 @@ public:
 		vec.swap(other.vec);
 		return *this;
 	}
+	ArrayList& moveUp(size_t pos, size_t offset) {
+		if (offset > pos) offset = pos;
+		size_t newPos = pos - offset;
+		T value = vec[pos];
+		for (size_t i = pos; i > newPos; --i)
+			vec[i] = vec[i - 1];
+		vec[newPos] = value;
+		return *this;
+	}
+	ArrayList& moveDown(size_t pos, size_t offset) {
+		size_t maxOffset = vec.size() - 1 - pos;
+		if (offset > maxOffset) offset = maxOffset;
+		size_t newPos = pos + offset;
+		T value = vec[pos];
+		for (size_t i = pos; i < newPos; ++i)
+			vec[i] = vec[i + 1];
+		vec[newPos] = value;
+		return *this;
+	}
+	ArrayList& switchPosition(size_t pos1, size_t pos2) {
+		std::swap(vec[pos1], vec[pos2]);
+		return *this;
+	}
 	ArrayList& clear() {
 		vec.clear();
 		return *this;
