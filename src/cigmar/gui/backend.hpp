@@ -27,6 +27,7 @@ namespace cigmar::gui::backend {
 		virtual void getDesktopMode(WindowProperties& windowProperties) = 0;
 		virtual void getFullscreenModes(ArrayList<WindowProperties>& out) = 0;
 		virtual primitive::Font getFont(const String& fontPath) = 0;
+		// virtual Coordinate currentMousePosition() = 0;
 		virtual void drawPoints(const primitive::Coordinates& vertices) = 0;
 		virtual void drawSegments(const primitive::Coordinates& vertices) = 0;
 		virtual void drawPolygon(const primitive::Coordinates& vertices) = 0;

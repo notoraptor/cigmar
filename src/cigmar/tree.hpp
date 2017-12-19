@@ -16,7 +16,7 @@ namespace cigmar::tree {
 	template <typename Type, typename RootType=Type, typename ParentType=Type, typename ChildType=Type>
 	class Content {
 		friend class Node<Type>;
-	protected:
+	public:
 		typedef Type content_type;
 		typedef RootType content_root_type;
 		typedef ParentType content_parent_type;
@@ -192,7 +192,6 @@ namespace cigmar::tree {
 			--internal->refcount;
 			// std::cerr << '-' << internal->name() << ':' << internal->refcount << std::endl;
 		}
-		Node(std::nullptr_t): internal(nullptr) {};
 		explicit Node(content_t& otherInternal): internal(&otherInternal) {
 			increment();
 		};
@@ -203,6 +202,7 @@ namespace cigmar::tree {
 			increment();
 			++nodes_count;
 		}
+		Node(std::nullptr_t): internal(nullptr) {};
 		Node(const Node& copied): internal(copied.internal) {
 			if (internal)
 				increment();
@@ -234,6 +234,7 @@ namespace cigmar::tree {
 		ContentType* operator->() { return &dynamic_cast<ContentType&>(*get()); };
 		const ContentType* operator->() const { return &dynamic_cast<ContentType&>(*get()); };
 		bool operator==(const Node& other) const { return internal == other.internal; };
+		bool operator!=(const Node& other) const { return internal != other.internal; };
 		size_t refcount() const {return get()->refcount;}
 		void toStream(std::ostream& o) const override {
 			const content_t* pointer = get();

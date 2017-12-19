@@ -1,6 +1,7 @@
 // We must internally use only utf-8 strings.
 
 #include <cstddef>
+#include <functional>
 #include <cigmar/tree.hpp>
 #include <cigmar/classes/HashSet.hpp>
 #include <cigmar/classes/ArrayList.hpp>
@@ -9,7 +10,8 @@
 #include <cigmar/classes/HashMap.hpp>
 #include <cigmar/gui/utils.hpp>
 #include <cigmar/gui/backend.hpp>
-#include "utils.hpp"
+#include <cigmar/gui/utils.hpp>
+#include <cigmar/classes/Queue.hpp>
 
 namespace cigmar::gui {
 
@@ -56,12 +58,16 @@ namespace cigmar::gui {
 		size_handler_t onResizedHandler;
 		default_handler_t onFocusInHandler;
 		default_handler_t onFocusOutHandler;
+		default_handler_t onWindowFocusInHandler;
+		default_handler_t onWindowFocusOutHandler;
 		mouse_scroll_handler_t onMouseScrollHandler;
 		mouse_button_handler_t onMouseDownHandler;
 		mouse_button_handler_t onMouseUpHandler;
 		mouse_handler_t onMouseMovedHandler;
 		default_handler_t onMouseInHandler;
 		default_handler_t onMouseOutHandler;
+		default_handler_t onWindowMouseInHandler;
+		default_handler_t onWindowMouseOutHandler;
 		unicode_handler_t onTextHandler;
 		key_handler_t onKeyDownHandler;
 		key_handler_t onKeyUpHandler;
@@ -71,12 +77,16 @@ namespace cigmar::gui {
 		void setOnResized(const size_handler_t& h) {onResizedHandler = h;};
 		void setOnFocusIn(const default_handler_t& h) {onFocusInHandler = h;};
 		void setOnFocusOut(const default_handler_t& h) {onFocusOutHandler = h;};
+		void setOnWindowFocusIn(const default_handler_t& h) {onWindowFocusInHandler = h;};
+		void setOnWindowFocusOut(const default_handler_t& h) {onWindowFocusOutHandler = h;};
 		void setOnMouseScroll(const mouse_scroll_handler_t& h) {onMouseScrollHandler = h;};
 		void setOnMouseDown(const mouse_button_handler_t& h) {onMouseDownHandler = h;};
 		void setOnMouseUp(const mouse_button_handler_t& h) {onMouseUpHandler = h;};
 		void setOnMouseMoved(const mouse_handler_t& h) {onMouseMovedHandler = h;};
 		void setOnMouseIn(const default_handler_t& h) {onMouseInHandler = h;};
 		void setOnMouseOut(const default_handler_t& h) {onMouseOutHandler = h;};
+		void setOnWindowMouseIn(const default_handler_t& h) {onWindowMouseInHandler = h;};
+		void setOnWindowMouseOut(const default_handler_t& h) {onWindowMouseOutHandler = h;};
 		void setOnText(const unicode_handler_t& h) {onTextHandler = h;};
 		void setOnKeyDown(const key_handler_t& h) {onKeyDownHandler = h;};
 		void setOnKeyUp(const key_handler_t& h) {onKeyDownHandler = h;};
@@ -85,12 +95,16 @@ namespace cigmar::gui {
 		virtual bool onResizedBefore(size_t width, size_t height) {return true;};
 		virtual bool onFocusInBefore() {return true;};
 		virtual bool onFocusOutBefore() {return true;};
+		virtual bool onWindowFocusInBefore() {return true;};
+		virtual bool onWindowFocusOutBefore() {return true;};
 		virtual bool onMouseScrollBefore(bool vertical, float delta, int x, int y) {return true;};
 		virtual bool onMouseDownBefore(MouseButton button, int x, int y) {return true;};
 		virtual bool onMouseUpBefore(MouseButton button, int x, int y) {return true;};
 		virtual bool onMouseMovedBefore(int x, int y) {return true;};
 		virtual bool onMouseInBefore() {return true;};
 		virtual bool onMouseOutBefore() {return true;};
+		virtual bool onWindowMouseInBefore() {return true;};
+		virtual bool onWindowMouseOutBefore() {return true;};
 		virtual bool onTextBefore(uint32_t unicode) {return true;};
 		virtual bool onKeyDownBefore(KeyCode code, bool alt, bool ctrl, bool shift, bool system) {return true;};
 		virtual bool onKeyUpBefore(KeyCode code, bool alt, bool ctrl, bool shift, bool system) {return true;};
@@ -99,12 +113,16 @@ namespace cigmar::gui {
 		virtual bool onResizedAfter(size_t width, size_t height) {return true;};
 		virtual bool onFocusInAfter() {return true;};
 		virtual bool onFocusOutAfter() {return true;};
+		virtual bool onWindowFocusInAfter() {return true;};
+		virtual bool onWindowFocusOutAfter() {return true;};
 		virtual bool onMouseScrollAfter(bool vertical, float delta, int x, int y) {return true;};
 		virtual bool onMouseDownAfter(MouseButton button, int x, int y) {return true;};
 		virtual bool onMouseUpAfter(MouseButton button, int x, int y) {return true;};
 		virtual bool onMouseMovedAfter(int x, int y) {return true;};
 		virtual bool onMouseInAfter() {return true;};
 		virtual bool onMouseOutAfter() {return true;};
+		virtual bool onWindowMouseInAfter() {return true;};
+		virtual bool onWindowMouseOutAfter() {return true;};
 		virtual bool onTextAfter(uint32_t unicode) {return true;};
 		virtual bool onKeyDownAfter(KeyCode code, bool alt, bool ctrl, bool shift, bool system) {return true;};
 		virtual bool onKeyUpAfter(KeyCode code, bool alt, bool ctrl, bool shift, bool system) {return true;};
@@ -122,6 +140,12 @@ namespace cigmar::gui {
 		};
 		bool onFocusOut() {
 			return onFocusOutBefore() && (onFocusOutHandler ? onFocusOutHandler() : true) && onFocusOutAfter();
+		};
+		bool onWindowFocusIn() {
+			return onWindowFocusInBefore() && (onWindowFocusInHandler ? onWindowFocusInHandler() : true) && onWindowFocusInAfter();
+		};
+		bool onWindowFocusOut() {
+			return onWindowFocusOutBefore() && (onWindowFocusOutHandler ? onWindowFocusOutHandler() : true) && onWindowFocusOutAfter();
 		};
 		bool onMouseScroll(bool vertical, float delta, int x, int y) {
 			return onMouseScrollBefore(vertical, delta, x, y)
@@ -149,6 +173,12 @@ namespace cigmar::gui {
 		bool onMouseOut() {
 			return onMouseOutBefore() && (onMouseOutHandler ? onMouseOutHandler() : true) && onMouseOutAfter();
 		};
+		bool onWindowMouseIn() {
+			return onWindowMouseInBefore() && (onWindowMouseInHandler ? onWindowMouseInHandler() : true) && onWindowMouseInAfter();
+		};
+		bool onWindowMouseOut() {
+			return onWindowMouseOutBefore() && (onWindowMouseOutHandler ? onWindowMouseOutHandler() : true) && onWindowMouseOutAfter();
+		};
 		bool onText(uint32_t unicode) {
 			return onTextBefore(unicode) && (onTextHandler ? onTextHandler(unicode) : true) && onTextAfter(unicode);
 		};
@@ -174,15 +204,113 @@ namespace cigmar::gui {
 		typedef node_t widget_t;
 		bool visible;
 		bool transparent;
-		virtual void draw(Coordinate origin, size_t width, size_t height) = 0;
-		virtual size_t width() const;
-		virtual size_t height() const;
-		const Coordinate& position() const {
+		virtual void primarize(Coordinate origin, size_t width, size_t height, Queue<primitive::Primitive*>& queue) {
+			surface.position = origin;
+			surface.width = width;
+			surface.height = height;
+			queue << &surface;
+		};
+		virtual size_t width() const {
+			return surface.width;
+		};
+		virtual size_t height() const {
+			return surface.height;
+		};
+		virtual const Coordinate& position() const {
 			return surface.position;
+		}
+		bool contains(const Coordinate& point) const {
+			return point.x >= surface.position.x && point.x < surface.position.x + surface.width
+				&& point.y >= surface.position.y && point.y < surface.position.y + surface.height;
 		}
 		widget_t position(Coordinate newPosition) {
 			surface.position = newPosition;
 			return node();
+		}
+		bool onClosedAfter() override {
+			bool close = true;
+			for (child_t& node: *this) if (node) close *= node->onClosed();
+			return close;
+		}
+		bool onResizedBefore(size_t width, size_t height) override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onResized(width, height);
+			return ok;
+		}
+		bool onFocusInBefore() override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onFocusIn();
+			return ok;
+		}
+		bool onFocusOutBefore() override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onFocusOut();
+			return ok;
+		}
+		bool onWindowFocusInBefore() override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onWindowFocusIn();
+			return ok;
+		}
+		bool onWindowFocusOutBefore() override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onWindowFocusOut();
+			return ok;
+		}
+		bool onMouseScrollBefore(bool vertical, float delta, int x, int y) override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onMouseScroll(vertical, delta, x, y);
+			return ok;
+		}
+		bool onMouseDownBefore(MouseButton button, int x, int y) override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onMouseDown(button, x, y);
+			return ok;
+		}
+		bool onMouseUpBefore(MouseButton button, int x, int y) override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onMouseUp(button, x, y);
+			return ok;
+		}
+		bool onMouseMovedBefore(int x, int y) override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onMouseMoved(x, y);
+			return ok;
+		}
+		bool onMouseInBefore() override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onMouseIn();
+			return ok;
+		}
+		bool onMouseOutBefore() override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onMouseOut();
+			return ok;
+		}
+		bool onWindowMouseInBefore() override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onWindowMouseIn();
+			return ok;
+		}
+		bool onWindowMouseOutBefore() override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onWindowMouseOut();
+			return ok;
+		}
+		bool onTextBefore(uint32_t unicode) override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onText(unicode);
+			return ok;
+		}
+		bool onKeyDownBefore(KeyCode code, bool alt, bool ctrl, bool shift, bool system) override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onKeyDown(code, alt, ctrl, shift, system);
+			return ok;
+		}
+		bool onKeyUpBefore(KeyCode code, bool alt, bool ctrl, bool shift, bool system) override {
+			bool ok = true;
+			for (child_t& node: *this) if (node) ok *= node->onKeyUp(code, alt, ctrl, shift, system);
+			return ok;
 		}
 	};
 
@@ -232,60 +360,13 @@ namespace cigmar::gui {
 
 	class VerticalLayout: public DirectedLayout<HorizontalPosition> {};
 
-	template <typename T>
-	class valid_iterator_t {
-		T it, it_end;
-	public:
-		valid_iterator_t(const T& iterator, const T& end): it(iterator), it_end(end) {
-			this->operator++();
-		}
-		bool operator==(const valid_iterator_t& other) const {return it == other.it;}
-		bool operator!=(const valid_iterator_t& other) const {return it != other.it;}
-		valid_iterator_t& operator++() {
-			while (it != it_end && !(*it))
-				++it;
-			return *this;
-		}
-		auto operator*() -> decltype(T::operator*()) {
-			return it.operator*();
-		}
-		auto operator->() -> decltype(T::operator->()) {
-			return it.operator->();
-		}
-	};
-
-	template <typename T>
-	class valid_t {
-		T& o;
-		typedef valid_iterator_t<decltype(T::begin())> iterator_t;
-		valid_t(T& object): o(object) {}
-		iterator_t begin() {return iterator_t(o.begin(), o.end());}
-		iterator_t end() {return iterator_t(o.end(), o.end());}
-	};
-
-	template <typename T>
-	class const_valid_t {
-		typedef const T const_t;
-		const_t& o;
-		typedef valid_iterator_t<decltype(const_t::begin())> const_iterator_t;
-		const_valid_t(const_t& object): o(object) {}
-		const_iterator_t begin() const {return const_iterator_t(o.begin(), o.end());}
-		const_iterator_t end() const {return const_iterator_t(o.end(), o.end());}
-	};
-
 	// full ?
 	class Window: public Layout {
 		// 2 children: the context menu and the windows content.
 		enum {CONTEXT, CONTENT, COUNT};
 		WindowProperties properties;
 		backend::WindowHandler* handler;
-		Widget* focus;
-	protected:
-		void display() {
-			handler->clear(primitive::Color::white);
-			draw({0, 0}, width(), height());
-			handler->display();
-		}
+		widget_t focus;
 	public:
 		Window(backend::WindowHandler* windowHandler, const WindowProperties& windowProperties):
 				Layout(), properties(), handler(windowHandler), focus(nullptr) {
@@ -299,6 +380,8 @@ namespace cigmar::gui {
 				message << "Returned properties: " << properties << ENDL;
 				throw Exception(message);
 			}
+			surface.width = properties.width;
+			surface.height = properties.height;
 		};
 		Window(backend::WindowHandler& windowHandler, const WindowProperties& windowProperties):
 				Window(&windowHandler, windowProperties) {};
@@ -318,15 +401,31 @@ namespace cigmar::gui {
 			if (handler->isOpen())
 				handler->close();
 		};
-		void draw(Coordinate origin, size_t width, size_t height) override {
-			surface.position = origin;
-			surface.width = width;
-			surface.height = height;
-			handler->drawSurface(surface);
-			widget_t child = content();
-			if (child)
-				child->draw(origin, width, height);
+		void collectPrimitives(Queue<primitive::Primitive*>& primitives, widget_t node) {
+			// TODO ...
+			if (node) {
+				node->primarize(surface.position, surface.width, surface.height, primitives);
+				for (widget_t& nodeChild: node)
+					collectPrimitives(primitives, nodeChild);
+			}
+		}
+		void draw() {
+			Queue<primitive::Primitive*> primitives;
+			primitives << &surface;
+			for (widget_t node: *this)
+				collectPrimitives(primitives, node);
+			for (primitive::Primitive* primitivePointer: primitives) {
+				// TODO: draw.
+			}
 		};
+		void setFocus(widget_t& widget) {
+			if (widget->root() != window_t(*this))
+				throw Exception("Window: cannot focus on a non-descendant.");
+			if (focus)
+				focus->onFocusOut();
+			focus = widget;
+			focus->onFocusIn();
+		}
 		int show() {
 			// The display loop is here.
 			while (isOpen()) {
@@ -381,28 +480,33 @@ namespace cigmar::gui {
 						default:
 							break;
 					}
-					display();
+					// Start display.
+					handler->clear(primitive::Color::white);
+					draw();
+					handler->display();
+					// End display.
 				}
 			}
 		}
-		bool onClosedBefore() override {
-			bool close = true;
-			if (child(CONTEXT)) close = child(CONTEXT)->onClosed();
-			if (close && child(CONTENT)) close = child(CONTENT)->onClosed();
-			return close;
-		}
 		bool onResizedBefore(size_t width, size_t height) override {
-			properties.width = width;
-			properties.height = height;
-			// todo: pass to children.
-			return true;
+			surface.width = width;
+			surface.height = height;
+			return Widget::onResizedBefore(width, height);
 		}
-		size_t width() const override {
-			return properties.width;
+		bool onFocusInBefore() override {
+			return Widget::onWindowFocusInBefore();
 		}
-		size_t height() const override {
-			return properties.height;
+		bool onFocusOutBefore() override {
+			return Widget::onWindowFocusOutBefore();
 		}
+		bool onMouseInBefore() override {
+			return Widget::onWindowMouseInBefore();
+		}
+		bool onMouseOutBefore() override {
+			return Widget::onWindowMouseOutBefore();
+		}
+		// TODO: When/where are emitted MouseIn/MouseOut event for widgets ?
+
 		size_t minChildren() const override {return COUNT;}
 		size_t maxChildren() const override {return COUNT;}
 		bool forceRoot() const override {return true;}
