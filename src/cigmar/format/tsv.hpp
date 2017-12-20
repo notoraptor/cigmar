@@ -8,7 +8,7 @@
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/Queue.hpp>
 #include <functional>
-#include <cigmar/classes/Exception.hpp>
+#include <cigmar/exception/Exception.hpp>
 
 namespace cigmar::format {
 

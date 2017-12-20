@@ -10,9 +10,7 @@
 namespace cigmar {
 
 template<typename T>
-class HashSet: public Streamable, public Collection<T,
-		typename std::unordered_set<T, Hasher>::iterator,
-		typename std::unordered_set<T, Hasher>::const_iterator> {
+class HashSet: public Streamable, public Collection<std::unordered_set<T, Hasher>> {
 public:
 	typedef T dtype;
 public:
@@ -23,8 +21,8 @@ private:
 	set_type s;
 public:
 	HashSet() noexcept : s() {}
-	template<typename A, typename I, typename C>
-	HashSet(const Collection<A, I, C>& container): s(container.begin(), container.end()) {}
+	template<typename E>
+	HashSet(const Collection<E>& container): s(container.begin(), container.end()) {}
 	HashSet(std::initializer_list<T> il): s(il) {}
 	HashSet(const HashSet& other): s(other.s) {}
 	HashSet(HashSet&&) noexcept = default;

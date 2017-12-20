@@ -3,7 +3,6 @@
 //
 
 #include <cigmar/gui/gui.hpp>
-#include <cigmar/classes/Exception.hpp>
 
 namespace cigmar::gui {
 

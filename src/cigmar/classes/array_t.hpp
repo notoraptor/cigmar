@@ -2,10 +2,11 @@
 #define CIGMAR_ARRAY_T
 
 #include <cstring>
+#include <array>
 #include <cigmar/symbols.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/interfaces/Collection.hpp>
-#include <cigmar/classes/Exception.hpp>
+#include <cigmar/exception/Exception.hpp>
 #include <cigmar/classes/StaticCollection.hpp>
 
 namespace cigmar {
@@ -13,7 +14,7 @@ namespace cigmar {
 // Motion fully-defined.
 
 template<typename T, size_t N>
-class array_t: public Streamable, public Collection<T, T*, const T*> {
+class array_t: public Streamable, public Collection<std::array<T, N>> {
 private:
 	T mem[N];
 public:
@@ -24,8 +25,8 @@ public:
 		if (val == 0) memset(mem, 0, length * sizeof(T));
 		else for (size_t i = 0; i < length; ++i) mem[i] = val;
 	}
-	template<typename A, typename B, typename C>
-	explicit array_t(const Collection<A, B, C>& collection) {
+	template<typename E>
+	explicit array_t(const Collection<E>& collection) {
 		if (collection.size() > size())
 			throw Exception("Cannot create an array_t of size " , size(),
 			                " from a collection with bigger size ", collection.size() ,".");
@@ -61,7 +62,6 @@ public:
 	T* end() {return mem + length;}
 	const T* begin() const {return mem;}
 	const T* end() const {return mem + length;}
-
 	void toStream(std::ostream& o) const override {
 		o << '(';
 		if (length) {

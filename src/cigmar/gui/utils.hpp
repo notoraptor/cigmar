@@ -24,6 +24,11 @@ namespace cigmar::gui {
 		size_t length;
 	};
 
+	struct Size {
+		size_t width;
+		size_t height;
+	};
+
 	struct Coordinate {
 		int x = 0;
 		int y = 0;

@@ -1,7 +1,7 @@
 #ifndef CIGMAR_FILESYSTEM
 #define CIGMAR_FILESYSTEM
 
-#include <cigmar/classes/Exception.hpp>
+#include <cigmar/exception/Exception.hpp>
 #include <cigmar/classes/String.hpp>
 #ifndef WIN32
 #include <dirent.h>

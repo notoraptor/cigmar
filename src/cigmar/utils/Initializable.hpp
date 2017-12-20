@@ -7,7 +7,7 @@
 
 
 #include <utility>
-#include <cigmar/classes/Exception.hpp>
+#include <cigmar/exception/Exception.hpp>
 
 namespace cigmar {
 	template<typename T>

@@ -14,19 +14,28 @@ namespace cigmar {
 // Motion fully-defined.
 
 template<typename T>
-class ArrayList:
-		public Streamable,
-		public Collection<T, typename std::vector<T>::iterator, typename std::vector<T>::const_iterator> {
-private:
+class ArrayList: public Streamable, public Collection<std::vector<T>> {
 	std::vector<T> vec;
+	typedef typename std::add_const<
+		typename std::conditional<
+			std::is_pointer<T>::value,
+			typename std::remove_pointer<T>::type,
+			T
+		>::type
+	>::type const_val_type;
 public:
+	typedef typename std::conditional<
+		std::is_pointer<T>::value,
+		typename std::add_pointer<const_val_type>::type,
+		const_val_type
+	>::type const_t;
 	typedef typename std::vector<T>::iterator iterator_t;
 	typedef typename std::vector<T>::const_iterator const_iterator_t;
 
 	ArrayList(): vec() {}
 	explicit ArrayList(size_t n, T val = T()): vec(n, val) {}
-	template<typename A, typename I, typename C>
-	ArrayList(const Collection<A, I, C>& arr): vec(arr.begin(), arr.end()) {}
+	template<typename E>
+	ArrayList(const Collection<E>& arr): vec(arr.begin(), arr.end()) {}
 	ArrayList(std::initializer_list<T> il): vec(il) {}
 	ArrayList(const ArrayList& copied): vec(copied.vec) {}
 	ArrayList(ArrayList&&) noexcept = default;
@@ -34,7 +43,7 @@ public:
 	size_t size() const {return vec.size();}
 	size_t capacity() const {return vec.capacity();}
 
-	ArrayList& add(const T& val) {
+	ArrayList& add(const_t& val) {
 		vec.push_back(val);
 		return *this;
 	}
@@ -42,11 +51,11 @@ public:
 		vec.push_back(std::move(val));
 		return *this;
 	}
-	ArrayList& insert(size_t pos, const T& val) {
+	ArrayList& insert(size_t pos, const_t & val) {
 		vec.insert(vec.begin() + pos, val);
 		return *this;
 	}
-	ArrayList& insert(size_t pos, size_t n, const T& val) {
+	ArrayList& insert(size_t pos, size_t n, const_t& val) {
 		vec.insert(vec.begin() + pos, n, val);
 		return *this;
 	}
@@ -62,7 +71,7 @@ public:
 		vec.erase(vec.begin() + from, vec.begin() + to_excluded);
 		return *this;
 	}
-	bool remove(const T& val) {
+	bool remove(const_t& val) {
 		pos_t position = indexOf(val);
 		if (position) remove((size_t)position);
 		return (bool)position;
@@ -105,7 +114,7 @@ public:
 
 	ArrayList& reserve(size_t n) {vec.reserve(n); return *this;}
 
-	pos_t indexOf(const T& val) const {
+	pos_t indexOf(const_t& val) const {
 		size_t i;
 		for (i = 0; i < vec.size(); ++i) {
 			if (vec[i] == val) {
@@ -114,18 +123,22 @@ public:
 		}
 		return pos_t(i != vec.size(), i);
 	}
+	bool contains(const_t& val) const {
+		for (const_t& v: vec) if (v == val) return true;
+		return false;
+	}
 
 	void operator=(const ArrayList&) = delete;
 	ArrayList& operator=(ArrayList&&) noexcept = default;
 
 	T& operator[](size_t pos) {return vec[pos];}
-	const T& operator[](size_t pos) const {return vec[pos];}
+	const_t& operator[](size_t pos) const {return vec[pos];}
 
 	T& operator[](last_t) {return vec.back();}
-	const T& operator[](last_t) const {return vec.back();}
+	const_t& operator[](last_t) const {return vec.back();}
 
 	explicit operator T*() {return vec.data();}
-	explicit operator const T*() const {return vec.data();}
+	explicit operator const_t*() const {return vec.data();}
 	explicit operator bool() const {return !vec.empty();}
 
 	bool operator==(const ArrayList& other) const {

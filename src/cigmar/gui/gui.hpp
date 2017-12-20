@@ -8,10 +8,8 @@
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/UnicodeString.hpp>
 #include <cigmar/classes/HashMap.hpp>
-#include <cigmar/gui/utils.hpp>
-#include <cigmar/gui/backend.hpp>
-#include <cigmar/gui/utils.hpp>
 #include <cigmar/classes/Queue.hpp>
+#include <cigmar/gui/backend.hpp>
 
 namespace cigmar::gui {
 
@@ -202,14 +200,8 @@ namespace cigmar::gui {
 	public:
 		typedef root_t window_t;
 		typedef node_t widget_t;
-		bool visible;
-		bool transparent;
-		virtual void primarize(Coordinate origin, size_t width, size_t height, Queue<primitive::Primitive*>& queue) {
-			surface.position = origin;
-			surface.width = width;
-			surface.height = height;
-			queue << &surface;
-		};
+		bool visible = true;
+		bool transparent = false;
 		virtual size_t width() const {
 			return surface.width;
 		};
@@ -219,13 +211,28 @@ namespace cigmar::gui {
 		virtual const Coordinate& position() const {
 			return surface.position;
 		}
+		virtual void setWidth(size_t newWidth) {
+			surface.width = newWidth;
+		}
+		virtual void setHeight(size_t newHeight) {
+			surface.height = newHeight;
+		}
+		virtual void position(const Coordinate& newPosition) {
+			surface.position = newPosition;
+		}
+		virtual void draw(Drawer& drawer, Coordinate origin, size_t width, size_t height) {
+			if (visible) {
+				surface.position = origin;
+				surface.width = width;
+				surface.height = height;
+				surface.background = transparent ? &primitive::Color::transparent : &primitive::Color::white;
+				drawer.drawSurface(surface);
+				for (child_t &node: *this) if (node) node->draw(drawer, origin, width, height);
+			}
+		}
 		bool contains(const Coordinate& point) const {
 			return point.x >= surface.position.x && point.x < surface.position.x + surface.width
-				&& point.y >= surface.position.y && point.y < surface.position.y + surface.height;
-		}
-		widget_t position(Coordinate newPosition) {
-			surface.position = newPosition;
-			return node();
+				   && point.y >= surface.position.y && point.y < surface.position.y + surface.height;
 		}
 		bool onClosedAfter() override {
 			bool close = true;
@@ -380,6 +387,7 @@ namespace cigmar::gui {
 				message << "Returned properties: " << properties << ENDL;
 				throw Exception(message);
 			}
+			surface.position.x = surface.position.y = 0;
 			surface.width = properties.width;
 			surface.height = properties.height;
 		};
@@ -401,30 +409,19 @@ namespace cigmar::gui {
 			if (handler->isOpen())
 				handler->close();
 		};
-		void collectPrimitives(Queue<primitive::Primitive*>& primitives, widget_t node) {
-			// TODO ...
-			if (node) {
-				node->primarize(surface.position, surface.width, surface.height, primitives);
-				for (widget_t& nodeChild: node)
-					collectPrimitives(primitives, nodeChild);
-			}
-		}
-		void draw() {
-			Queue<primitive::Primitive*> primitives;
-			primitives << &surface;
-			for (widget_t node: *this)
-				collectPrimitives(primitives, node);
-			for (primitive::Primitive* primitivePointer: primitives) {
-				// TODO: draw.
-			}
-		};
 		void setFocus(widget_t& widget) {
-			if (widget->root() != window_t(*this))
-				throw Exception("Window: cannot focus on a non-descendant.");
-			if (focus)
-				focus->onFocusOut();
-			focus = widget;
-			focus->onFocusIn();
+			if (widget) {
+				if (widget->root() != node())
+					throw Exception("Window: cannot focus on a non-descendant.");
+				if (focus)
+					focus->onFocusOut();
+				focus = widget;
+				focus->onFocusIn();
+			} else {
+				if (focus)
+					focus->onFocusOut();
+				focus = nullptr;
+			}
 		}
 		int show() {
 			// The display loop is here.
@@ -446,9 +443,8 @@ namespace cigmar::gui {
 							onFocusOut();
 							break;
 						case Event::Type::MOUSE_SCROLL:
-							onMouseScroll(event.mouse.scroll.vertical,
-							              event.mouse.scroll.delta,
-							              event.mouse.x, event.mouse.y);
+							onMouseScroll(event.mouse.scroll.vertical, event.mouse.scroll.delta,
+										  event.mouse.x, event.mouse.y);
 							break;
 						case Event::Type::MOUSE_DOWN:
 							onMouseDown(event.mouse.button, event.mouse.x, event.mouse.y);
@@ -474,7 +470,7 @@ namespace cigmar::gui {
 							break;
 						case Event::Type::KEY_UP:
 							onKeyUp(event.code.code, event.code.alt, event.code.ctrl,
-							        event.code.shift, event.code.system);
+									event.code.shift, event.code.system);
 							break;
 						case Event::Type::UNKNOWN:
 						default:
@@ -482,11 +478,23 @@ namespace cigmar::gui {
 					}
 					// Start display.
 					handler->clear(primitive::Color::white);
-					draw();
+					draw(*handler, Coordinate(), surface.width, surface.height);
 					handler->display();
 					// End display.
 				}
 			}
+		}
+		void setWidth(size_t newWidth) override {
+			Widget::setWidth(newWidth);
+			handler->resize(surface);
+		}
+		void setHeight(size_t newHeight) override {
+			Widget::setHeight(newHeight);
+			handler->resize(surface);
+		}
+		void position(const Coordinate& newPosition) override {
+			Widget::position(newPosition);
+			handler->setPosition(surface.position);
 		}
 		bool onResizedBefore(size_t width, size_t height) override {
 			surface.width = width;

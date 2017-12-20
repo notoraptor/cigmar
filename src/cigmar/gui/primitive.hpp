@@ -55,11 +55,6 @@ namespace cigmar::gui::primitive {
 		Scaling scaling;
 	};
 
-	struct Size {
-		size_t width;
-		size_t height;
-	};
-
 	struct Primitive {
 		struct {
 			size_t width;
@@ -160,6 +155,21 @@ namespace cigmar::gui::primitive {
 
 	typedef Occurrences<FontFormat, TextPosition<FontFormat>> TextFormat;
 	typedef Occurrences<String, TextPosition<String>> TextUrlMapping;
+
+}
+
+namespace cigmar::gui {
+
+	struct Drawer {
+		virtual void drawPoints(const primitive::Coordinates& vertices) = 0;
+		virtual void drawSegments(const primitive::Coordinates& vertices) = 0;
+		virtual void drawPolygon(const primitive::Coordinates& vertices) = 0;
+		virtual void drawEllipse(const primitive::Ellipse& ellipse) = 0;
+		virtual void drawSurface(const primitive::Surface& surface) = 0;
+		virtual void drawText(const UnicodeString& text, const primitive::TextFormat& format) = 0;
+		/// NB: To draw a Bezier curve, we could calculate coordinates ourselves
+		/// and use either drawPoints() or drawSegments().
+	};
 
 }
 

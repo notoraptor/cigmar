@@ -12,9 +12,7 @@ namespace cigmar {
 template<typename T>
 class TreeSet:
 		public Streamable,
-		public Collection<T,
-				typename std::set<T, std::function<bool(const T&, const T&)>>::iterator,
-				typename std::set<T, std::function<bool(const T&, const T&)>>::const_iterator> {
+		public Collection<typename std::set<T, std::function<bool(const T&, const T&)>>> {
 public:
 	typedef T dtype;
 	typedef std::function<bool(const T&, const T&)> less_type;
@@ -27,8 +25,8 @@ private:
 	set_type s;
 public:
 	explicit TreeSet(less_type c = less_than): s(c) {}
-	template<typename A, typename I, typename C>
-	explicit TreeSet(const Collection<A, I, C>& arr, less_type c = less_than): s(arr.begin(), arr.end(), c) {}
+	template<typename E>
+	explicit TreeSet(const Collection<E>& arr, less_type c = less_than): s(arr.begin(), arr.end(), c) {}
 	TreeSet(std::initializer_list<T> il, less_type c = less_than): s(il, c) {}
 	TreeSet(const TreeSet& other): s(other.s) {}
 	TreeSet(TreeSet&&) noexcept = default;

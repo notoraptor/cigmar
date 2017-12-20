@@ -10,7 +10,7 @@
 #include <cigmar/gui/primitive.hpp>
 
 namespace cigmar::gui::backend {
-	struct WindowHandler {
+	struct WindowHandler: public Drawer {
 		/** Initialize the window handler. Must raise an Exception on any failure.
 		 * If ``windowProperties.required``, should initialize the handler with
 		 * exactly the properties provided, else should raise an exception.
@@ -24,18 +24,12 @@ namespace cigmar::gui::backend {
 		virtual bool pollEvent(Event& event) = 0;
 		virtual void clear(const primitive::Color& color) = 0;
 		virtual void display() = 0;
+		virtual void resize(const Size& size) = 0;
+		virtual void setPosition(const Coordinate& position) = 0;
 		virtual void getDesktopMode(WindowProperties& windowProperties) = 0;
 		virtual void getFullscreenModes(ArrayList<WindowProperties>& out) = 0;
 		virtual primitive::Font getFont(const String& fontPath) = 0;
 		// virtual Coordinate currentMousePosition() = 0;
-		virtual void drawPoints(const primitive::Coordinates& vertices) = 0;
-		virtual void drawSegments(const primitive::Coordinates& vertices) = 0;
-		virtual void drawPolygon(const primitive::Coordinates& vertices) = 0;
-		virtual void drawEllipse(const primitive::Ellipse& ellipse) = 0;
-		virtual void drawSurface(const primitive::Surface& surface) = 0;
-		virtual void drawText(const UnicodeString& text, const primitive::TextFormat& format) = 0;
-		/// NB: To draw a Bezier curve, we could calculate coordinates ourselves
-		/// and use either drawPoints() or drawSegments().
 	};
 }
 

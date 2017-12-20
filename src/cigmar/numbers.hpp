@@ -8,13 +8,10 @@
 #include <type_traits>
 #include <cigmar/interfaces/Collection.hpp>
 
-#define COLLECTION_TEMPLATE typename T, typename I, typename C
-#define COLLECTION Collection<T, I, C>
-
 namespace cigmar::numbers {
 
-template<COLLECTION_TEMPLATE>
-COLLECTION& arange(COLLECTION& arr) {
+template<typename T>
+Collection<T>& arange(Collection<T>& arr) {
 	size_t c = 0;
 	for (auto& x: arr) {
 		x = c;
@@ -23,69 +20,69 @@ COLLECTION& arange(COLLECTION& arr) {
 	return arr;
 }
 
-template<COLLECTION_TEMPLATE>
-COLLECTION& zeros(COLLECTION& arr) {
+template<typename T>
+Collection<T>& zeros(Collection<T>& arr) {
 	for (auto& x: arr) x = 0;
 	return arr;
 }
 
-template<COLLECTION_TEMPLATE>
-COLLECTION& ones(COLLECTION& arr) {
+template<typename T>
+Collection<T>& ones(Collection<T>& arr) {
 	for (auto& x: arr) x = 1;
 	return arr;
 }
 
-template<COLLECTION_TEMPLATE, typename V>
-COLLECTION& fill(COLLECTION& arr, V value) {
+template<typename T, typename V>
+Collection<T>& fill(Collection<T>& arr, V value) {
 	for (auto& x: arr) x = value;
 	return arr;
 }
 
-template<COLLECTION_TEMPLATE, typename V>
-COLLECTION& add(COLLECTION& arr, V value) {
+template<typename T, typename V>
+Collection<T>& add(Collection<T>& arr, V value) {
 	for (auto& x: arr) x += value;
 	return arr;
 }
 
-template<COLLECTION_TEMPLATE, typename V>
-COLLECTION& sub(COLLECTION& arr, V value) {
+template<typename T, typename V>
+Collection<T>& sub(Collection<T>& arr, V value) {
 	for (auto& x: arr) x -= value;
 	return arr;
 }
 
-template<COLLECTION_TEMPLATE, typename V>
-COLLECTION& mul(COLLECTION& arr, V value) {
+template<typename T, typename V>
+Collection<T>& mul(Collection<T>& arr, V value) {
 	for (auto& x: arr) x *= value;
 	return arr;
 }
 
-template<COLLECTION_TEMPLATE, typename V>
-COLLECTION& div(COLLECTION& arr, V value) {
+template<typename T, typename V>
+Collection<T>& div(Collection<T>& arr, V value) {
 	for (auto& x: arr) x /= value;
 	return arr;
 }
 
-template<COLLECTION_TEMPLATE, typename V>
-COLLECTION& mod(COLLECTION& arr, V value) {
+template<typename T, typename V>
+Collection<T>& mod(Collection<T>& arr, V value) {
 	for (auto& x: arr) x %= value;
 	return arr;
 }
 
-template<COLLECTION_TEMPLATE, typename O = typename COLLECTION::dtype>
-void sum(const COLLECTION& arr, O& out, bool reset = true) {
+template<typename T, typename O = typename Collection<T>::dtype>
+void sum(const Collection<T>& arr, O& out, bool reset = true) {
 	if (reset) out = 0;
 	for(auto& x: arr) out += x;
 }
 
-template<COLLECTION_TEMPLATE>
-T sum(const COLLECTION& arr) {
-	T out = 0;
+template<typename T, typename O = typename Collection<T>::dtype>
+O sum(const Collection<T>& arr) {
+	O out = 0;
 	for (auto& x: arr) out += x;
 	return out;
 }
 
-template<COLLECTION_TEMPLATE, typename O = typename COLLECTION::dtype>
-O prod(const COLLECTION& arr) {
+template<typename T, typename O = typename Collection<T>::dtype>
+O prod(const Collection<T>& arr) {
 	O out = 1;
 	for (auto& x: arr) out *= x;
 	return out;
@@ -115,9 +112,9 @@ namespace random {
 
 	extern RNG rng;
 
-	template<COLLECTION_TEMPLATE, typename A, typename B>
-	COLLECTION& uniform(COLLECTION& arr, A a, B b) {
-		typedef typename COLLECTION::dtype dtype;
+	template<typename T, typename A, typename B>
+	Collection<T>& uniform(Collection<T>& arr, A a, B b) {
+		typedef typename Collection<T>::dtype dtype;
 		typedef typename std::conditional<
 			std::is_integral<dtype>::value,
 			std::uniform_int_distribution<dtype>,
@@ -128,9 +125,9 @@ namespace random {
 		return arr;
 	}
 
-	template<COLLECTION_TEMPLATE, typename N>
-	COLLECTION& binomial(COLLECTION& arr, N n, double p) {
-		typedef typename COLLECTION::dtype dtype;
+	template<typename T, typename N>
+	Collection<T>& binomial(Collection<T>& arr, N n, double p) {
+		typedef typename Collection<T>::dtype dtype;
 		static_assert(
 			std::is_integral<N>{},
 			"binomial distribution: parameter 'n' must be an integer type."
@@ -140,9 +137,9 @@ namespace random {
 		return arr;
 	}
 
-	template<COLLECTION_TEMPLATE>
-	COLLECTION& normal(COLLECTION& arr, double mu, double sigma) {
-		typedef typename COLLECTION::dtype dtype;
+	template<typename T>
+	Collection<T>& normal(Collection<T>& arr, double mu, double sigma) {
+		typedef typename Collection<T>::dtype dtype;
 		static_assert(
 			std::is_signed<dtype>{},
 			"normal distribution is forbidden for non-signed types, as it may generate negative values."
@@ -179,21 +176,18 @@ namespace random {
 	}
 }
 
-template<COLLECTION_TEMPLATE, typename dtype = typename COLLECTION::dtype, typename F = std::function<bool(dtype)>>
-bool all(const C& arr, F elemwiseChecker) {
+template<typename T, typename dtype = typename Collection<T>::dtype, typename F = std::function<bool(dtype)>>
+bool all(const Collection<T>& arr, F elemwiseChecker) {
 	for (const dtype& x: arr) if (!elemwiseChecker(x)) return false;
 	return true;
 }
 
-template<COLLECTION_TEMPLATE, typename dtype = typename COLLECTION::dtype, typename F = std::function<bool(dtype)>>
-bool any(const C& arr, F elemwiseChecker) {
+template<typename T, typename dtype = typename Collection<T>::dtype, typename F = std::function<bool(dtype)>>
+bool any(const Collection<T>& arr, F elemwiseChecker) {
 	for (const dtype& x: arr) if (elemwiseChecker(x)) return true;
 	return false;
 }
 
 }
-
-#undef COLLECTION_TEMPLATE
-#undef COLLECTION
 
 #endif // CIGMAR_INTEGER

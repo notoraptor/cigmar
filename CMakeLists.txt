@@ -10,7 +10,7 @@ set(SOURCE_FILES
         src/cigmar/classes/array_t.hpp
         src/cigmar/classes/ArrayList.hpp
         src/cigmar/classes/Char.hpp
-        src/cigmar/classes/Exception.hpp
+        src/cigmar/exception/Exception.hpp
         src/cigmar/classes/HashMap.hpp
         src/cigmar/classes/HashSet.hpp
         src/cigmar/classes/Queue.hpp
@@ -100,7 +100,7 @@ set(SOURCE_FILES
         src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        )
+        src/cigmar/exception/IndexException.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 

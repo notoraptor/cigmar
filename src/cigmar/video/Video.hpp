@@ -10,7 +10,7 @@
 #include <cigmar/filesystem.hpp>
 #include <cigmar/classes/String.hpp>
 #include <libraries/json/json.hpp>
-#include <cigmar/classes/Exception.hpp>
+#include <cigmar/exception/Exception.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/whirlpool.hpp>
 #include <cigmar/video/ffmpeg.hpp>

@@ -11,7 +11,7 @@
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/base64.hpp>
-#include <cigmar/classes/Exception.hpp>
+#include <cigmar/exception/Exception.hpp>
 
 namespace cigmar::sqlite {
 	typedef void(*Destructor)(void*);

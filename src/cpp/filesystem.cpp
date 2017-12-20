@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 #include <cigmar/classes/String.hpp>
-#include <cigmar/classes/Exception.hpp>
+#include <cigmar/exception/Exception.hpp>
 
 #ifdef WIN32
 #define popen _popen

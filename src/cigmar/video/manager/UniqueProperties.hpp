@@ -9,7 +9,7 @@
 #include <cigmar/video/manager/RowMapping.hpp>
 #include <cigmar/video/manager/UniqueProperty.hpp>
 #include <cigmar/video/manager/PropertyTypes.hpp>
-#include <cigmar/classes/Exception.hpp>
+#include <cigmar/exception/Exception.hpp>
 
 namespace cigmar::video::manager {
 	class UniqueProperties {

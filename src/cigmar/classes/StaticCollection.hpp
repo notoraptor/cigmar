@@ -10,8 +10,7 @@
 
 namespace cigmar {
 	template <typename T>
-	class StaticCollection: public Collection<T, const T*, const T*> {
-	private:
+	class StaticCollection: public Collection<std::initializer_list<T>> {
 		std::initializer_list<T> ril;
 	public:
 		StaticCollection(std::initializer_list<T> il): ril(il) {}

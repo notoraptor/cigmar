@@ -9,9 +9,7 @@
 namespace cigmar {
 
 template<typename T>
-class Queue: public Collection<T,
-		typename std::forward_list<T>::iterator,
-		typename std::forward_list<T>::const_iterator> {
+class Queue: public Collection<std::forward_list<T>> {
 private:
 	template<typename E>
 	struct QueueElementPusher {
@@ -36,8 +34,8 @@ private:
 	size_t length;
 public:
 	Queue(): content(), last_it(content.before_begin()), length(0) {}
-	template<typename A, typename I, typename C>
-	explicit Queue(const Collection<A, I, C>& arr): Queue() {pushAll(arr);}
+	template<typename E>
+	explicit Queue(const Collection<E>& arr): Queue() {pushAll(arr);}
 	Queue(std::initializer_list<T> il): Queue() {pushAll(il);}
 	Queue(const Queue& other): Queue() {pushAll(other.content);}
 	Queue(Queue&&) noexcept = default;

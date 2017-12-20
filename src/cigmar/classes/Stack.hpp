@@ -9,9 +9,7 @@
 namespace cigmar {
 
 template<typename T>
-class Stack: public Collection<T,
-		typename std::forward_list<T>::iterator,
-		typename std::forward_list<T>::const_iterator> {
+class Stack: public Collection<std::forward_list<T>> {
 private:
 	template<typename E>
 	struct StackElementPusher {
@@ -35,8 +33,8 @@ private:
 	size_t length;
 public:
 	Stack() : content(), length(0) {}
-	template<typename A, typename I, typename C>
-	explicit Stack(const Collection<A, I, C>& arr): content(), length(0) {pushAll(arr);}
+	template<typename E>
+	explicit Stack(const Collection<E>& arr): content(), length(0) {pushAll(arr);}
 	Stack(std::initializer_list<T> il): content(), length(0) {pushAll(il);}
 	Stack(const Stack& other): content(other.content), length(other.length) {}
 	Stack(Stack&&) noexcept = default;

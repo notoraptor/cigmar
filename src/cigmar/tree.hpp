@@ -6,7 +6,7 @@
 #define SRC_CIGMAR_NODE_HPP
 
 #include <cigmar/classes/String.hpp>
-#include <cigmar/classes/Exception.hpp>
+#include <cigmar/exception/Exception.hpp>
 
 namespace cigmar::tree {
 	template <typename T> class Node;
@@ -15,17 +15,17 @@ namespace cigmar::tree {
 
 	template <typename Type, typename RootType=Type, typename ParentType=Type, typename ChildType=Type>
 	class Content {
-		friend class Node<Type>;
 	public:
-		typedef Type content_type;
-		typedef RootType content_root_type;
-		typedef ParentType content_parent_type;
-		typedef ChildType content_child_type;
+		typedef Content<Type, RootType, ParentType, ChildType> content_t;
 		typedef Node<Type> node_t;
 		typedef Node<RootType> root_t;
 		typedef Node<ParentType> parent_t;
 		typedef Node<ChildType> child_t;
 		typedef ArrayList<child_t> container_t;
+		friend node_t;
+		friend root_t;
+		friend parent_t;
+		friend child_t;
 	private:
 		size_t refcount;
 		String m_name;
@@ -38,6 +38,8 @@ namespace cigmar::tree {
 				refcount(0), m_name(nodeName), m_parent(nodeParent.internal), children() {
 			if (minChildren() > maxChildren())
 				throw Exception("Node: minimum number of children must be <= maximum number of children.");
+			if (minChildren() && !preallocate())
+				throw Exception("Node: a minimum number of children is required, so children container must be preallocated.");
 			if (m_parent) {
 				if (forceRoot())
 					throw Exception("Node: cannot add a parent to a root.");
@@ -54,7 +56,6 @@ namespace cigmar::tree {
 		const_iterator_t begin() const { return children.begin(); };
 		const_iterator_t end() const { return children.end(); };
 		size_t size() const { return children.size(); };
-		// TODO: Take minChildren into account in the other methods.
 		virtual size_t minChildren() const {return 0;}
 		virtual size_t maxChildren() const {return std::numeric_limits<size_t>::max();};
 		virtual bool forceRoot() const {return false;};
@@ -126,11 +127,17 @@ namespace cigmar::tree {
 			}
 		};
 		void remove(const child_t& child) {
-			if (child && children.remove(child))
-				child.internal->m_parent = nullptr;
+			if (child) {
+				if (minChildren() == children.size())
+					throw Exception("Node: reached minimum number of allowed children (", minChildren(), ").");
+				if (children.remove(child))
+					child.internal->m_parent = nullptr;
+			}
 		};
 		void remove(size_t position) {
 			if (position < children.size()) {
+				if (minChildren() == children.size())
+					throw Exception("Node: reached minimum number of allowed children (", minChildren(), ").");
 				children[position].internal->m_parent = nullptr;
 				children.remove(position);
 			}
@@ -151,18 +158,14 @@ namespace cigmar::tree {
 				child.internal->m_parent = this;
 			}
 		};
-		node_t node() const {return node_t(*this);}
+		node_t node() {return node_t(*this);}
 	};
 
 	template <typename ContentType>
 	class Node: public Streamable {
-		typedef Content<
-				typename ContentType::content_type,
-				typename ContentType::content_root_type,
-				typename ContentType::content_parent_type,
-				typename ContentType::content_child_type
-		> content_t;
+		typedef typename ContentType::content_t content_t;
 		friend content_t;
+		template <typename E> friend class Node;
 		content_t* internal;
 		void clear() {
 			if (internal) {
@@ -234,7 +237,8 @@ namespace cigmar::tree {
 		ContentType* operator->() { return &dynamic_cast<ContentType&>(*get()); };
 		const ContentType* operator->() const { return &dynamic_cast<ContentType&>(*get()); };
 		bool operator==(const Node& other) const { return internal == other.internal; };
-		bool operator!=(const Node& other) const { return internal != other.internal; };
+		template <typename E>
+		bool operator!=(const Node<E>& other) const { return internal != other.internal; };
 		size_t refcount() const {return get()->refcount;}
 		void toStream(std::ostream& o) const override {
 			const content_t* pointer = get();
