@@ -136,10 +136,10 @@ void testDatabase() {
 }
 
 int main() {
-	 tests::run();
-	 testUnicode();
-	 testDatabase();
-	 testNodes();
-	 sys::err::println("Node count is", tree::nodes_count);
+	tests::run();
+	testUnicode();
+	testDatabase();
+	testNodes();
+	sys::err::println("Node count is", tree::nodes_count);
 	return 0;
 }

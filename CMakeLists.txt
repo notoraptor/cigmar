@@ -18,7 +18,6 @@ set(SOURCE_FILES
         src/cigmar/classes/StaticCollection.hpp
         src/cigmar/classes/String.hpp
         src/cigmar/classes/StringView.hpp
-        src/cigmar/classes/Timer.hpp
         src/cigmar/classes/TreeMap.hpp
         src/cigmar/classes/TreeSet.hpp
         src/cigmar/classes/UnicodeString.hpp
@@ -27,7 +26,7 @@ set(SOURCE_FILES
         src/cigmar/file/writer/Binary.hpp
         src/cigmar/file/writer/Text.hpp
         src/cigmar/filesystem.hpp
-        src/cigmar/format/tsv.hpp
+        src/cigmar/format/Tsv.hpp
         src/cigmar/gui/backend.hpp
         src/cigmar/gui/gui.cpp
         src/cigmar/gui/gui.hpp
@@ -44,7 +43,6 @@ set(SOURCE_FILES
         src/cigmar/numbers.hpp
         src/cigmar/print.hpp
         src/cigmar/sqlite.hpp
-        src/cigmar/std.hpp
         src/cigmar/symbols.hpp
         src/cigmar/time.hpp
         src/cigmar/tree.hpp
@@ -77,9 +75,8 @@ set(SOURCE_FILES
         src/cigmar/video/Video.hpp
         src/cigmar/whirlpool.hpp
         src/cpp/cigmar.cpp
-        src/cpp/filesystem.cpp
-        src/cpp/filesystem_unix.inc
-        src/cpp/filesystem_windows.inc
+        src/cpp/filesystem_unix.cpp
+        src/cpp/filesystem_windows.cpp
         src/cpp/main.cpp
         src/cpp/tests/test_arrays.cpp
         src/cpp/tests/test_cigmar.cpp
@@ -100,7 +97,7 @@ set(SOURCE_FILES
         src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        src/cigmar/exception/IndexException.hpp)
+        src/cigmar/exception/IndexException.hpp src/cpp/newtests/testString.cpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 

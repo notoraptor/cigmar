@@ -4,7 +4,7 @@
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/StringView.hpp>
-#include <cigmar/classes/Timer.hpp>
+#include <cigmar/time.hpp>
 #include <cigmar/classes/TreeMap.hpp>
 #include <cigmar/init.hpp>
 #include <cigmar/numbers.hpp>
@@ -13,6 +13,7 @@
 #include <libraries/base64/base64.hpp>
 #include <libraries/whirlpool/nessie.h>
 #include <cigmar/unittests.hpp>
+#include <cigmar/filesystem.hpp>
 
 /* NB:
  * To have all C++11 thread functionalities available, compiler must be POSIX compliant.
@@ -23,10 +24,17 @@
  * http://www.programering.com/q/MTM5UzNwATg.html
 */
 
+/* TODO: Optimization.
+ * Virtual methods increase class size.
+ * Let's try to reduce usage of virtual methods, for ex.
+ * everywhere we could use templates instead of inheritance.
+ * */
+
 namespace cigmar {
 	/// Local definitons.
 	static std::locale loc;
 	static const char* const hexDigits = "0123456789ABCDEF";
+	#define CIGMAR_SYS_RUN_BUFFER_LENGTH 1025
 
 	/// Global variables.
 	last_t LAST;
@@ -128,6 +136,169 @@ namespace cigmar {
 	}
 	namespace numbers::random {
 		RNG rng;
+	}
+	namespace sys {
+		namespace path {
+			const char* const windowsSeparator = "\\";
+			const char* const unixSeparator = "/";
+			String resolve(const char* pathname) {
+				String normalized = norm(pathname);
+				ArrayList<String> levels = normalized.split(separator);
+				ArrayList<String> out;
+				for(String& level: levels) {
+					if (level == ".") {
+						// pass
+					} else if (level == "..") {
+						if (!out || out[LAST] == level) {
+							out.add(level);
+						} else if (out.size() == 1) {
+							if (isRooted(out[0].cstring())) {
+								// ERROR (we are at root level, there is no parent).
+								return "";
+							} else {
+								out.remove(out.size() - 1);
+							}
+						} else {
+							out.remove(out.size() - 1);
+						}
+					} else {
+						out.add(level);
+					}
+				}
+				String resolved;
+				if (!out) {
+					resolved = ".";
+				} else {
+					resolved = out[0];
+					for (size_t i = 1; i < out.size(); ++i)
+						resolved << separator << out[i];
+				}
+				return resolved;
+			}
+			bool isAbsolute(const char* pathname) {
+				if (!isRooted(pathname))
+					return false;
+				std::string path(pathname);
+				std::vector<std::string> specialLevels = {".", ".."};
+				for (std::string& specialLevel: specialLevels) {
+					std::string unexpectedEnd = path::separator + specialLevel;
+					std::string unexpectedIn = unexpectedEnd + path::separator;
+					if (path.find(unexpectedIn) != std::string::npos ||
+						path.find(unexpectedEnd) == path.length() - unexpectedEnd.length())
+						return false;
+				}
+				return true;
+			}
+			bool isRelative(const char* pathname) {
+				return !isAbsolute(pathname);
+			}
+			bool exists(const char* pathname) {
+				return isFile(pathname) || isDirectory(pathname);
+			};
+			bool hasExtension(const char* pathname) {
+				String p(pathname);
+				pos_t posLastPoint = p.lastIndexOf('.');
+				if (posLastPoint) {
+					pos_t posLastSeparator = p.lastIndexOf(separator);
+					return !posLastSeparator || (posLastSeparator < posLastPoint);
+				}
+				return false;
+			};
+			String dirname(const char* pathname) {
+				String p(pathname);
+				if (isRoot(pathname))
+					throw Exception("Root path does not have parent directory.");
+				if (p == "." || p == "..")
+					throw Exception("Consider calling absolute() before dirname() for path ", p);
+				pos_t posLastSeparator = p.lastIndexOf(separator);
+				return posLastSeparator ? String(p, 0, (size_t)posLastSeparator) : ".";
+			};
+			String basename(const char* pathname) {
+				String p(pathname);
+				if (p == "." || p == "..")
+					throw Exception("Consider calling absolute() before basename() for path ", p);
+				if (isRoot(pathname))
+					return pathname;
+				pos_t posLastSeparator = p.lastIndexOf(separator);
+				return posLastSeparator ? String(p, (size_t)posLastSeparator + 1) : p;
+			};
+			String filename(const char* pathname) {
+				String bn = basename(pathname);
+				pos_t posLastPoint = bn.lastIndexOf('.');
+				return posLastPoint ? String(bn, 0, (size_t)posLastPoint) : bn;
+			};
+			String extension(const char* pathname) {
+				return hasExtension(pathname) ? String(strchr(pathname, '.') + 1) : "";
+			};
+			String relative(const String& parent, const String& path) {
+				String absoluteParent = sys::path::absolute((const char*)parent);
+				String absolutePath = sys::path::absolute((const char*)path);
+				if (!sys::path::isDirectory((const char*)absoluteParent))
+					throw Exception("Parent must be a directory: ", absoluteParent);
+				if (!absoluteParent.endsWith(sys::path::separator))
+					absoluteParent << sys::path::separator;
+				pos_t posParent = absolutePath.indexOf(absoluteParent);
+				if (!posParent || posParent != 0)
+					throw Exception("Unable to get relative path against parent path", absoluteParent);
+				return absolutePath(absoluteParent.length(), absolutePath.length());
+			}
+		}
+
+		class FileHandler {
+		public:
+			typedef int(*FileCleanerFunction)(FILE*);
+		private:
+			FILE* handle;
+			FileCleanerFunction clean;
+		public:
+			FileHandler(FILE* stream, FileCleanerFunction cleanerFunction):
+				handle(stream), clean(cleanerFunction) {}
+			~FileHandler() {close();}
+			FileHandler(const FileHandler&) = default;
+			FileHandler(FileHandler&&) = default;
+			FileHandler& operator=(const FileHandler&) = default;
+			FileHandler& operator=(FileHandler&&) = default;
+			explicit operator bool() const {return handle != NULL;}
+			operator FILE*() {return handle;}
+			int close() {
+				int err = 0;
+				if (handle) {
+					err = clean(handle);
+					handle = NULL;
+				}
+				return err;
+			}
+		};
+
+		// Inspired from: https://stackoverflow.com/questions/478898/
+		String run(const char* command) {
+			String out;
+			char buffer[CIGMAR_SYS_RUN_BUFFER_LENGTH];
+			FileHandler pipe(popen(command, "r"), pclose);
+			if (!pipe)
+				throw Exception("cigmar::sys::run(): unable to open stdout. ", strerror(errno));
+			while (!feof(pipe)) {
+				if (fgets(buffer, CIGMAR_SYS_RUN_BUFFER_LENGTH, pipe))
+					out << buffer;
+			}
+			errno = 0;
+			if (pipe.close()) {
+				if (errno) {
+					throw Exception("cigmar::sys::run(): error closing process: ", strerror(errno));
+				} else {
+					throw Exception("cigmar::sys::run(): command error (", command ,")");
+				}
+			}
+			return out;
+		}
+		bool isWindows() {
+			String absolutePath = path::absolute(".");
+			return absolutePath.length() > 2 && isalpha(absolutePath[0]) && absolutePath[1] == ':' && absolutePath[2] == '\\';
+		}
+		bool isUnix() {
+			String absolutePath = path::absolute(".");
+			return absolutePath && absolutePath[0] == '/';
+		}
 	}
 	namespace tests {
 		template<typename T> class Dynamic {

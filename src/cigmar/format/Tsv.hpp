@@ -21,7 +21,7 @@ namespace cigmar::format {
 			return column_t(name, getter);
 		}
 	private:
-		Queue<std::pair<String, getter_t>> columns;
+		Queue<column_t> columns;
 	public:
 		Tsv(std::initializer_list<column_t> il): columns(il) {
 			if (!columns)

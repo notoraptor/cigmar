@@ -35,15 +35,15 @@ namespace cigmar::tree {
 		typedef typename container_t::iterator_t iterator_t;
 		typedef typename container_t::const_iterator_t const_iterator_t;
 		Content(const String& nodeName, const parent_t& nodeParent):
-				refcount(0), m_name(nodeName), m_parent(nodeParent.internal), children() {
+				refcount(0), m_name(nodeName), m_parent(nullptr), children() {
 			if (minChildren() > maxChildren())
 				throw Exception("Node: minimum number of children must be <= maximum number of children.");
 			if (minChildren() && !preallocate())
 				throw Exception("Node: a minimum number of children is required, so children container must be preallocated.");
-			if (m_parent) {
+			if (nodeParent) {
 				if (forceRoot())
 					throw Exception("Node: cannot add a parent to a root.");
-				m_parent->add(node_t(*this));
+				nodeParent.internal->add(node_t(*this));
 			}
 			if (preallocate())
 				children.resize(maxChildren(), nullptr);
@@ -64,7 +64,7 @@ namespace cigmar::tree {
 		bool isLeaf() const { return !children; };
 		bool isInternal() const { return m_parent && children; };
 		bool contains(const child_t& node) const {
-			return node ? (bool)children.indexOf(node) : false;
+			return node && node.internal->m_parent == this;
 		};
 		bool hasAncestor(const parent_t& node) const {
 			if (node) {
@@ -114,7 +114,7 @@ namespace cigmar::tree {
 					throw Exception("Node: a root cannot have a parent.");
 				if (hasAncestor(child))
 					throw Exception("Node: cannot add an ancestor.");
-				if (!children.indexOf(child)) {
+				if (child.internal->m_parent != this) {
 					if (maxChildren() == children.size())
 						throw Exception("Node: reached maximum number of allowed children (", maxChildren(), ").");
 					if (child.internal->m_parent) {

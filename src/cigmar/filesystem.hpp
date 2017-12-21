@@ -5,6 +5,9 @@
 #include <cigmar/classes/String.hpp>
 #ifndef WIN32
 #include <dirent.h>
+#else
+#define popen _popen
+#define pclose _pclose
 #endif
 
 namespace cigmar {

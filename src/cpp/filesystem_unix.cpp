@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <string>
 #include <iostream>
-#include <cigmar/std.hpp>
 #include <cigmar/filesystem.hpp>
 #include <dirent.h>
 #include <unistd.h> // for rmdir()
@@ -92,18 +91,17 @@ namespace cigmar {
 
 			String norm(const char* pathname) {
 				// Normalize separators.
-				std::string p(pathname);
-				std::string twoSeps(separator);
-				twoSeps += separator;
+				String p(pathname);
+				String twoSeps = String::write(separator, separator);
 				size_t sepLength = strlen(separator);
-				std_string_replace_inplace(p, windowsSeparator, separator);
+				p.replace(windowsSeparator, separator);
 				// Remove trailing separators.
-				while (p.rfind(separator) == (p.length() - sepLength))
-					p = p.substr(0, p.length() - sepLength);
+				while (p.endsWith(separator))
+					p.remove(p.length() - sepLength, sepLength);
 				// Remove consecutive separators.
-				while (p.find(twoSeps) != std::string::npos)
-					std_string_replace_inplace(p, twoSeps.c_str(), separator);
-				return String(p.c_str());
+				while (p.contains(twoSeps))
+					p.replace(twoSeps, separator);
+				return p;
 			};
 
 			String absolute(const char* pathname) {

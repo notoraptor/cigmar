@@ -27,8 +27,8 @@ namespace cigmar {
 	};
 
 	template <typename Character>
-	class AbstractString: public Streamable, public Hashable,
-						  public Comparable<AbstractString<Character>>, public CrossComparable<const Character*> {
+	class AbstractString: public Streamable, public Hashable, public Comparable<AbstractString<Character>>,
+						  public CrossComparable<const Character*> {
 	public:
 		typedef Character char_t;
 		typedef std::basic_string<Character> string_t;
@@ -99,13 +99,16 @@ namespace cigmar {
 	public:
 		AbstractString(): member() {}
 		AbstractString(const Character* s): member(s) {}
+		AbstractString(const Character* s, size_t pos, size_t len = string_t::npos): member() {
+			len = std::min(len, Char::stringlength(s + pos));
+			member.assign(s + pos, len);
+		}
 		AbstractString(CharString s): member() {
 			unicode::convert(s.member, member);
 		}
 		AbstractString(const AbstractString& s): member(s.member) {}
 		AbstractString(AbstractString&& s) noexcept: member(std::move(s.member)) {}
 		AbstractString(const AbstractString& s, size_t pos, size_t len = string_t::npos): member(s.member, pos, len) {}
-		AbstractString(const Character* s, size_t pos, size_t len = string_t::npos): member(s + pos, len) {}
 		AbstractString(CharString& s, size_t pos, size_t len = string_t::npos): member() {
 			s.member += pos;
 			size_t real_len = strlen(s.member);
@@ -320,6 +323,10 @@ namespace cigmar {
 		AbstractString& replace(const CharString& from, const CharString& to) {
 			return replace(AbstractString(from), AbstractString(to));
 		}
+		AbstractString& remove(size_t pos, size_t len) {
+			member.erase(pos, len);
+			return *this;
+		}
 		size_t leftTrimmable(const AbstractString &characters = EMPTY_CHARACTERS) const {
 			size_t pos = member.find_first_not_of(characters.member);
 			return pos == string_t::npos ? length() : pos;
@@ -398,6 +405,7 @@ namespace cigmar {
 		ArrayList<AbstractString> split(const CharString& delimiter) const {
 			return split(AbstractString(delimiter));
 		}
+		bool isEmpty() const {return member.empty();}
 		bool contains(const AbstractString& s, size_t start = 0) const {
 			return member.find(s.member, start) != string_t::npos;
 		}
