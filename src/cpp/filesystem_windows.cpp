@@ -1,46 +1,38 @@
 /* Reference code for Windows: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365200(v=vs.85).aspx */
 #ifdef WIN32
-#include <cstdio>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <cigmar/std.hpp>
-#include <cigmar/filesystem.hpp>
-#include <cigmar/classes/Exception.hpp>
-#include <windows.h>
-#include <direct.h>
+// #include <cstdio>
 #include <cassert>
-
-using std::cerr;
-using std::endl;
+#include <string>
+#include <direct.h>
+#include <windows.h>
+#include <cigmar/filesystem.hpp>
+#include <cigmar/classes/String.hpp>
 
 namespace cigmar {
 
 	namespace windows {
-		const std::string prefix = "\\\\?\\";
-		const std::string suffix = "\\*";
-		void formatPrefix(std::string& s, bool skipSpecialFolders = false) {
+		const String prefix = "\\\\?\\";
+		const String suffix = "\\*";
+		void formatPrefix(String& s, bool skipSpecialFolders = false) {
 			if (skipSpecialFolders && (s == "." || s == ".."))
 				return;
-			if (s.find(prefix) != 0)
+			if (!s.startsWith(prefix))
 				s.insert(0, prefix);
 		}
-		void formatSuffix(std::string& s) {
-			if (s.length() >= suffix.length() && s.rfind(suffix) != (s.length() - suffix.length()))
-				s += suffix;
+		void formatSuffix(String& s) {
+			if (!s.endsWith(suffix))
+				s << suffix;
 		}
-		void removePrefix(std::string& s) {
-			if (s.find(prefix) == 0)
-				s = s.substr(prefix.length());
+		void removePrefix(String& s) {
+			if (s.startsWith(prefix))
+				s.remove(0, prefix.length());
 		}
-		void removeSuffix(std::string& s) {
-			if (s.length() > suffix.length()) {
-				size_t expectedSuffixPos = s.length() - suffix.length();
-				if (s.rfind(suffix) == expectedSuffixPos)
-					s = s.substr(0, expectedSuffixPos);
+		void removeSuffix(String& s) {
+			if (s.endsWith(suffix)) {
+				s.remove(s.length() - suffix.length(), suffix.length());
 			}
 		}
-		void formatIfNeeded(std::string& path) {
+		void formatIfNeeded(String& path) {
 			if (path != "." && path != "..") {
 				formatPrefix(path);
 				formatSuffix(path);
@@ -101,8 +93,8 @@ namespace cigmar {
 
 		Dir::Dir(const char *pathname): handler(nullptr) {
 			String formatedFilename = sys::path::absolute(pathname);
-			windows::formatPrefix(formatedFilename.cppstring());
-			windows::formatSuffix(formatedFilename.cppstring());
+			windows::formatPrefix(formatedFilename);
+			windows::formatSuffix(formatedFilename);
 			WIN32_FIND_DATA ffd;
 			HANDLE handle = FindFirstFile(formatedFilename.cstring(), &ffd);
 			if (handle == INVALID_HANDLE_VALUE)
@@ -131,23 +123,22 @@ namespace cigmar {
 
 			String norm(const char* pathname) {
 				// Normalize separators.
-				std::string p(pathname);
-				std::string twoSeps(separator);
-				twoSeps += separator;
+				String p(pathname);
+				String twoSeps = String::write(separator, separator);
 				size_t sepLength = strlen(separator);
-				std_string_replace_inplace(p, unixSeparator, separator);
+				p.replace(unixSeparator, separator);
 				windows::removePrefix(p);
 				windows::removeSuffix(p);
 				// Remove separators at start (only on Windows).
-				while (p.find(separator) == 0)
-					p = p.substr(sepLength);
+				while (p.startsWith(separator))
+					p.remove(0, sepLength);
 				// Remove trailing separators.
-				while (p.rfind(separator) == (p.length() - sepLength))
-					p = p.substr(0, p.length() - sepLength);
+				while (p.endsWith(separator))
+					p.remove(p.length() - sepLength, sepLength);
 				// Remove consecutive separators.
-				while (p.find(twoSeps) != std::string::npos)
-					std_string_replace_inplace(p, twoSeps.c_str(), separator);
-				return String(p.c_str());
+				while (p.contains(twoSeps))
+					p.replace(twoSeps, separator);
+				return p;
 			};
 
 			String absolute(const char* pathname) {
@@ -200,9 +191,9 @@ namespace cigmar {
 			};
 
 			bool isFile(const char* pathname) {
-				std::string formatedFilename((const char*)sys::path::absolute(pathname));
+				String formatedFilename = sys::path::absolute(pathname);
 				windows::formatPrefix(formatedFilename);
-				DWORD attributes = GetFileAttributes(formatedFilename.c_str());
+				DWORD attributes = GetFileAttributes(formatedFilename.cstring());
 				return attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_DIRECTORY);
 			}
 
@@ -210,13 +201,13 @@ namespace cigmar {
 
 		int makeDirectory(const char* pathname) {
 			String formated = sys::path::absolute(pathname);
-			windows::formatPrefix(formated.cppstring());
+			windows::formatPrefix(formated);
 			return _mkdir(formated.cstring());
 		};
 
 		int removeDirectory(const char* pathname) {
 			String formated = sys::path::absolute(pathname);
-			windows::formatPrefix(formated.cppstring());
+			windows::formatPrefix(formated);
 			return _rmdir(formated.cstring());
 		};
 	}
