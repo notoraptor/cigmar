@@ -8,8 +8,6 @@
 
 namespace cigmar {
 
-	/// bool
-	/// char
 	using byte_t = int8_t;
 	using short_t = int16_t;
 	using int_t = int32_t;
@@ -18,9 +16,6 @@ namespace cigmar {
 	using ushort_t = uint16_t;
 	using uint_t = uint32_t;
 	using ulong_t = uint64_t;
-	/// float
-	/// double
-	/// size_t
 
 	std::ostream &operator<<(std::ostream &o, byte_t b);
 
@@ -38,6 +33,7 @@ namespace cigmar {
 
 	extern last_t LAST;
 
+	#define EMPTY_CHARACTERS " \f\n\r\t\v"
 	#ifdef WIN32
 		#define ENDL "\r\n"
 	#elif defined(__APPLE__)
@@ -46,12 +42,12 @@ namespace cigmar {
 		#define ENDL "\n"
 	#endif
 
-	/* Definition of static trait `is_iterable<type>::value`
+	namespace {
+		/* Definition of static trait `is_iterable<type>::value`
 	 * https://stackoverflow.com/a/29634934
 	 * https://ideone.com/ExTsEO
 	 * (2017/09/24) */
 
-	namespace {
 		// To allow ADL with custom begin/end
 		using std::begin;
 		using std::end;
@@ -66,6 +62,15 @@ namespace cigmar {
 
 		template<typename T>
 		std::false_type is_iterable_impl(...);
+
+		//////////
+
+		template<typename T>
+		auto is_streamable_impl(int)
+		-> decltype(std::declval<std::ostream&>() << std::declval<T&>(), std::true_type{});
+
+		template<typename T>
+		std::false_type is_streamable_impl(...);
 	}
 
 	template<typename T>
@@ -85,17 +90,17 @@ namespace cigmar {
 	- https://ideone.com/ExTsEO
 	**/
 
-	namespace {
-		template<typename T>
-		auto is_streamable_impl(int)
-		-> decltype(std::declval<std::ostream&> << std::declval<T&>(), std::true_type{});
-
-		template<typename T>
-		std::false_type is_streamable_impl(...);
-	}
-
 	template<typename T>
 	using is_streamable = decltype(is_streamable_impl<T>(0));
+
+	template <typename T> struct is_char_type: std::false_type {};
+
+	template <> struct is_char_type<char>: std::true_type {};
+	template <> struct is_char_type<wchar_t>: std::true_type {};
+	template <> struct is_char_type<char16_t>: std::true_type {};
+	template <> struct is_char_type<char32_t>: std::true_type {};
+
+	#define ASSERT_CHARTYPE(type) static_assert(is_char_type<type>{}, "A character type is required (see type trait is_char_tyepe<T>).")
 
 }
 

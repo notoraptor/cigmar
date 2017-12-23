@@ -61,7 +61,7 @@ void testNodes() {
 	sys::err::println("Node count is", tree::nodes_count);
 }
 void testUnicode() {
-	const char* s = "部首 国字 木, 神 !";
+	const char* s = "部首 国字 木, 神!";
 	std::cout << "Hello World!" << std::endl;
 	std::cout << "部首 国字 木, 神 !" << std::endl;
 	std::cout << s << std::endl;
@@ -135,11 +135,13 @@ void testDatabase() {
 	}
 }
 
+class A {};
+
 int main() {
 	tests::run();
-	testUnicode();
-	testDatabase();
-	testNodes();
-	sys::err::println("Node count is", tree::nodes_count);
+//	testUnicode();
+//	testDatabase();
+//	testNodes();
+//	sys::err::println("Node count is", tree::nodes_count);
 	return 0;
 }

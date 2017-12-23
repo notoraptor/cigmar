@@ -16,81 +16,79 @@
 #include <cigmar/classes/Char.hpp>
 #include <cigmar/unicode.hpp>
 
-#define EMPTY_CHARACTERS " \f\n\r\t\v"
+// TODO: Unicode empty characters, unicoe class characters ...
 
 namespace cigmar {
 
-	class CharString {
-	public:
-		const char* member;
-		CharString(const char* s): member(s) {}
-	};
-
 	template <typename Character>
-	class AbstractString: public Streamable, public Hashable, public Comparable<AbstractString<Character>>,
-						  public CrossComparable<const Character*> {
+	class AbstractString: public Streamable, public Hashable, public Comparable<AbstractString<Character>> {
 	public:
+		ASSERT_CHARTYPE(Character);
 		typedef Character char_t;
 		typedef std::basic_string<Character> string_t;
 		typedef typename string_t::iterator iterator_t;
 		typedef typename string_t::const_iterator const_iterator_t;
 	private:
 		string_t member;
+		template <typename OtherCharacter> friend class AbstractString;
 		template<typename... Args>
-		void concatenate(const Character* str, Args... args) {
+		void concatenate(const Character* str, Args&&... args) {
 			member += str;
-			concatenate(args...);
+			concatenate(std::forward<Args>(args)...);
 		}
-		template<typename... Args>
-		void concatenate(const CharString& s, Args... args) {
-			unicode::convert(s.member, member);
-			concatenate( args...);
+		template<typename OtherCharacter, typename... Args>
+		void concatenate(const OtherCharacter* s, Args&&... args) {
+			ASSERT_CHARTYPE(OtherCharacter);
+			unicode::convert(s, member);
+			concatenate(std::forward<Args>(args)...);
 		}
 		template<typename T, typename... Args>
-		void concatenate(T variable, Args... args) {
+		void concatenate(T variable, Args&&... args) {
 			std::ostringstream o;
 			o << std::boolalpha << variable;
 			unicode::convert(o.str(), member);
-			concatenate(args...);
+			concatenate(std::forward<Args>(args)...);
 		}
 		static void concatenate() {}
 		template<typename... Args>
-		void spaceFirst(const Character* s, Args... args) {
+		void spaceFirst(const Character* s, Args&&... args) {
 			member += s;
-			spaceNext(args...);
+			spaceNext(std::forward<Args>(args)...);
 		}
-		template<typename... Args>
-		void spaceFirst(const CharString& s, Args... args) {
-			unicode::convert(s.member, member);
+		template<typename OtherCharacter, typename... Args>
+		void spaceFirst(const OtherCharacter* s, Args&&... args) {
+			ASSERT_CHARTYPE(OtherCharacter);
+			unicode::convert(s, member);
 			spaceNext(args...);
 		}
 		template<typename T, typename... Args>
-		void spaceFirst(T variable, Args... args) {
+		void spaceFirst(T variable, Args&&... args) {
 			std::ostringstream o;
 			o << std::boolalpha << variable;
 			unicode::convert(o.str(), member);
-			spaceNext(args...);
+			spaceNext(std::forward<Args>(args)...);
 		}
 		static void spaceFirst() {}
 		template<typename... Args>
-		void spaceNext(const Character* s, Args... args) {
+		void spaceNext(const Character* s, Args&&... args) {
 			member += ' ';
 			member += s;
-			spaceNext(args...);
+			spaceNext(std::forward<Args>(args)...);
 		}
-		template<typename... Args>
-		void spaceNext(const CharString& s, Args... args) {
+		template<typename OtherCharacter, typename... Args>
+		void spaceNext(const OtherCharacter* s, Args&&... args) {
+			ASSERT_CHARTYPE(OtherCharacter);
 			member += ' ';
-			unicode::convert(s.member, member);
-			spaceNext(args...);
+			unicode::convert(s, member);
+			spaceNext(std::forward<Args>(args)...);
 		}
 		template<typename T, typename... Args>
-		void spaceNext(T variable, Args... args) {
+		void spaceNext(T variable, Args&&... args) {
 			std::ostringstream o;
 			o << std::boolalpha << variable;
 			member += ' ';
 			unicode::convert(o.str(), member);
-			spaceNext(args...);
+			spaceNext(std::forward<Args>(args)...);
 		}
 		static void spaceNext() {}
 		static pos_t strpos(size_t pos) {
@@ -98,56 +96,78 @@ namespace cigmar {
 		}
 	public:
 		AbstractString(): member() {}
+		template <typename OtherCharacter>
+		AbstractString(const OtherCharacter* s): member() {
+			ASSERT_CHARTYPE(OtherCharacter);
+			unicode::convert(s, member);
+		}
+		template <typename OtherCharacter>
+		AbstractString(const OtherCharacter* s, size_t pos, size_t len = string_t::npos): member() {
+			ASSERT_CHARTYPE(OtherCharacter);
+			unicode::convert(s + pos, member, len);
+		}
 		AbstractString(const Character* s): member(s) {}
 		AbstractString(const Character* s, size_t pos, size_t len = string_t::npos): member() {
 			len = std::min(len, Char::stringlength(s + pos));
 			member.assign(s + pos, len);
 		}
-		AbstractString(CharString s): member() {
-			unicode::convert(s.member, member);
+		AbstractString(size_t length, Character c): member(length, c) {}
+		template <typename OtherCharacter>
+		AbstractString(const AbstractString<OtherCharacter>& other): member() {
+			unicode::convert(other.member, member);
+		}
+		AbstractString(const AbstractString& s, size_t pos, size_t len = string_t::npos): member() {
+			len = std::min(len, s.length() - pos);
+			member.assign(s.member, pos, len);
 		}
 		AbstractString(const AbstractString& s): member(s.member) {}
 		AbstractString(AbstractString&& s) noexcept: member(std::move(s.member)) {}
-		AbstractString(const AbstractString& s, size_t pos, size_t len = string_t::npos): member(s.member, pos, len) {}
-		AbstractString(CharString& s, size_t pos, size_t len = string_t::npos): member() {
-			s.member += pos;
-			size_t real_len = strlen(s.member);
-			if (real_len > len) real_len = len;
-			auto sv = utf::make_stringview(s.member, s.member + real_len);
-			sv.template to<Character>(std::back_inserter(member));
-		}
-		AbstractString(size_t length, Character c): member(length, c) {}
 		AbstractString(const string_t& s): member(s) {}
 		AbstractString(string_t&& s) noexcept : member(std::move(s)) {}
 
-		template<typename... Args> static AbstractString println(Args... args) {
+		template<typename... Args> static AbstractString println(Args&&... args) {
 			AbstractString s;
-			s.spaceFirst(args...);
+			s.spaceFirst(std::forward<Args>(args)...);
 			s << ENDL;
 			return s;
 		};
-		template<typename... Args> static AbstractString print(Args... args) {
+		template<typename... Args> static AbstractString print(Args&&... args) {
 			AbstractString s;
-			s.spaceFirst(args...);
+			s.spaceFirst(std::forward<Args>(args)...);
 			return s;
 		};
-		template<typename... Args> static AbstractString writeln(Args... args) {
+		template<typename... Args> static AbstractString writeln(Args&&... args) {
 			AbstractString s;
-			s.concatenate(args...);
+			s.concatenate(std::forward<Args>(args)...);
 			s << ENDL;
 			return s;
 		};
-		template<typename... Args> static AbstractString write(Args... args) {
+		template<typename... Args> static AbstractString write(Args&&... args) {
 			AbstractString s;
-			s.concatenate(args...);
+			s.concatenate(std::forward<Args>(args)...);
 			return s;
 		}
-		template <typename C> static AbstractString join(const C& collection, const AbstractString& delimiter = "") {
+		template <typename C> static AbstractString join(const C& collection, const AbstractString& delimiter) {
 			AbstractString out;
-			for (auto& x: collection) {
-				if (out) out << delimiter;
-				out << x;
+			auto it = collection.begin(), end = collection.end();
+			if (it != end) {
+				out << *it;
+				while ((++it) != end) out << delimiter << *it;
 			}
+			return out;
+		};
+		template <typename C> static AbstractString join(const C& collection, char delimiter) {
+			AbstractString out;
+			auto it = collection.begin(), end = collection.end();
+			if (it != end) {
+				out << *it;
+				while ((++it) != end) out << delimiter << *it;
+			}
+			return out;
+		};
+		template <typename C> static AbstractString join(const C& collection) {
+			AbstractString out;
+			for (auto& x: collection) out << x;
 			return out;
 		};
 
@@ -155,9 +175,11 @@ namespace cigmar {
 			member = s;
 			return *this;
 		}
-		AbstractString& operator=(const CharString& s) {
+		template <typename OtherCharacter>
+		AbstractString& operator=(const OtherCharacter* s) {
+			ASSERT_CHARTYPE(OtherCharacter);
 			member.clear();
-			unicode::convert(s.member, member);
+			unicode::convert(s, member);
 			return *this;
 		}
 		AbstractString& operator=(const AbstractString& other) {
@@ -188,8 +210,10 @@ namespace cigmar {
 			member += s;
 			return *this;
 		}
-		AbstractString& operator<<(const CharString& s) {
-			unicode::convert(s.member, member);
+		template <typename OtherCharacter>
+		AbstractString& operator<<(const OtherCharacter* s) {
+			ASSERT_CHARTYPE(OtherCharacter);
+			unicode::convert(s, member);
 			return *this;
 		}
 		AbstractString& operator<<(const AbstractString& s) {
@@ -197,7 +221,9 @@ namespace cigmar {
 			return *this;
 		}
 		AbstractString& operator<<(bool val) {
-			member += (val ? "true" : "false");
+			Character trueString[] = {'t', 'r', 'u', 'e', '\0'};
+			Character falseString[] = {'f', 'a', 'l', 's', 'e', '\0'};
+			member += (val ? trueString : falseString);
 			return *this;
 		}
 
@@ -207,7 +233,7 @@ namespace cigmar {
 		const Character& operator[](last_t) const {return member.back();}
 
 		explicit operator const Character*() const {return member.c_str();}
-		explicit operator bool() const {return !member.empty();}
+		explicit operator bool() const {return (bool)member.length();}
 
 		AbstractString operator()() const {return AbstractString(*this);}
 		AbstractString operator()(size_t pos, size_t len) const {return AbstractString(*this, pos, len);}
@@ -242,9 +268,6 @@ namespace cigmar {
 			member.insert(pos, s);
 			return *this;
 		}
-		AbstractString& insert(size_t pos, const CharString& s) {
-			return insert(pos, AbstractString(s));
-		}
 		AbstractString& replace(size_t pos, size_t len, const AbstractString& s) {
 			member.replace(pos, len, s.member);
 			return *this;
@@ -252,9 +275,6 @@ namespace cigmar {
 		AbstractString& replace(size_t pos, size_t len, const Character* s) {
 			member.replace(pos, len, s);
 			return *this;
-		}
-		AbstractString& replace(size_t pos, size_t len, const CharString& s) {
-			return member.replace(pos, len, AbstractString(s));
 		}
 		AbstractString& replace(const AbstractString& from, const AbstractString& to) {
 			size_t from_len = from.member.length();
@@ -282,9 +302,6 @@ namespace cigmar {
 			} while(pos != string_t::npos);
 			return *this;
 		}
-		AbstractString& replace(const AbstractString& from, const CharString& to) {
-			return replace(from, AbstractString(to));
-		}
 		AbstractString& replace(const Character* from, const AbstractString& to) {
 			size_t from_len = Char::stringlength(from);
 			size_t to_len = to.member.length();
@@ -297,9 +314,6 @@ namespace cigmar {
 				}
 			} while(pos != string_t::npos);
 			return *this;
-		}
-		AbstractString& replace(const CharString& from, const AbstractString& to) {
-			return replace(AbstractString(from), to);
 		}
 		AbstractString& replace(const Character* from, const Character* to) {
 			size_t from_len = Char::stringlength(from);
@@ -314,14 +328,9 @@ namespace cigmar {
 			} while(pos != string_t::npos);
 			return *this;
 		}
-		AbstractString& replace(const CharString& from, const Character* to) {
-			return replace(AbstractString(from), to);
-		}
-		AbstractString& replace(const Character* from, const CharString& to) {
-			return replace(from, AbstractString(to));
-		}
-		AbstractString& replace(const CharString& from, const CharString& to) {
-			return replace(AbstractString(from), AbstractString(to));
+		AbstractString& replace(Character from, Character to) {
+			for (Character& character: member) if (character == from) character = to;
+			return *this;
 		}
 		AbstractString& remove(size_t pos, size_t len) {
 			member.erase(pos, len);
@@ -364,46 +373,56 @@ namespace cigmar {
 			std::transform(member.begin(), member.end(), member.begin(), Char::upper);
 			return *this;
 		}
-		size_t substringTo(Character* out, size_t pos, size_t len = string_t::npos) const {
+		size_t substringInto(Character* out, size_t pos, size_t len = string_t::npos) const {
 			size_t copied = member.copy(out, len, pos);
 			out[copied] = '\0';
 			return copied;
 		}
 		/**< out must be large enough to contains len characters + 1 null-terminal character. **/
-		size_t charactersTo(Character* out, size_t pos, size_t len = string_t::npos) const {
+		size_t charactersInto(Character* out, size_t pos, size_t len = string_t::npos) const {
 			return member.copy(out, len, pos);
 		}
 		/**< out must be large enough to contains just len characters. **/
-		AbstractString substring(size_t pos, size_t len=string_t::npos) const {
-			return AbstractString(*this, pos, len);
-		}
 		ArrayList<AbstractString> split(const AbstractString& delimiter) const {
 			ArrayList<AbstractString> pieces;
-			size_t sep_len = delimiter.member.length();
-			size_t piece_start = 0;
-			size_t next_start = 0;
-			do {
-				next_start = member.find(delimiter.member, piece_start);
-				size_t piece_len = next_start - piece_start;
-				pieces.add(AbstractString(*this, piece_start, piece_len));
-				piece_start = next_start + sep_len;
-			} while (next_start != string_t::npos);
+			if (delimiter) {
+				size_t piece_start = 0;
+				size_t next_start = 0;
+				do {
+					next_start = member.find(delimiter.member, piece_start);
+					size_t piece_len = next_start - piece_start;
+					pieces.add(AbstractString(*this, piece_start, piece_len));
+					piece_start = next_start + delimiter.member.length();
+				} while (next_start != string_t::npos);
+			}
 			return pieces;
 		}
 		ArrayList<AbstractString> split(const Character* delimiter) const {
 			ArrayList<AbstractString> pieces;
 			size_t sep_len = Char::stringlength(delimiter);
-			size_t piece_start = 0;
-			size_t next_start = 0;
-			do {
-				next_start = member.find(delimiter, piece_start);
-				pieces.add(AbstractString(*this, piece_start, next_start - piece_start));
-				piece_start = next_start + sep_len;
-			} while (next_start != string_t::npos);
+			if (sep_len) {
+				size_t piece_start = 0;
+				size_t next_start = 0;
+				do {
+					next_start = member.find(delimiter, piece_start);
+					pieces.add(AbstractString(*this, piece_start, next_start - piece_start));
+					piece_start = next_start + sep_len;
+				} while (next_start != string_t::npos);
+			}
 			return pieces;
 		}
-		ArrayList<AbstractString> split(const CharString& delimiter) const {
-			return split(AbstractString(delimiter));
+		ArrayList<AbstractString> split(char delimiter) const {
+			ArrayList<AbstractString> pieces;
+			if (delimiter) {
+				size_t piece_start = 0;
+				size_t next_start = 0;
+				do {
+					next_start = member.find(delimiter, piece_start);
+					pieces.add(AbstractString(*this, piece_start, next_start - piece_start));
+					piece_start = next_start + 1;
+				} while (next_start != string_t::npos);
+			}
+			return pieces;
 		}
 		bool isEmpty() const {return member.empty();}
 		bool contains(const AbstractString& s, size_t start = 0) const {
@@ -415,17 +434,11 @@ namespace cigmar {
 		bool contains(Character c, size_t start = 0) const {
 			return member.find(c, start) != string_t::npos;
 		}
-		bool contains(const CharString& s, size_t start = 0) const {
-			return contains(AbstractString(s));
-		}
 		bool startsWith(const AbstractString& s) const {
 			return member.compare(0, s.member.length(), s.member) == 0;
 		}
 		bool startsWith(const Character* s) const {
 			return member.compare(0, Char::stringlength(s), s) == 0;
-		}
-		bool startsWith(const CharString& s) const {
-			return startsWith(AbstractString(s));
 		}
 		bool endsWith(const AbstractString& s) const {
 			size_t len_m = member.length();
@@ -437,9 +450,6 @@ namespace cigmar {
 			size_t len_s = Char::stringlength(s);
 			return len_m >= len_s && member.compare(len_m - len_s, len_s, s) == 0;
 		}
-		bool endsWith(const CharString& s) const {
-			return endsWith(AbstractString(s));
-		}
 		pos_t indexOf(const AbstractString& s, size_t start = 0) const {
 			return strpos(member.find(s.member, start));
 		}
@@ -449,9 +459,6 @@ namespace cigmar {
 		pos_t indexOf(Character c, size_t start = 0) const {
 			return strpos(member.find(c, start));
 		}
-		pos_t indexOf(const CharString& s, size_t start = 0) const {
-			return indexOf(AbstractString(s), start);
-		}
 		pos_t lastIndexOf(const AbstractString& s, size_t start = string_t::npos) const {
 			return strpos(member.rfind(s.member, start));
 		}
@@ -460,9 +467,6 @@ namespace cigmar {
 		}
 		pos_t lastIndexOf(Character c, size_t start = string_t::npos) const {
 			return strpos(member.rfind(c, start));
-		}
-		pos_t lastIndexOf(const CharString& s, size_t start = string_t::npos) const {
-			return lastIndexOf(AbstractString(s), start);
 		}
 
 		void toStream(std::ostream& o) const override {
@@ -476,10 +480,29 @@ namespace cigmar {
 		int compare(const AbstractString& other) const override {
 			return member.compare(other.member);
 		}
-		int crossCompare(const Character* other) const override {
+		int compareString(const Character* other) const {
 			return member.compare(other);
 		}
+		template <typename OtherCharacter> int compareString(const OtherCharacter* other) const {
+			ASSERT_CHARTYPE(OtherCharacter);
+			// TODO: Improve unicode handling by using iterations.
+			return compare(other);
+		}
 	};
+
+	template <typename A, typename B> bool operator==(const AbstractString<A>& a, const B* b) { return a.compareString(b) == 0; };
+	template <typename A, typename B> bool operator!=(const AbstractString<A>& a, const B* b) { return a.compareString(b) != 0; };
+	template <typename A, typename B> bool operator<=(const AbstractString<A>& a, const B* b) { return a.compareString(b) <= 0; };
+	template <typename A, typename B> bool operator>=(const AbstractString<A>& a, const B* b) { return a.compareString(b) >= 0; };
+	template <typename A, typename B> bool operator<(const AbstractString<A>& a, const B* b) { return a.compareString(b) < 0; };
+	template <typename A, typename B> bool operator>(const AbstractString<A>& a, const B* b) { return a.compareString(b) > 0; };
+
+	template <typename A, typename B> bool operator==(const A* a, const AbstractString<B>& b) { return b.compareString(a) == 0; };
+	template <typename A, typename B> bool operator!=(const A* a, const AbstractString<B>& b) { return b.compareString(a) != 0; };
+	template <typename A, typename B> bool operator<=(const A* a, const AbstractString<B>& b) { return b.compareString(a) >= 0; };
+	template <typename A, typename B> bool operator>=(const A* a, const AbstractString<B>& b) { return b.compareString(a) <= 0; };
+	template <typename A, typename B> bool operator<(const A* a, const AbstractString<B>& b) { return b.compareString(a) > 0; };
+	template <typename A, typename B> bool operator>(const A* a, const AbstractString<B>& b) { return b.compareString(a) < 0; };
 
 }
 

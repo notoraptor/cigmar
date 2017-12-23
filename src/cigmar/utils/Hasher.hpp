@@ -10,8 +10,7 @@
 #include <type_traits>
 
 namespace cigmar {
-	class Hasher {
-	public:
+	struct Hasher {
 		template<typename T>
 		size_t operator()(const T& object) const {
 			typedef typename std::conditional<std::is_base_of<Hashable, T>::value, Hashable, T>::type type_to_hash;

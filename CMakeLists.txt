@@ -86,7 +86,6 @@ set(SOURCE_FILES
         src/cpp/tests/test_math.cpp
         src/cpp/tests/test_Queue.cpp
         src/cpp/tests/test_Stack.cpp
-        src/cpp/tests/test_String.cpp
         src/cpp/tests/test_time.cpp
         src/cpp/tests/test_TreeMap.cpp
         src/cpp/tests/test_video.cpp
@@ -97,7 +96,7 @@ set(SOURCE_FILES
         src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        src/cigmar/exception/IndexException.hpp src/cpp/newtests/testString.cpp)
+        src/cigmar/exception/IndexException.hpp src/cpp/tests/testString.cpp src/cpp/tests/testUnicodeString.cpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 
