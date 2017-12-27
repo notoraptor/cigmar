@@ -50,7 +50,7 @@
 		<Unit filename="../src/cigmar/classes/Timer.hpp" />
 		<Unit filename="../src/cigmar/classes/TreeMap.hpp" />
 		<Unit filename="../src/cigmar/classes/TreeSet.hpp" />
-		<Unit filename="../src/cigmar/classes/array_t.hpp" />
+		<Unit filename="../src/cigmar/classes/Array.hpp" />
 		<Unit filename="../src/cigmar/filesystem.hpp" />
 		<Unit filename="../src/cigmar/hex.hpp" />
 		<Unit filename="../src/cigmar/init.hpp" />

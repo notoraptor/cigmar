@@ -2,14 +2,14 @@
 // Created by notoraptor on 09/11/2017.
 //
 #include <cigmar/classes/ArrayList.hpp>
-#include <cigmar/classes/array_t.hpp>
+#include <cigmar/classes/Array.hpp>
 #include <cigmar/unittests.hpp>
 using namespace cigmar;
 
 utt_begin(TestArrays);
 
 	utt(test_array_t) {
-		array_t<long long int, 8> r;
+		Array<long long int, 8> r;
 		numbers::zeros(r);
 		utt_assert(numbers::sum(r) == 0);
 		numbers::ones(r);
@@ -26,8 +26,8 @@ utt_begin(TestArrays);
 		utt_assert(y == x - 37);
 		numbers::sum(r, y);
 		utt_assert(x == y);
-		array_t<double, 44> u(0);
-		array_t<double, 44> v(-1);
+		Array<double, 44> u(0);
+		Array<double, 44> v(-1);
 		utt_assert(numbers::sum(u) == 0);
 		utt_assert(numbers::sum(v) == -(double)v.size());
 	}

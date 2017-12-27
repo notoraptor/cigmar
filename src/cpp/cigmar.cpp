@@ -3,7 +3,6 @@
 #include <thread>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/String.hpp>
-#include <cigmar/classes/StringView.hpp>
 #include <cigmar/time.hpp>
 #include <cigmar/classes/TreeMap.hpp>
 #include <cigmar/init.hpp>
@@ -51,10 +50,6 @@ namespace cigmar {
 		s.toStream(o);
 		return o;
 	};
-
-	/// Classes static attributes.
-	const char* StringView::empty = "";
-	const char* StringView::empty_characters = " \f\n\r\t\v";
 
 	/// Classes static methods.
 	char Char::lower(char c) {

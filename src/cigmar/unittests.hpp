@@ -10,11 +10,8 @@
 #include <cigmar/numbers.hpp>
 
 namespace cigmar::tests {
-	// typedef std::function<void()> UttMethod;
 	typedef void(*UttMethod)();
-
-	class UttRecorder {
-	public:
+	struct UttRecorder {
 		UttRecorder(UttMethod method, const char* className, const char* methodName) noexcept ;
 	};
 

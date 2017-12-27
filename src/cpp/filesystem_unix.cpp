@@ -15,13 +15,11 @@ namespace cigmar {
 
 	namespace sys {
 
-		class PlatformDir {
-		public:
+		struct PlatformDir {
 			String internal;
 		};
 
 		class PlatformDirent {
-		private:
 			DIR* directory;
 			struct dirent* entry;
 			friend class Dirent;
@@ -128,11 +126,9 @@ namespace cigmar {
 			};
 
 			bool isFile(const char* pathname) {
-				/* TODO: This code may fail if pathname is already opened.
-				 * (e.g. if pathname points to this actual program).
+				/* TODO: This code may fail if pathname is already opened (e.g. if pathname points to this actual program).
 				 * This need to be tested on Linux. */
-				/* fopen with mode "rb" seems to open directories on Ubuntu.
-				 * Adding mode "+" seems to fix it:
+				/* fopen with mode "rb" seems to open directories on Ubuntu. Adding mode "+" seems to fix it:
 				 * https://stackoverflow.com/questions/42876210/c-fopen-opening-directories */
 				String normalized(norm(pathname));
 				FILE* f = fopen((const char*)normalized, "rb+");
@@ -143,12 +139,10 @@ namespace cigmar {
 		}
 
 		int makeDirectory(const char* pathname) {
-			// http://pubs.opengroup.org/onlinepubs/009695399/functions/mkdir.html
-			/*
+			/* http://pubs.opengroup.org/onlinepubs/009695399/functions/mkdir.html
 			The following line should create a directory with
 			read/write/search permissions for owner and group, and with
-			read/search permissions for others.
-			*/
+			read/search permissions for others.	*/
 			return mkdir(pathname, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		};
 

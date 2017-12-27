@@ -7,7 +7,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src)
 set(SOURCE_FILES
         src/cigmar/base64.hpp
         src/cigmar/classes/AbstractString.hpp
-        src/cigmar/classes/array_t.hpp
+        src/cigmar/classes/Array.hpp
         src/cigmar/classes/ArrayList.hpp
         src/cigmar/classes/Char.hpp
         src/cigmar/exception/Exception.hpp
@@ -17,7 +17,6 @@ set(SOURCE_FILES
         src/cigmar/classes/Stack.hpp
         src/cigmar/classes/StaticCollection.hpp
         src/cigmar/classes/String.hpp
-        src/cigmar/classes/StringView.hpp
         src/cigmar/classes/TreeMap.hpp
         src/cigmar/classes/TreeSet.hpp
         src/cigmar/classes/UnicodeString.hpp
