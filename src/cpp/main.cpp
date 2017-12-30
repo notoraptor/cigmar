@@ -2,7 +2,6 @@
 #include <cigmar/unittests.hpp>
 #include <cigmar/video/manager/manager.hpp>
 #include <cigmar/print.hpp>
-#include <cigmar/classes/UnicodeString.hpp>
 #include <cigmar/tree.hpp>
 
 using std::cout;
@@ -10,19 +9,6 @@ using std::cerr;
 using std::endl;
 using std::string;
 using namespace cigmar;
-
-/* Notes: write a long multi-lines raw string in C++11+:
-
-const char* jstring = R"(
-{
-"a": true,
-"b": 1,
-"salue": -2.9,
-"hello": "merci"
-}
-)";
-
-*/
 
 namespace cigmar::tree {
 	size_t nodes_count = 0;
@@ -60,30 +46,7 @@ void testNodes() {
 	sys::err::println(a.typesize(), b->parent().typesize());
 	sys::err::println("Node count is", tree::nodes_count);
 }
-void testUnicode() {
-	const char* s = "部首 国字 木, 神!";
-	std::cout << "Hello World!" << std::endl;
-	std::cout << "部首 国字 木, 神 !" << std::endl;
-	std::cout << s << std::endl;
 
-	std::string utf8 =  u8"z\u00df\u6c34\U0001d10b"; // or u8"zß水𝄋"
-	// or "\x7a\xc3\x9f\xe6\xb0\xb4\xf0\x9d\x84\x8b";
-	std::cout << "original UTF-8 string size: " << utf8.size() << '\n';
-	std::cout << utf8 << std::endl;
-
-	// UTF-8 to UTF-32
-	std::vector<uint32_t> utf32;
-	unicode::convert(utf8, utf32);
-	std::cout << "UTF-32 string size: " << utf32.size() << '\n';
-
-	// UTF-32 to UTF-8
-	std::string decoded;
-	unicode::convert(utf32, decoded);
-	std::cout << "new UTF-8 string size: " << decoded.size() << '\n';
-	std::cout << utf8 << std::endl;
-	std::cout << decoded << std::endl;
-	std::cout << (utf8 == decoded) << std::endl;
-}
 void testDatabase() {
 	String libraryName = "testLibrary";
 	String folderName = "res/video";
@@ -135,12 +98,9 @@ void testDatabase() {
 	}
 }
 
-class A {};
-
 int main() {
 	tests::run();
-//	testUnicode();
-//	testDatabase();
+	testDatabase();
 //	testNodes();
 //	sys::err::println("Node count is", tree::nodes_count);
 	return 0;

@@ -1,4 +1,5 @@
 *.db
+*.dll
 *.exe
 *.log
 .cproject
@@ -11,6 +12,7 @@ Build
 cigmar.depend
 cigmar.layout
 cmake-build-debug
+cmake-build-release
 obj
 release
 res/work/video/.*
