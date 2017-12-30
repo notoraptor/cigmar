@@ -36,10 +36,13 @@ namespace cigmar {
 	#define EMPTY_CHARACTERS " \f\n\r\t\v"
 	#ifdef WIN32
 		#define ENDL "\r\n"
+		#define SHARED_LIBRARY_EXTENSION ".dll"
 	#elif defined(__APPLE__)
 		#define ENDL "\r"
+		#define SHARED_LIBRARY_EXTENSION ".so"
 	#else
 		#define ENDL "\n"
+		#define SHARED_LIBRARY_EXTENSION ".so"
 	#endif
 
 	namespace {

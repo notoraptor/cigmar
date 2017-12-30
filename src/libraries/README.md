@@ -6,15 +6,19 @@ base64
    - File ``base64.hpp``: altered version of
      original ``base64.h`` file from repository.
 
+dlfcn-win32
+ - https://github.com/dlfcn-win32/dlfcn-win32 (2017/12/29)
+ - This folder contains:
+   - Original file ``COPYING`` (license LGPL)
+   - Original file ``README.md``
+   - altered file ``dlfcn.c`` (entire code wrapped into ``#ifdef WIN32 #endif``)
+   - altered file ``dlfcn.h`` (entire code wrapped into ``#ifdef WIN32 #endif``)
+
 json
  - https://github.com/nlohmann/json
  - Release ``2.1.1`` (2017/02/25): https://github.com/nlohmann/json/releases/tag/v2.1.1
  - This folder contains original distributed
    released header file.
-
-sqlite:
- - https://www.sqlite.org/index.html
- - version ``3.21.0`` (2017/11/15)
 
 utf:
  - https://github.com/jalfd/utf.hpp.git

@@ -7,7 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <libraries/sqlite/sqlite3.h>
+#include <modules/sqlite.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/base64.hpp>

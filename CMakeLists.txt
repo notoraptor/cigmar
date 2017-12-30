@@ -90,15 +90,22 @@ set(SOURCE_FILES
         src/cpp/tests/test_video.cpp
         src/libraries/base64/base64.hpp
         src/libraries/json/json.hpp
-        src/libraries/sqlite/sqlite3.c
-        src/libraries/sqlite/sqlite3.h
         src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        src/cigmar/exception/IndexException.hpp src/cpp/tests/testString.cpp src/cpp/tests/testUnicodeString.cpp)
+        src/cigmar/rll.hpp
+        src/cigmar/exception/IndexException.hpp
+        src/cpp/tests/testString.cpp
+        src/cpp/tests/testUnicodeString.cpp
+        src/modules/sqlite.hpp
+        src/modules/sqlite.cpp
+        src/libraries/dlfcn-win32/dlfcn.h
+        src/libraries/dlfcn-win32/dlfcn.c
+        )
 
 add_executable(cigmar ${SOURCE_FILES})
 
-# It's unfortunate we have to add this line (because of sqlite)
-# as this makes the compilation less trivial.
-target_link_libraries(cigmar ${CMAKE_DL_LIBS})
+# This is for dlfcn-win32.
+if (WIN32)
+    target_link_libraries(cigmar psapi)
+endif()

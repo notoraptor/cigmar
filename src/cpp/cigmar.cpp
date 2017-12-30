@@ -23,6 +23,19 @@
  * http://www.programering.com/q/MTM5UzNwATg.html
 */
 
+/* Notes: write a long multi-lines raw string in C++11+:
+
+const char* jstring = R"(
+{
+"a": true,
+"b": 1,
+"salue": -2.9,
+"hello": "merci"
+}
+)";
+
+*/
+
 /* TODO: Optimization.
  * Virtual methods increase class size.
  * Let's try to reduce usage of virtual methods, for ex.
