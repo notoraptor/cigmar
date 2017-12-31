@@ -11,9 +11,7 @@
 
 namespace cigmar::file {
 	class Lines {
-	private:
 		class LinesIterator {
-		private:
 			std::ifstream* ptr;
 			String line;
 		public:
@@ -21,6 +19,7 @@ namespace cigmar::file {
 			explicit LinesIterator(std::ifstream& ifs): ptr(&ifs), line() {
 				ptr->clear();
 				ptr->seekg(0, std::ios::beg);
+				this->operator++();
 			}
 			bool operator==(const LinesIterator& other) {
 				return ptr == other.ptr;
@@ -39,11 +38,9 @@ namespace cigmar::file {
 				return *this;
 			};
 		};
-	public:
-		typedef LinesIterator iterator_t;
-	private:
 		std::ifstream ifs;
 	public:
+		typedef LinesIterator iterator_t;
 		explicit Lines(const char* filename): ifs(filename, std::ios::in | std::ios::binary) {
 			if (!ifs.is_open()) throw Exception("Unable to open file (mode read|binary):", filename);
 		};

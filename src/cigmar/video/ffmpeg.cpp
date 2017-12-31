@@ -4,7 +4,7 @@
 namespace cigmar::video::ffmpeg {
 	/** Call ``ffprobe`` to get video infos in JSON format. **/
 	String infos(const String& filename) {
-		String command = "ffprobe -v quiet -print_format json -show_error -show_format -show_streams ";
+		String command = "ffprobe -v quiet -print_format compact=item_sep=; -show_error -show_format -show_streams ";
 		command << '"' << filename << '"';
 		return sys::run(command.cstring());
 	}

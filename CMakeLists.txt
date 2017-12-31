@@ -10,7 +10,6 @@ set(SOURCE_FILES
         src/cigmar/classes/Array.hpp
         src/cigmar/classes/ArrayList.hpp
         src/cigmar/classes/Char.hpp
-        src/cigmar/exception/Exception.hpp
         src/cigmar/classes/HashMap.hpp
         src/cigmar/classes/HashSet.hpp
         src/cigmar/classes/Queue.hpp
@@ -20,6 +19,8 @@ set(SOURCE_FILES
         src/cigmar/classes/TreeMap.hpp
         src/cigmar/classes/TreeSet.hpp
         src/cigmar/classes/UnicodeString.hpp
+        src/cigmar/exception/Exception.hpp
+        src/cigmar/exception/IndexException.hpp
         src/cigmar/file/Lines.hpp
         src/cigmar/file/text/read.hpp
         src/cigmar/file/writer/Binary.hpp
@@ -88,14 +89,15 @@ set(SOURCE_FILES
         src/cpp/tests/test_time.cpp
         src/cpp/tests/test_TreeMap.cpp
         src/cpp/tests/test_video.cpp
+        src/cpp/tests/testString.cpp
+        src/cpp/tests/testUnicodeString.cpp
         src/libraries/base64/base64.hpp
-        src/libraries/json/json.hpp
         src/libraries/sqlite/sqlite3.c
         src/libraries/sqlite/sqlite3.h
         src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        src/cigmar/exception/IndexException.hpp src/cpp/tests/testString.cpp src/cpp/tests/testUnicodeString.cpp)
+        )
 
 add_executable(cigmar ${SOURCE_FILES})
 
