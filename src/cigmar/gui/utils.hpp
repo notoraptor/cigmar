@@ -35,17 +35,14 @@ namespace cigmar::gui {
 	};
 
 	struct Image {
-		size_t n_channels;
+		enum class Depth {GRAY = 1, RGB = 3, RGBA = 4};
+		Depth depth; // Number of channels.
 		size_t width;
 		size_t height;
 		char* data;
 
-		struct View {
-			Image* image;
-			size_t x;
-			size_t y;
-			size_t width;
-			size_t height;
+		struct View: public Size, public Coordinate {
+			Image* image = nullptr;
 		};
 	};
 
@@ -109,10 +106,7 @@ namespace cigmar::gui {
 			COUNT
 		};
 		union {
-			struct {
-				size_t width;
-				size_t height;
-			} size;
+			Size size;
 			struct {
 				KeyCode code;
 				bool alt;

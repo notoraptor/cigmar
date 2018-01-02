@@ -1,10 +1,7 @@
 // We must internally use only utf-8 strings.
 
-#include <cstddef>
 #include <functional>
 #include <cigmar/tree.hpp>
-#include <cigmar/classes/HashSet.hpp>
-#include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/UnicodeString.hpp>
 #include <cigmar/classes/HashMap.hpp>
@@ -41,9 +38,7 @@ namespace cigmar::gui {
 		ArrayList<TextBlock*> content;
 	};
 
-	class EventHandler {
-		// full
-	public:
+	struct EventHandler {
 		typedef std::function<bool()> default_handler_t;
 		typedef std::function<bool(size_t, size_t)> size_handler_t;
 		typedef std::function<bool(uint32_t)> unicode_handler_t;
@@ -227,7 +222,7 @@ namespace cigmar::gui {
 				surface.height = height;
 				surface.background = transparent ? &primitive::Color::transparent : &primitive::Color::white;
 				drawer.drawSurface(surface);
-				for (child_t &node: *this) if (node) node->draw(drawer, origin, width, height);
+				for (child_t& node: *this) if (node) node->draw(drawer, origin, width, height);
 			}
 		}
 		bool contains(const Coordinate& point) const {
@@ -337,6 +332,15 @@ namespace cigmar::gui {
 		// layout->add(myWidget->position(newPosition));
 	};
 
+	template <typename PositionType>
+	class Floater: public Layout {
+		PositionType position;
+	public:
+		// Floater(const parent_t& theParent, const child_t& theChild, PositionType thePosition): Layout()
+		size_t minChildren() const override {return 1;}
+		size_t maxChildren() const override {return 1;}
+	};
+
 	struct BorderLayout : public Layout {
 		// children is a constant-size vector of 5 widgets.
 		enum {TOP, LEFT, BOTTOM, RIGHT, CENTER, COUNT};
@@ -394,12 +398,12 @@ namespace cigmar::gui {
 		Window(backend::WindowHandler& windowHandler, const WindowProperties& windowProperties):
 				Window(&windowHandler, windowProperties) {};
 		~Window() {
-			close();
+			if (isOpen()) close();
 		}
 		void setContent(const widget_t& widget) {
 			setChild(CONTENT, widget);
 		};
-		widget_t content() {
+		widget_t content() const {
 			return child(CONTENT);
 		};
 		bool isOpen() const {
@@ -423,7 +427,7 @@ namespace cigmar::gui {
 				focus = nullptr;
 			}
 		}
-		int show() {
+		void show() {
 			// The display loop is here.
 			while (isOpen()) {
 				Event event;
@@ -466,7 +470,7 @@ namespace cigmar::gui {
 							break;
 						case Event::Type::KEY_DOWN:
 							onKeyDown(event.code.code, event.code.alt, event.code.ctrl,
-							          event.code.shift, event.code.system);
+									  event.code.shift, event.code.system);
 							break;
 						case Event::Type::KEY_UP:
 							onKeyUp(event.code.code, event.code.alt, event.code.ctrl,
@@ -514,7 +518,6 @@ namespace cigmar::gui {
 			return Widget::onWindowMouseOutBefore();
 		}
 		// TODO: When/where are emitted MouseIn/MouseOut event for widgets ?
-
 		size_t minChildren() const override {return COUNT;}
 		size_t maxChildren() const override {return COUNT;}
 		bool forceRoot() const override {return true;}

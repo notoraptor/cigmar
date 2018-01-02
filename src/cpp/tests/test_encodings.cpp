@@ -16,7 +16,7 @@ utt_begin(TestEncodings);
 		utt_assert(hex::encode(15) == "0F");
 		utt_assert(hex::encode(255) == "FF");
 		utt_assert(hex::encode(256) == "0100");
-		uint64_t value = ~((uint64_t)0);
+		uint64_t value = ~uint64_t(0);
 		utt_assert(hex::encode(value) == String(16, 'F'));
 	}
 	utt(test_base64_on_bytes) {

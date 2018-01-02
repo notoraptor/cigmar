@@ -1,12 +1,9 @@
 //
 // Created by notoraptor on 17-12-04.
 //
-
 #ifndef SRC_CIGMAR_PRIMITIVE_HPP
 #define SRC_CIGMAR_PRIMITIVE_HPP
 
-#include <cstddef>
-#include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/classes/HashMap.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/UnicodeString.hpp>
@@ -18,9 +15,8 @@ namespace cigmar::gui::primitive {
 
 	struct Background {
 		enum class Type {CANVAS, COLOR, GRADIENT, MOTIF};
-
-		Type type;
-		explicit Background(Type backgroundType = Type::CANVAS) noexcept : type(backgroundType) {}
+		const Type type;
+		explicit Background(Type backgroundType) noexcept : type(backgroundType) {}
 		virtual bool isTransparent() const = 0;
 	};
 
@@ -37,22 +33,38 @@ namespace cigmar::gui::primitive {
 		static Color transparent;
 		// TODO: Define all standard HTML colors.
 
-		class Gradient: public Background {
+		struct Gradient: public Background {
 			ArrayList<Color> points;
+			Gradient(): Background(Type::GRADIENT), points() {}
+			Gradient(std::initializer_list<Color> il): Background(Type::GRADIENT), points(il) {}
+			Gradient(const ArrayList<Color>& gradPoints): Background(Type::GRADIENT), points(gradPoints) {}
+			Gradient(ArrayList<Color>&& gradPoints) noexcept : Background(Type::GRADIENT), points(std::move(gradPoints)) {}
 		};
 	};
 
 	struct Motif: public Background {
-		Image::View imageView;
-		bool hrepeat;
-		bool vrepeat;
+		Image::View view;
+		bool hrepeat = false;
+		bool vrepeat = false;
+		Motif(): Background(Type::MOTIF) {}
+		Motif(Image* image, const Coordinate& from, const Size& size, bool hRepeat, bool vRepeat): Motif() {
+			view.image = image;
+			view.x = from.x;
+			view.y = from.y;
+			view.width = size.width;
+			view.height = size.height;
+			hrepeat = hRepeat;
+			vrepeat = vRepeat;
+		}
 	};
 
 	struct Canvas : public Background {
 		// A canvas is always defined wrt/ the bound box the primitive for which it's a background.
 		enum class Scaling {NONE, SCALED, FIT};
-		ArrayList<Primitive*> primitives;
 		Scaling scaling;
+		ArrayList<Primitive*> primitives;
+		Canvas(): Background(Type::CANVAS), scaling(Scaling::NONE), primitives() {}
+		explicit Canvas(Scaling canvasScaling): Background(Type::CANVAS), scaling(canvasScaling), primitives() {}
 	};
 
 	struct Primitive {

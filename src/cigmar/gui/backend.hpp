@@ -4,9 +4,6 @@
 
 #ifndef SRC_CIGMAR_BACKEND_HPP
 #define SRC_CIGMAR_BACKEND_HPP
-
-#include <cigmar/classes/UnicodeString.hpp>
-#include <cigmar/classes/String.hpp>
 #include <cigmar/gui/primitive.hpp>
 
 namespace cigmar::gui::backend {

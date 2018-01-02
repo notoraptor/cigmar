@@ -3,6 +3,7 @@
 #include <cigmar/video/manager/manager.hpp>
 #include <cigmar/print.hpp>
 #include <cigmar/tree.hpp>
+#include <cigmar/file/writer/Binary.hpp>
 
 using std::cout;
 using std::cerr;
@@ -13,7 +14,6 @@ using namespace cigmar;
 namespace cigmar::tree {
 	size_t nodes_count = 0;
 }
-
 struct MyContent: public tree::Content<MyContent> {
 	int val = 11101;
 	using tree::Content<MyContent>::Content;
@@ -46,7 +46,6 @@ void testNodes() {
 	sys::err::println(a.typesize(), b->parent().typesize());
 	sys::err::println("Node count is", tree::nodes_count);
 }
-
 void testDatabase() {
 	String libraryName = "testLibrary";
 	String folderName = "res/video";
@@ -97,10 +96,27 @@ void testDatabase() {
 		}
 	}
 }
+void testImage() {
+	// OUTPUT AN IMAGE IN .PAM FORMAT.
+	file::writer::Binary out("test.pam");
+	String header;
+	header << "P7" << ENDL;
+	header << "WIDTH 4" << ENDL;
+	header << "HEIGHT 2" << ENDL;
+	header << "DEPTH 4" << ENDL;
+	header << "MAXVAL 255" << ENDL;
+	header << "TUPLTYPE RGB_ALPHA" << ENDL;
+	header << "ENDHDR" << ENDL;
+	// FF00007F 00FF007F 0000FF7F FFFFFF7F FF0000FF 00FF00FF 0000FFFF FFFFFFFF
+	unsigned char values[] = {0xFF, 0x00, 0x00, 0x7F, 0x00, 0xFF, 0x00, 0x7F, 0x00, 0x00, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F,
+							  0xFF, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+	out << header;
+	out.write((const char*)values, 32);
+}
 
 int main() {
-	tests::run();
-	testDatabase();
+//	tests::run();
+//	testDatabase();
 //	testNodes();
 //	sys::err::println("Node count is", tree::nodes_count);
 	return 0;
