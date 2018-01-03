@@ -189,12 +189,10 @@ namespace cigmar::gui {
 
 	class Window;
 
-	class Widget: public tree::Content<Widget, Window, Widget, Widget>, public EventHandler {
+	class Widget: public tree::Node<Widget, Window>, public EventHandler {
 	protected:
 		primitive::Surface surface;
 	public:
-		typedef root_t window_t;
-		typedef node_t widget_t;
 		bool visible = true;
 		bool transparent = false;
 		virtual size_t width() const {
@@ -222,7 +220,7 @@ namespace cigmar::gui {
 				surface.height = height;
 				surface.background = transparent ? &primitive::Color::transparent : &primitive::Color::white;
 				drawer.drawSurface(surface);
-				for (child_t& node: *this) if (node) node->draw(drawer, origin, width, height);
+				for (Widget* node: *this) if (node) node->draw(drawer, origin, width, height);
 			}
 		}
 		bool contains(const Coordinate& point) const {
@@ -231,87 +229,87 @@ namespace cigmar::gui {
 		}
 		bool onClosedAfter() override {
 			bool close = true;
-			for (child_t& node: *this) if (node) close *= node->onClosed();
+			for (Widget* node: *this) if (node) close *= node->onClosed();
 			return close;
 		}
 		bool onResizedBefore(size_t width, size_t height) override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onResized(width, height);
+			for (Widget* node: *this) if (node) ok *= node->onResized(width, height);
 			return ok;
 		}
 		bool onFocusInBefore() override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onFocusIn();
+			for (Widget* node: *this) if (node) ok *= node->onFocusIn();
 			return ok;
 		}
 		bool onFocusOutBefore() override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onFocusOut();
+			for (Widget* node: *this) if (node) ok *= node->onFocusOut();
 			return ok;
 		}
 		bool onWindowFocusInBefore() override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onWindowFocusIn();
+			for (Widget* node: *this) if (node) ok *= node->onWindowFocusIn();
 			return ok;
 		}
 		bool onWindowFocusOutBefore() override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onWindowFocusOut();
+			for (Widget* node: *this) if (node) ok *= node->onWindowFocusOut();
 			return ok;
 		}
 		bool onMouseScrollBefore(bool vertical, float delta, int x, int y) override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onMouseScroll(vertical, delta, x, y);
+			for (Widget* node: *this) if (node) ok *= node->onMouseScroll(vertical, delta, x, y);
 			return ok;
 		}
 		bool onMouseDownBefore(MouseButton button, int x, int y) override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onMouseDown(button, x, y);
+			for (Widget* node: *this) if (node) ok *= node->onMouseDown(button, x, y);
 			return ok;
 		}
 		bool onMouseUpBefore(MouseButton button, int x, int y) override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onMouseUp(button, x, y);
+			for (Widget* node: *this) if (node) ok *= node->onMouseUp(button, x, y);
 			return ok;
 		}
 		bool onMouseMovedBefore(int x, int y) override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onMouseMoved(x, y);
+			for (Widget* node: *this) if (node) ok *= node->onMouseMoved(x, y);
 			return ok;
 		}
 		bool onMouseInBefore() override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onMouseIn();
+			for (Widget* node: *this) if (node) ok *= node->onMouseIn();
 			return ok;
 		}
 		bool onMouseOutBefore() override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onMouseOut();
+			for (Widget* node: *this) if (node) ok *= node->onMouseOut();
 			return ok;
 		}
 		bool onWindowMouseInBefore() override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onWindowMouseIn();
+			for (Widget* node: *this) if (node) ok *= node->onWindowMouseIn();
 			return ok;
 		}
 		bool onWindowMouseOutBefore() override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onWindowMouseOut();
+			for (Widget* node: *this) if (node) ok *= node->onWindowMouseOut();
 			return ok;
 		}
 		bool onTextBefore(uint32_t unicode) override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onText(unicode);
+			for (Widget* node: *this) if (node) ok *= node->onText(unicode);
 			return ok;
 		}
 		bool onKeyDownBefore(KeyCode code, bool alt, bool ctrl, bool shift, bool system) override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onKeyDown(code, alt, ctrl, shift, system);
+			for (Widget* node: *this) if (node) ok *= node->onKeyDown(code, alt, ctrl, shift, system);
 			return ok;
 		}
 		bool onKeyUpBefore(KeyCode code, bool alt, bool ctrl, bool shift, bool system) override {
 			bool ok = true;
-			for (child_t& node: *this) if (node) ok *= node->onKeyUp(code, alt, ctrl, shift, system);
+			for (Widget* node: *this) if (node) ok *= node->onKeyUp(code, alt, ctrl, shift, system);
 			return ok;
 		}
 	};
@@ -337,8 +335,8 @@ namespace cigmar::gui {
 		PositionType position;
 	public:
 		// Floater(const parent_t& theParent, const child_t& theChild, PositionType thePosition): Layout()
-		size_t minChildren() const override {return 1;}
-		size_t maxChildren() const override {return 1;}
+		size_t min_children() const override {return 1;}
+		size_t max_children() const override {return 1;}
 	};
 
 	struct BorderLayout : public Layout {
@@ -346,19 +344,19 @@ namespace cigmar::gui {
 		enum {TOP, LEFT, BOTTOM, RIGHT, CENTER, COUNT};
 		bool topOnLeft = true, topOnRight = true, bottomOnLeft = true, bottomOnRight = true;
 		Directions<size_t> internalPadding;
-		size_t minChildren() const override { return COUNT; }
-		size_t maxChildren() const override { return COUNT; }
-		bool preallocate() const override { return true; }
-		BorderLayout& setTop(widget_t widget);
-		BorderLayout& setBottom(widget_t widget);
-		BorderLayout& setLeft(widget_t widget);
-		BorderLayout& setRight(widget_t widget);
-		BorderLayout& setCenter(widget_t widget);
-		widget_t top() const;
-		widget_t bottom() const;
-		widget_t left() const;
-		widget_t right() const;
-		widget_t center() const;
+		size_t min_children() const override { return COUNT; }
+		size_t max_children() const override { return COUNT; }
+		size_t preallocate() const override { return COUNT; }
+		BorderLayout& setTop(Widget* widget);
+		BorderLayout& setBottom(Widget* widget);
+		BorderLayout& setLeft(Widget* widget);
+		BorderLayout& setRight(Widget* widget);
+		BorderLayout& setCenter(Widget* widget);
+		Widget* top() const;
+		Widget* bottom() const;
+		Widget* left() const;
+		Widget* right() const;
+		Widget* center() const;
 	};
 
 	template <typename PositionType>
@@ -377,7 +375,7 @@ namespace cigmar::gui {
 		enum {CONTEXT, CONTENT, COUNT};
 		WindowProperties properties;
 		backend::WindowHandler* handler;
-		widget_t focus;
+		Widget* focus;
 	public:
 		Window(backend::WindowHandler* windowHandler, const WindowProperties& windowProperties):
 				Layout(), properties(), handler(windowHandler), focus(nullptr) {
@@ -400,10 +398,10 @@ namespace cigmar::gui {
 		~Window() {
 			if (isOpen()) close();
 		}
-		void setContent(const widget_t& widget) {
+		void setContent(Widget* widget) {
 			setChild(CONTENT, widget);
 		};
-		widget_t content() const {
+		const Widget* content() const {
 			return child(CONTENT);
 		};
 		bool isOpen() const {
@@ -413,9 +411,9 @@ namespace cigmar::gui {
 			if (handler->isOpen())
 				handler->close();
 		};
-		void setFocus(widget_t& widget) {
+		void setFocus(Widget* widget) {
 			if (widget) {
-				if (widget->root() != node())
+				if (widget->root() != this)
 					throw Exception("Window: cannot focus on a non-descendant.");
 				if (focus)
 					focus->onFocusOut();
@@ -518,10 +516,10 @@ namespace cigmar::gui {
 			return Widget::onWindowMouseOutBefore();
 		}
 		// TODO: When/where are emitted MouseIn/MouseOut event for widgets ?
-		size_t minChildren() const override {return COUNT;}
-		size_t maxChildren() const override {return COUNT;}
-		bool forceRoot() const override {return true;}
-		bool preallocate() const override {return true;}
+		size_t min_children() const override {return COUNT;}
+		size_t max_children() const override {return COUNT;}
+		size_t preallocate() const override {return COUNT;}
+		bool force_root() const override {return true;}
 	};
 
 }

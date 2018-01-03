@@ -97,7 +97,7 @@ set(SOURCE_FILES
         src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        )
+        src/cigmar/wip/wip.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 

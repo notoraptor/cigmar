@@ -11,41 +11,6 @@ using std::endl;
 using std::string;
 using namespace cigmar;
 
-namespace cigmar::tree {
-	size_t nodes_count = 0;
-}
-struct MyContent: public tree::Content<MyContent> {
-	int val = 11101;
-	using tree::Content<MyContent>::Content;
-};
-using MyNode = tree::Node<MyContent>;
-void testNodes() {
-	MyNode a("a", nullptr);
-	MyNode a1("a1", nullptr);
-	MyNode b("b", a);
-	MyNode c("c", b);
-	MyNode d("d", b);
-	sys::err::println(a->isRoot());
-	sys::err::println(b->isInternal());
-	sys::err::println(c->isLeaf());
-	sys::err::println(b->size());
-	sys::err::println(c->parent() == b);
-	sys::err::println(a);
-	sys::err::println(a1);
-	sys::err::println();
-	a1->add(c);
-	sys::err::println(a);
-	sys::err::println(a1);
-	sys::err::println();
-	b->add(a1);
-	sys::err::println(a);
-	sys::err::println(a1);
-	sys::err::println();
-	sys::err::println("a", a.refcount(), "a1", a1.refcount(), "b", b.refcount(), "c", c.refcount());
-	sys::err::println(a->val, b->val);
-	sys::err::println(a.typesize(), b->parent().typesize());
-	sys::err::println("Node count is", tree::nodes_count);
-}
 void testDatabase() {
 	String libraryName = "testLibrary";
 	String folderName = "res/video";
@@ -114,7 +79,32 @@ void testImage() {
 	out.write((const char*)values, 32);
 }
 
+struct MyTest: public tree::Node<MyTest> {};
+struct MyTest2: public tree::Node<MyTest2> {};
+
 int main() {
+	MyTest* a = new MyTest();
+	MyTest* b = new MyTest();
+	MyTest* c = new MyTest();
+	MyTest* d = new MyTest();
+	MyTest* e = new MyTest();
+	a->add(b);
+	b->add(c);
+	b->add(d);
+	a->add(e);
+	a->setName("a");
+	b->setName("b");
+	c->setName("c");
+	d->setName("d");
+	e->setName("e");
+	sys::err::println(a);
+	e->add(d);
+	sys::err::println(a);
+	c->add(d);
+	c->add(e);
+	sys::err::println(a);
+	sys::err::println(e->parent());
+	tree::tree(a);
 //	tests::run();
 //	testDatabase();
 //	testNodes();
