@@ -10,8 +10,22 @@
 
 namespace cigmar::gui {
 
-	enum class VerticalPosition { TOP, CENTER, BOTTOM };
-	enum class HorizontalPosition { LEFT, CENTER, RIGHT, JUSTIFY };
+	class Disposition {
+		enum class DispositionType {LEFT, RIGHT, JUSTIFY, CENTER, TOP, BOTTOM};
+		explicit Disposition(DispositionType type): disposition(type) {}
+	protected:
+		DispositionType disposition;
+	public:
+		bool horizontal() const {return disposition <= DispositionType::CENTER;}
+		bool vertical() const {return disposition >= DispositionType::CENTER;}
+		bool operator==(const Disposition& other) const {return disposition == other.disposition;}
+		static Disposition top;
+		static Disposition left;
+		static Disposition bottom;
+		static Disposition right;
+		static Disposition center;
+		static Disposition justify;
+	};
 
 	template<typename T>
 	struct Directions {
@@ -19,7 +33,7 @@ namespace cigmar::gui {
 	};
 
 	class TextBlock {
-		HorizontalPosition orientation;
+		Disposition orientation; // Should be horizontal.
 	};
 
 	class Paragraph : public TextBlock {
@@ -195,14 +209,20 @@ namespace cigmar::gui {
 	public:
 		bool visible = true;
 		bool transparent = false;
+		/** Current (last-drawed) width. **/
 		virtual size_t width() const {
 			return surface.width;
 		};
+		/** Current (last-drawed) height. **/
 		virtual size_t height() const {
 			return surface.height;
 		};
+		/** Current (last-drawed) position. **/
 		virtual const Coordinate& position() const {
 			return surface.position;
+		}
+		virtual Size request(size_t width, size_t height) const {
+			return {width, height};
 		}
 		virtual void setWidth(size_t newWidth) {
 			surface.width = newWidth;
@@ -216,8 +236,8 @@ namespace cigmar::gui {
 		virtual void draw(Drawer& drawer, Coordinate origin, size_t width, size_t height) {
 			if (visible) {
 				surface.position = origin;
-				surface.width = width;
-				surface.height = height;
+				surface.width = width ? width: 1;
+				surface.height = height ? height: 1;
 				surface.background = transparent ? &primitive::Color::transparent : &primitive::Color::white;
 				drawer.drawSurface(surface);
 				for (Widget* node: *this) if (node) node->draw(drawer, origin, width, height);
@@ -330,13 +350,21 @@ namespace cigmar::gui {
 		// layout->add(myWidget->position(newPosition));
 	};
 
-	template <typename PositionType>
-	class Floater: public Layout {
-		PositionType position;
-	public:
-		// Floater(const parent_t& theParent, const child_t& theChild, PositionType thePosition): Layout()
+	struct Floater: public Layout {
+		Disposition disposition;
+		Floater(Disposition placement, Widget* widget): Layout(), disposition(placement) {
+			add(widget);
+		}
 		size_t min_children() const override {return 1;}
 		size_t max_children() const override {return 1;}
+		Widget* child() {return Layout::child(0);}
+		const Widget* child() const {return Layout::child(0);}
+		static Floater* top(Widget* widget) {return new Floater(Disposition::top, widget);}
+		static Floater* left(Widget* widget) {return new Floater(Disposition::left, widget);}
+		static Floater* bottom(Widget* widget) {return new Floater(Disposition::bottom, widget);}
+		static Floater* right(Widget* widget) {return new Floater(Disposition::right, widget);}
+		static Floater* center(Widget* widget) {return new Floater(Disposition::center, widget);}
+		static Floater* justify(Widget* widget) {return new Floater(Disposition::justify, widget);}
 	};
 
 	struct BorderLayout : public Layout {
@@ -359,15 +387,56 @@ namespace cigmar::gui {
 		Widget* center() const;
 	};
 
-	template <typename PositionType>
 	class DirectedLayout: public Layout {
-		ArrayList<PositionType> internalAlignments;
-		PositionType defaultInternalAlignment;
+		Disposition defaultAlignment;
+		ArrayList<Disposition> alignments;
+	public:
+		virtual void check(const Disposition& alignment) const {}
+		void with_node_added(Widget* node, size_t position) override {
+			if (position == alignments.size())
+				alignments.add(defaultAlignment);
+			else
+				alignments.insert(position, defaultAlignment);
+		}
+		void with_node_replaced(Widget* old_node, Widget* new_node, size_t position) override {
+			alignments[position] = defaultAlignment;
+		}
+		void with_node_removed(Widget* node, size_t position) override {
+			if (position < alignments.size())
+				alignments.remove(position);
+		}
+		void align(size_t position, const Disposition& alignment) {
+			if (position < alignments.size()) {
+				check(alignment);
+				alignments[position] = alignment;
+			}
+		}
+		void align(const Disposition& alignment) {
+			check(alignment);
+			for (Disposition& disposition: alignments) disposition = alignment;
+		}
+		void setDefaultAlignment(const Disposition& alignment) {
+			check(alignment);
+			defaultAlignment = alignment;
+		}
+		const Disposition& getDefaultAlignment() const {
+			return defaultAlignment;
+		}
 	};
 
-	class HorizontalLayout: public DirectedLayout<VerticalPosition> {};
+	struct HorizontalLayout: public DirectedLayout {
+		void check(const Disposition& alignment) const override {
+			if (!alignment.horizontal())
+				throw Exception("Horizontal layout: expected horizontal alignment.");
+		}
+	};
 
-	class VerticalLayout: public DirectedLayout<HorizontalPosition> {};
+	struct VerticalLayout: public DirectedLayout {
+		void check(const Disposition& alignment) const override {
+			if (!alignment.vertical())
+				throw Exception("Vertical layout: expected vertical alignment.");
+		}
+	};
 
 	// full ?
 	class Window: public Layout {

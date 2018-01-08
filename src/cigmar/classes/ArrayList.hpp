@@ -79,10 +79,10 @@ namespace cigmar {
 			vec.erase(vec.begin() + from, vec.begin() + to_excluded);
 			return *this;
 		}
-		bool remove(const Type& val) {
+		pos_t remove(const Type& val) {
 			pos_t position = indexOf(val);
 			if (position) remove((size_t)position);
-			return (bool)position;
+			return position;
 		}
 		ArrayList& swap(ArrayList& other) {
 			vec.swap(other.vec);

@@ -35,6 +35,9 @@ namespace cigmar::tree {
 		Node& operator=(const Node&) = delete;
 		Node& operator=(Node&&) = delete;
 		virtual void run() {}
+		virtual void with_node_added(NodeType* node, size_t position) {}
+		virtual void with_node_replaced(NodeType* from, NodeType* to, size_t position) {}
+		virtual void with_node_removed(NodeType* node, size_t position) {}
 		virtual size_t min_children() const {return 0;};
 		virtual size_t max_children() const {return std::numeric_limits<size_t>::max();};
 		virtual size_t preallocate() const {return min_children();};
@@ -106,36 +109,38 @@ namespace cigmar::tree {
 					throw Exception("Node: cannot set parent for a forced root.");
 				if (hasAncestor(node))
 					throw Exception("Node: cannot add a child that is already an ancestor.");
-				if (node->node_parent) {
-					node->node_parent->node_children.remove(node);
-					node->node_parent = nullptr;
-				}
+				if (node->node_parent)
+					node->node_parent->remove(node);
 				node_children.add(node);
 				node->node_parent = this;
+				with_node_added(node, node_children.size() - 1);
 			}
 		}
-		void setChild(size_t position, NodeType* node) {
+		NodeType* setChild(size_t position, NodeType* newNode) {
 			if (position >= node_children.size())
 				throw Exception("Node: cannot set child for an index out of bond (", position + 1, "/", node_children.size(), ").");
+			NodeType* oldNode = nullptr;
 			if (node_children[position]) {
-				node_children[position]->node_parent = nullptr;
+				oldNode = node_children[position];
+				oldNode->node_parent = nullptr;
 				node_children[position] = nullptr;
 			}
-			if (node) {
-				if (node->node_parent) {
-					node->node_parent->node_children.remove(node);
-					node->node_parent = nullptr;
-				}
-				node_children[position] = node;
-				node->node_parent = this;
+			if (newNode) {
+				if (newNode->node_parent)
+					newNode->node_parent->remove(newNode);
+				node_children[position] = newNode;
+				newNode->node_parent = this;
 			}
+			with_node_replaced(oldNode, newNode, position);
+			return oldNode;
 		}
 		void remove(NodeType* node) {
 			if (node && node->node_parent == this) {
 				if (min_children() == node_children.size())
 					throw Exception("Node: reached minimum number (", min_children(), ") of allowed children.");
-				node_children.remove(node);
+				pos_t removedPosition = node_children.remove(node);
 				node->node_parent = nullptr;
+				with_node_removed(node, (size_t)removedPosition);
 			}
 		}
 		void remove(size_t position) {
@@ -144,6 +149,7 @@ namespace cigmar::tree {
 					throw Exception("Node: reached minimum number (", min_children(), ") of allowed children.");
 				if (node_children[position]) {
 					node_children[position]->node_parent = nullptr;
+					with_node_removed(node_children[position], position);
 					delete node_children[position];
 					node_children[position] = nullptr;
 				}
@@ -159,6 +165,7 @@ namespace cigmar::tree {
 				if (node_children[position]) {
 					node_children[position]->node_parent = nullptr;
 					node = node_children[position];
+					with_node_removed(node, position);
 				}
 				node_children.remove(position);
 			}
