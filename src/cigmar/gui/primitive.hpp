@@ -67,11 +67,15 @@ namespace cigmar::gui::primitive {
 		explicit Canvas(Scaling canvasScaling): Background(Type::CANVAS), scaling(canvasScaling), primitives() {}
 	};
 
+	struct Outline {
+		size_t width;
+		Color color;
+	};
+
+	struct Border: public Outline {};
+
 	struct Primitive {
-		struct {
-			size_t width;
-			Color color;
-		} outline;
+		Outline outline;
 		Background* background;	// should be nullptr for non-closed figures.
 		Coordinate position;	// Position of the top-left point of the surrounding box.
 		/** Must return width and height of the primitive box (smallest rectangle surrounding the primitive).
@@ -135,16 +139,6 @@ namespace cigmar::gui::primitive {
 	};
 
 	struct Bezier: public Connection {};
-
-	struct Border: public Polygon {
-		// A border is a trapeze.
-		enum class Type {TOP, LEFT, BOTTOM, RIGHT};
-		Type type;
-		size_t length;      // should be no public
-		size_t width;       // thickness
-		size_t padding1;    // top or left
-		size_t padding2;    // bottom or right
-	};
 
 	struct Font {
 		const size_t id; // Internal (back-end) font ID, understandable by WindowHandler only.

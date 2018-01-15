@@ -4,6 +4,7 @@
 #include <cigmar/print.hpp>
 #include <cigmar/tree.hpp>
 #include <cigmar/file/writer/Binary.hpp>
+#include <bitset>
 
 using std::cout;
 using std::cerr;
@@ -83,6 +84,18 @@ struct MyTest: public tree::Node<MyTest> {};
 struct MyTest2: public tree::Node<MyTest2> {};
 
 int main() {
+	std::bitset<1> b1;
+	std::bitset<4> b2;
+	std::bitset<7> b3;
+	std::bitset<9> b4;
+	std::bitset<11> b5;
+	std::bitset<15> b6;
+	sys::err::println(sizeof(b1));
+	sys::err::println(sizeof(b2));
+	sys::err::println(sizeof(b3));
+	sys::err::println(sizeof(b4));
+	sys::err::println(sizeof(b5));
+	sys::err::println(sizeof(b6));
 	MyTest* a = new MyTest();
 	MyTest* b = new MyTest();
 	MyTest* c = new MyTest();

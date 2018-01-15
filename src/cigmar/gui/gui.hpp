@@ -204,48 +204,90 @@ namespace cigmar::gui {
 	class Window;
 
 	class Widget: public tree::Node<Widget, Window>, public EventHandler {
-	protected:
-		primitive::Surface surface;
+		Size fixed;
+		primitive::Surface surface; // current size.
 	public:
 		bool visible = true;
 		bool transparent = false;
+		bool packWidth = false;
+		bool packHeight = false;
+		Widget(): Node(), fixed{0, 0}, surface() {
+			Size minSize = min();
+			surface.position.x = surface.position.y = 0;
+			surface.width = minSize.width;
+			surface.height = minSize.height;
+		}
+		virtual Size min() const {
+			return {1, 1};
+		}
+		virtual Size max() const {
+			return Size::max;
+		}
 		/** Current (last-drawed) width. **/
 		virtual size_t width() const {
-			return surface.width;
+			return fixed.width ? fixed.width : surface.width;
 		};
 		/** Current (last-drawed) height. **/
 		virtual size_t height() const {
-			return surface.height;
+			return fixed.height ? fixed.height : surface.height;
 		};
 		/** Current (last-drawed) position. **/
 		virtual const Coordinate& position() const {
 			return surface.position;
 		}
 		virtual Size request(size_t width, size_t height) const {
-			return {width, height};
+			Size current, minSize = min(), maxSize = max();
+			// Setting width.
+			if (fixed.width)
+				current.width = fixed.width;
+			else if (packWidth)
+				current.width = minSize.width;
+			else {
+				current.width = width;
+				if (current.width < minSize.width)
+					current.width = minSize.width;
+				else if (current.width > maxSize.width)
+					current.width = maxSize.width;
+			}
+			// Setting height.
+			if (fixed.height)
+				current.height = fixed.height;
+			else if (packHeight)
+				current.height = minSize.height;
+			else {
+				current.height = height;
+				if (current.height < minSize.height)
+					current.height = minSize.height;
+				else if (current.height > maxSize.height)
+					current.height = maxSize.height;
+			}
+			return current;
 		}
+		/** To reset width, call setWidth(0); **/
 		virtual void setWidth(size_t newWidth) {
-			surface.width = newWidth;
+			fixed.width = newWidth;
 		}
+		/** To reset height, call setHeight(0); **/
 		virtual void setHeight(size_t newHeight) {
-			surface.height = newHeight;
+			fixed.height = newHeight;
 		}
-		virtual void position(const Coordinate& newPosition) {
+		virtual void setPosition(const Coordinate& newPosition) {
 			surface.position = newPosition;
 		}
-		virtual void draw(Drawer& drawer, Coordinate origin, size_t width, size_t height) {
+		virtual void draw(Drawer& drawer, const Coordinate& origin, size_t width, size_t height) {
 			if (visible) {
+				Size requested = request(width, height);
 				surface.position = origin;
-				surface.width = width ? width: 1;
-				surface.height = height ? height: 1;
+				surface.width = requested.width;
+				surface.height = requested.height;
 				surface.background = transparent ? &primitive::Color::transparent : &primitive::Color::white;
 				drawer.drawSurface(surface);
 				for (Widget* node: *this) if (node) node->draw(drawer, origin, width, height);
 			}
 		}
 		bool contains(const Coordinate& point) const {
-			return point.x >= surface.position.x && point.x < surface.position.x + surface.width
-				   && point.y >= surface.position.y && point.y < surface.position.y + surface.height;
+			return point.x >= surface.position.x && point.x < surface.position.x + width()
+				   && point.y >= surface.position.y && point.y < surface.position.y + height();
 		}
 		bool onClosedAfter() override {
 			bool close = true;
@@ -347,7 +389,7 @@ namespace cigmar::gui {
 	class Layout : public StyledWidget {
 		// Free layout.
 		// Exemple: set position of a widget and add this widget in one line:
-		// layout->add(myWidget->position(newPosition));
+		// layout->add(myWidget->setPosition(newPosition));
 	};
 
 	struct Floater: public Layout {
@@ -390,6 +432,7 @@ namespace cigmar::gui {
 	class DirectedLayout: public Layout {
 		Disposition defaultAlignment;
 		ArrayList<Disposition> alignments;
+		double percent;
 	public:
 		virtual void check(const Disposition& alignment) const {}
 		void with_node_added(Widget* node, size_t position) override {
@@ -419,6 +462,14 @@ namespace cigmar::gui {
 			check(alignment);
 			defaultAlignment = alignment;
 		}
+		void setPercent(double newPercent) {
+			if (newPercent <= 0 || newPercent > 100)
+				throw Exception("A percent value must be > 0.0 and <= 100.0");
+			percent = newPercent;
+		}
+		double getPercent() const {
+			return percent;
+		}
 		const Disposition& getDefaultAlignment() const {
 			return defaultAlignment;
 		}
@@ -426,15 +477,35 @@ namespace cigmar::gui {
 
 	struct HorizontalLayout: public DirectedLayout {
 		void check(const Disposition& alignment) const override {
-			if (!alignment.horizontal())
-				throw Exception("Horizontal layout: expected horizontal alignment.");
+			if (!alignment.vertical())
+				throw Exception("Horizontal layout: expected vertical alignment.");
 		}
 	};
 
 	struct VerticalLayout: public DirectedLayout {
 		void check(const Disposition& alignment) const override {
-			if (!alignment.vertical())
-				throw Exception("Vertical layout: expected vertical alignment.");
+			if (!alignment.horizontal())
+				throw Exception("Vertical layout: expected horizontal alignment.");
+		}
+		Size request(size_t width, size_t height) const override {
+			Size realSize{0, 0};
+			size_t allowedHeight = (size_t)(height * getPercent());
+			for (Widget* node: *this) {
+				if (node) {
+					bool heightPacked = node->packHeight;
+					node->packHeight = true;
+					Size nodeSize = node->request(width, allowedHeight);
+					if (realSize.width < nodeSize.width)
+						realSize.width = nodeSize.width;
+					realSize.height += nodeSize.height;
+					node->packHeight = heightPacked;
+				}
+			}
+			return realSize;
+		}
+		void draw(Drawer& drawer, const Coordinate& origin, size_t width, size_t height) override {
+			Coordinate childPosition = origin;
+			// TODO ...
 		}
 	};
 
@@ -458,9 +529,10 @@ namespace cigmar::gui {
 				message << "Returned properties: " << properties << ENDL;
 				throw Exception(message);
 			}
-			surface.position.x = surface.position.y = 0;
-			surface.width = properties.width;
-			surface.height = properties.height;
+			Widget::setWidth(properties.width);
+			Widget::setHeight(properties.height);
+			handler->setPosition(position());
+			handler->resize({width(), height()});
 		};
 		Window(backend::WindowHandler& windowHandler, const WindowProperties& windowProperties):
 				Window(&windowHandler, windowProperties) {};
@@ -549,7 +621,7 @@ namespace cigmar::gui {
 					}
 					// Start display.
 					handler->clear(primitive::Color::white);
-					draw(*handler, Coordinate(), surface.width, surface.height);
+					draw(*handler, position(), width(), height());
 					handler->display();
 					// End display.
 				}
@@ -557,20 +629,21 @@ namespace cigmar::gui {
 		}
 		void setWidth(size_t newWidth) override {
 			Widget::setWidth(newWidth);
-			handler->resize(surface);
+			handler->resize({width(), height()});
 		}
 		void setHeight(size_t newHeight) override {
 			Widget::setHeight(newHeight);
-			handler->resize(surface);
+			handler->resize({width(), height()});
 		}
-		void position(const Coordinate& newPosition) override {
-			Widget::position(newPosition);
-			handler->setPosition(surface.position);
+		void setPosition(const Coordinate& newPosition) override {
+			// Widget::setPosition(newPosition);
+			handler->setPosition(position());
 		}
-		bool onResizedBefore(size_t width, size_t height) override {
-			surface.width = width;
-			surface.height = height;
-			return Widget::onResizedBefore(width, height);
+		bool onResizedBefore(size_t new_width, size_t new_height) override {
+			Widget::setWidth(new_width);
+			Widget::setHeight(new_height);
+			handler->resize({width(), height()});
+			return Widget::onResizedBefore(new_width, new_height);
 		}
 		bool onFocusInBefore() override {
 			return Widget::onWindowFocusInBefore();

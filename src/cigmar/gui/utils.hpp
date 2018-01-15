@@ -27,11 +27,12 @@ namespace cigmar::gui {
 	struct Size {
 		size_t width;
 		size_t height;
+		static Size max;
 	};
 
 	struct Coordinate {
-		int x = 0;
-		int y = 0;
+		int x;
+		int y;
 	};
 
 	struct Image {

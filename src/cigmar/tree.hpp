@@ -181,14 +181,17 @@ namespace cigmar::tree {
 			if (node) root_node = node->root();
 		}
 		Tree(const Tree&) = delete;
-		Tree(Tree&& other): root_node(other.root_node) {
-			other.root_node = nullptr;
+		Tree(Tree&& moved) noexcept : root_node(moved.root_node) {
+			moved.root_node = nullptr;
 		}
 		~Tree() {
 			if (root_node) delete root_node;
 		}
 		Tree& operator=(const Tree&) = delete;
-		Tree& operator=(Tree&& other) = delete;
+		Tree& operator=(Tree&& moved) noexcept {
+			root_node = moved.root_node;
+			moved.root_node = nullptr;
+		}
 		void operator()() {
 			if (root_node) root_node->run();
 		}

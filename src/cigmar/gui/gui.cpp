@@ -12,6 +12,8 @@ namespace cigmar::gui {
 	Disposition Disposition::center(DispositionType::CENTER);
 	Disposition Disposition::justify(DispositionType::JUSTIFY);
 
+	Size Size::max{std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
+
 	namespace primitive {
 		Color Color::white = {255, 255, 255};
 		Color Color::black = {0, 0, 0};

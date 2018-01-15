@@ -30,8 +30,10 @@ namespace cigmar {
 	#define dtypeof(variable) decltype(variable)::dtype
 
 	class last_t {};
+	class max_t {};
 
 	extern last_t LAST;
+	extern max_t MAX;
 
 	#define EMPTY_CHARACTERS " \f\n\r\t\v"
 	#ifdef WIN32

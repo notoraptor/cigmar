@@ -50,6 +50,7 @@ namespace cigmar {
 
 	/// Global variables.
 	last_t LAST;
+	max_t MAX;
 	CigmarInit cigmar_init;
 
 	/// Global functions.
