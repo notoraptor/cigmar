@@ -206,16 +206,23 @@ namespace cigmar::gui {
 	class Widget: public tree::Node<Widget, Window>, public EventHandler {
 		Size fixed;
 		primitive::Surface surface; // current size.
+		bool is_visible;
+		bool is_transparent;
 	public:
-		bool visible = true;
-		bool transparent = false;
-		bool packWidth = false;
-		bool packHeight = false;
-		Widget(): Node(), fixed{0, 0}, surface() {
+		SizeState minimize = {false, false};
+		Widget(): Node(), fixed{0, 0}, surface(), is_visible(true), is_transparent(false) {
 			Size minSize = min();
 			surface.position.x = surface.position.y = 0;
 			surface.width = minSize.width;
 			surface.height = minSize.height;
+		}
+		bool visible() const {return is_visible;}
+		bool transparent() const {return is_transparent;}
+		void setVisible(bool value) {
+			is_visible = value;
+		}
+		virtual void setTransparent(bool value) {
+			is_transparent = value;
 		}
 		virtual Size min() const {
 			return {1, 1};
@@ -240,7 +247,7 @@ namespace cigmar::gui {
 			// Setting width.
 			if (fixed.width)
 				current.width = fixed.width;
-			else if (packWidth)
+			else if (minimize.width)
 				current.width = minSize.width;
 			else {
 				current.width = width;
@@ -252,7 +259,7 @@ namespace cigmar::gui {
 			// Setting height.
 			if (fixed.height)
 				current.height = fixed.height;
-			else if (packHeight)
+			else if (minimize.height)
 				current.height = minSize.height;
 			else {
 				current.height = height;
@@ -274,15 +281,15 @@ namespace cigmar::gui {
 		virtual void setPosition(const Coordinate& newPosition) {
 			surface.position = newPosition;
 		}
-		virtual void draw(Drawer& drawer, const Coordinate& origin, size_t width, size_t height) {
-			if (visible) {
-				Size requested = request(width, height);
-				surface.position = origin;
-				surface.width = requested.width;
-				surface.height = requested.height;
-				surface.background = transparent ? &primitive::Color::transparent : &primitive::Color::white;
+		virtual void update(size_t width, size_t height) {
+			Size requested = request(width, height);
+			surface.width = requested.width;
+			surface.height = requested.height;
+		}
+		virtual void draw(Drawer& drawer) {
+			if (!transparent()) {
 				drawer.drawSurface(surface);
-				for (Widget* node: *this) if (node) node->draw(drawer, origin, width, height);
+				for (Widget *node: *this) if (node) node->draw(drawer);
 			}
 		}
 		bool contains(const Coordinate& point) const {
