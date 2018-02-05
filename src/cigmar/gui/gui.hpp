@@ -1,5 +1,7 @@
 // We must internally use only utf-8 strings.
-
+/** NB/TODO
+ * Let's just work with basic rectangles and temporarly forget complex forms.
+ * **/
 #include <functional>
 #include <cigmar/tree.hpp>
 #include <cigmar/classes/String.hpp>
@@ -9,6 +11,14 @@
 #include <cigmar/gui/backend.hpp>
 
 namespace cigmar::gui {
+
+	template <typename T> inline T clip(T value, T min, T max) {
+		return value < min ? min : (value > max ? max : value);
+	}
+
+	template <typename T> inline T select(T value, T min, T max, T fixed, bool minimize) {
+		return fixed ? fixed : (minimize ? min : clip(value, min, max));
+	}
 
 	class Disposition {
 		enum class DispositionType {LEFT, RIGHT, JUSTIFY, CENTER, TOP, BOTTOM};
@@ -206,23 +216,20 @@ namespace cigmar::gui {
 	class Widget: public tree::Node<Widget, Window>, public EventHandler {
 		Size fixed;
 		primitive::Surface surface; // current size.
-		bool is_visible;
-		bool is_transparent;
+		primitive::Border border;
+		Directions<size_t> padding;
 	public:
+		bool visible = true;
+		bool transparent = false;
 		SizeState minimize = {false, false};
-		Widget(): Node(), fixed{0, 0}, surface(), is_visible(true), is_transparent(false) {
+		Widget(): Node(), fixed{0, 0}, surface(), border(), padding() {
 			Size minSize = min();
 			surface.position.x = surface.position.y = 0;
 			surface.width = minSize.width;
 			surface.height = minSize.height;
-		}
-		bool visible() const {return is_visible;}
-		bool transparent() const {return is_transparent;}
-		void setVisible(bool value) {
-			is_visible = value;
-		}
-		virtual void setTransparent(bool value) {
-			is_transparent = value;
+			border.width = 0;
+			border.color = primitive::Color::black;
+			padding.bottom = padding.top = padding.left = padding.right = 0;
 		}
 		virtual Size min() const {
 			return {1, 1};
@@ -230,67 +237,55 @@ namespace cigmar::gui {
 		virtual Size max() const {
 			return Size::max;
 		}
-		/** Current (last-drawed) width. **/
-		virtual size_t width() const {
-			return fixed.width ? fixed.width : surface.width;
-		};
-		/** Current (last-drawed) height. **/
-		virtual size_t height() const {
-			return fixed.height ? fixed.height : surface.height;
-		};
-		/** Current (last-drawed) position. **/
-		virtual const Coordinate& position() const {
-			return surface.position;
-		}
 		virtual Size request(size_t width, size_t height) const {
 			Size current, minSize = min(), maxSize = max();
-			// Setting width.
-			if (fixed.width)
-				current.width = fixed.width;
-			else if (minimize.width)
-				current.width = minSize.width;
-			else {
-				current.width = width;
-				if (current.width < minSize.width)
-					current.width = minSize.width;
-				else if (current.width > maxSize.width)
-					current.width = maxSize.width;
-			}
-			// Setting height.
-			if (fixed.height)
-				current.height = fixed.height;
-			else if (minimize.height)
-				current.height = minSize.height;
-			else {
-				current.height = height;
-				if (current.height < minSize.height)
-					current.height = minSize.height;
-				else if (current.height > maxSize.height)
-					current.height = maxSize.height;
-			}
+			current.width = select(current.width, minSize.width, maxSize.width, fixed.width, minimize.width);
+			current.height = select(current.height, minSize.height, maxSize.height, fixed.height, minimize.height);
 			return current;
 		}
-		/** To reset width, call setWidth(0); **/
-		virtual void setWidth(size_t newWidth) {
+		virtual Size draw(Drawer& drawer) {
+			Size drawn = {0, 0};
+			if (visible) {
+				if(!transparent) {
+					drawer.drawSurface(surface);
+					for (Widget *node: *this) if (node) node->draw(drawer);
+				}
+				drawn.width = surface.width;
+				drawn.height = surface.height;
+			}
+			return drawn;
+		}
+		size_t width() const {
+			return fixed.width ? fixed.width : surface.width;
+		};
+		size_t height() const {
+			return fixed.height ? fixed.height : surface.height;
+		};
+		Size occupiedSpace() const {
+			size_t occupiedWidth = width() + 2 * border.width;
+			size_t occupiedHeight = height() + 2 * border.width;
+			return {occupiedWidth, occupiedHeight};
+		}
+		const Coordinate& position() const {
+			return surface.position;
+		}
+		void setWidth(size_t newWidth) {
+			/** To reset width, call setWidth(0); **/
 			fixed.width = newWidth;
 		}
-		/** To reset height, call setHeight(0); **/
-		virtual void setHeight(size_t newHeight) {
+		void setHeight(size_t newHeight) {
+			/** To reset height, call setHeight(0); **/
 			fixed.height = newHeight;
 		}
-		virtual void setPosition(const Coordinate& newPosition) {
+		void setPosition(const Coordinate& newPosition) {
+			/** Position of the top-left space occupied by object
+			 * (including padding, border and margin). **/
 			surface.position = newPosition;
 		}
-		virtual void update(size_t width, size_t height) {
+		void update(size_t width, size_t height) {
 			Size requested = request(width, height);
 			surface.width = requested.width;
 			surface.height = requested.height;
-		}
-		virtual void draw(Drawer& drawer) {
-			if (!transparent()) {
-				drawer.drawSurface(surface);
-				for (Widget *node: *this) if (node) node->draw(drawer);
-			}
 		}
 		bool contains(const Coordinate& point) const {
 			return point.x >= surface.position.x && point.x < surface.position.x + width()
@@ -383,37 +378,16 @@ namespace cigmar::gui {
 		}
 	};
 
-	class StyledWidget : public Widget {
-		Directions<primitive::Border> border;
-		Directions<size_t> padding; // internal space between borders and the children
-		Directions<size_t> margin; // external space between borders and the world
-	};
-
-	class Division : public StyledWidget { // leaf widget
+	class Division : public Widget {
 		Text text;
+		// leaf widget.
+		size_t max_children() const override {return 0;}
 	};
 
-	class Layout : public StyledWidget {
+	class Layout : public Widget {
 		// Free layout.
 		// Exemple: set position of a widget and add this widget in one line:
 		// layout->add(myWidget->setPosition(newPosition));
-	};
-
-	struct Floater: public Layout {
-		Disposition disposition;
-		Floater(Disposition placement, Widget* widget): Layout(), disposition(placement) {
-			add(widget);
-		}
-		size_t min_children() const override {return 1;}
-		size_t max_children() const override {return 1;}
-		Widget* child() {return Layout::child(0);}
-		const Widget* child() const {return Layout::child(0);}
-		static Floater* top(Widget* widget) {return new Floater(Disposition::top, widget);}
-		static Floater* left(Widget* widget) {return new Floater(Disposition::left, widget);}
-		static Floater* bottom(Widget* widget) {return new Floater(Disposition::bottom, widget);}
-		static Floater* right(Widget* widget) {return new Floater(Disposition::right, widget);}
-		static Floater* center(Widget* widget) {return new Floater(Disposition::center, widget);}
-		static Floater* justify(Widget* widget) {return new Floater(Disposition::justify, widget);}
 	};
 
 	struct BorderLayout : public Layout {
@@ -516,7 +490,6 @@ namespace cigmar::gui {
 		}
 	};
 
-	// full ?
 	class Window: public Layout {
 		// 2 children: the context menu and the windows content.
 		enum {CONTEXT, CONTENT, COUNT};
@@ -540,6 +513,8 @@ namespace cigmar::gui {
 			Widget::setHeight(properties.height);
 			handler->setPosition(position());
 			handler->resize({width(), height()});
+			// TODO somewhere: handler->resize({width(), height()});
+			// TODO somewhere: handler->setPosition(position());
 		};
 		Window(backend::WindowHandler& windowHandler, const WindowProperties& windowProperties):
 				Window(&windowHandler, windowProperties) {};
@@ -633,18 +608,6 @@ namespace cigmar::gui {
 					// End display.
 				}
 			}
-		}
-		void setWidth(size_t newWidth) override {
-			Widget::setWidth(newWidth);
-			handler->resize({width(), height()});
-		}
-		void setHeight(size_t newHeight) override {
-			Widget::setHeight(newHeight);
-			handler->resize({width(), height()});
-		}
-		void setPosition(const Coordinate& newPosition) override {
-			// Widget::setPosition(newPosition);
-			handler->setPosition(position());
 		}
 		bool onResizedBefore(size_t new_width, size_t new_height) override {
 			Widget::setWidth(new_width);

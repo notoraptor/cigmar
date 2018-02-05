@@ -28,7 +28,7 @@ namespace cigmar::tree {
 		}
 		Node(const Node&) = delete;
 		Node(Node&&) noexcept = default;
-		~Node() {
+		virtual ~Node() {
 			std::cerr << "Destroying node " << node_name << std::endl;
 			for (NodeType* node: node_children) if (node) delete node;
 		}
