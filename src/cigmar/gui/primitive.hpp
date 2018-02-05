@@ -29,7 +29,7 @@ namespace cigmar::gui {
 			unsigned char green;
 			unsigned char blue;
 			unsigned char alpha; // 0: transparent, 255: opaque
-			Color(unsigned char r = 0, unsigned char g = 0, unsigned char b = 0, unsigned char a = 255) noexcept :
+			explicit Color(unsigned char r = 0, unsigned char g = 0, unsigned char b = 0, unsigned char a = 255) noexcept :
 					Background(Type::COLOR), red(r), green(g), blue(b), alpha(a) {}
 			bool isTransparent() const override {return alpha == 0;}
 			static Color white;

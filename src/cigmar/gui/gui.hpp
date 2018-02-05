@@ -20,22 +20,11 @@ namespace cigmar::gui {
 		return fixed ? fixed : (minimize ? min : clip(value, min, max));
 	}
 
-	class Disposition {
-		enum class DispositionType {LEFT, RIGHT, JUSTIFY, CENTER, TOP, BOTTOM};
-		explicit Disposition(DispositionType type): disposition(type) {}
-	protected:
-		DispositionType disposition;
-	public:
-		bool horizontal() const {return disposition <= DispositionType::CENTER;}
-		bool vertical() const {return disposition >= DispositionType::CENTER;}
-		bool operator==(const Disposition& other) const {return disposition == other.disposition;}
-		static Disposition top;
-		static Disposition left;
-		static Disposition bottom;
-		static Disposition right;
-		static Disposition center;
-		static Disposition justify;
-	};
+	namespace Orientation {
+		enum class Horizontal {LEFT, CENTER, RIGHT};
+		enum class Vertical {TOP, CENTER, BOTTOM};
+		enum class Text {LEFT, CENTER, RIGHT, JUSTIFY};
+	}
 
 	template<typename T>
 	struct Directions {
@@ -43,7 +32,7 @@ namespace cigmar::gui {
 	};
 
 	class TextBlock {
-		Disposition orientation; // Should be horizontal.
+		Orientation::Text orientation;
 	};
 
 	class Paragraph : public TextBlock {
@@ -410,12 +399,12 @@ namespace cigmar::gui {
 		Widget* center() const;
 	};
 
+	template <typename OrientationType>
 	class DirectedLayout: public Layout {
-		Disposition defaultAlignment;
-		ArrayList<Disposition> alignments;
+		OrientationType defaultAlignment;
+		ArrayList<OrientationType> alignments;
 		double percent;
 	public:
-		virtual void check(const Disposition& alignment) const {}
 		void with_node_added(Widget* node, size_t position) override {
 			if (position == alignments.size())
 				alignments.add(defaultAlignment);
@@ -429,18 +418,15 @@ namespace cigmar::gui {
 			if (position < alignments.size())
 				alignments.remove(position);
 		}
-		void align(size_t position, const Disposition& alignment) {
+		void align(size_t position, OrientationType alignment) {
 			if (position < alignments.size()) {
-				check(alignment);
 				alignments[position] = alignment;
 			}
 		}
-		void align(const Disposition& alignment) {
-			check(alignment);
-			for (Disposition& disposition: alignments) disposition = alignment;
+		void align(OrientationType alignment) {
+			for (OrientationType disposition: alignments) disposition = alignment;
 		}
-		void setDefaultAlignment(const Disposition& alignment) {
-			check(alignment);
+		void setDefaultAlignment(OrientationType alignment) {
 			defaultAlignment = alignment;
 		}
 		void setPercent(double newPercent) {
@@ -451,35 +437,26 @@ namespace cigmar::gui {
 		double getPercent() const {
 			return percent;
 		}
-		const Disposition& getDefaultAlignment() const {
+		OrientationType getDefaultAlignment() const {
 			return defaultAlignment;
 		}
 	};
 
-	struct HorizontalLayout: public DirectedLayout {
-		void check(const Disposition& alignment) const override {
-			if (!alignment.vertical())
-				throw Exception("Horizontal layout: expected vertical alignment.");
-		}
-	};
+	struct HorizontalLayout: public DirectedLayout<Orientation::Horizontal > {};
 
-	struct VerticalLayout: public DirectedLayout {
-		void check(const Disposition& alignment) const override {
-			if (!alignment.horizontal())
-				throw Exception("Vertical layout: expected horizontal alignment.");
-		}
+	struct VerticalLayout: public DirectedLayout<Orientation::Vertical> {
 		Size request(size_t width, size_t height) const override {
 			Size realSize{0, 0};
 			size_t allowedHeight = (size_t)(height * getPercent());
 			for (Widget* node: *this) {
 				if (node) {
-					bool heightPacked = node->packHeight;
-					node->packHeight = true;
+					bool heightPacked = node->minimize.height;
+					node->minimize.height = true;
 					Size nodeSize = node->request(width, allowedHeight);
 					if (realSize.width < nodeSize.width)
 						realSize.width = nodeSize.width;
 					realSize.height += nodeSize.height;
-					node->packHeight = heightPacked;
+					node->minimize.height = heightPacked;
 				}
 			}
 			return realSize;
