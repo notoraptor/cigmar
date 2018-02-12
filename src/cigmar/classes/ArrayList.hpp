@@ -43,7 +43,7 @@ namespace cigmar {
 		ArrayList(): vec() {}
 		explicit ArrayList(size_t n, Type val = Type()): vec(n, val) {}
 		template<typename E>
-		ArrayList(const Collection<E>& arr): vec(arr.begin(), arr.end()) {}
+		explicit ArrayList(const Collection<E>& arr): vec(arr.begin(), arr.end()) {}
 		ArrayList(std::initializer_list<Type> il): vec(il) {}
 		ArrayList(const ArrayList& copied): vec(copied.vec) {}
 		ArrayList(ArrayList&&) noexcept = default;

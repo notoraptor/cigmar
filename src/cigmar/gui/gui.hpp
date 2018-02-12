@@ -29,6 +29,9 @@ namespace cigmar::gui {
 	template<typename T>
 	struct Directions {
 		T top, left, bottom, right;
+		void operator=(const T& value) {
+			top = left = bottom = right = value;
+		}
 	};
 
 	class TextBlock {
@@ -203,22 +206,20 @@ namespace cigmar::gui {
 	class Window;
 
 	class Widget: public tree::Node<Widget, Window>, public EventHandler {
-		Size fixed;
 		primitive::Surface surface; // current size.
-		primitive::Border border;
 		Directions<size_t> padding;
+		Size fixed;
 	public:
-		bool visible = true;
-		bool transparent = false;
-		SizeState minimize = {false, false};
-		Widget(): Node(), fixed{0, 0}, surface(), border(), padding() {
+		bool visible;
+		bool transparent;
+		SizeState minimize;
+		Widget(): Node(), surface(), padding(), fixed{0, 0},
+				  visible(true), transparent(false), minimize{false, false} {
 			Size minSize = min();
 			surface.position.x = surface.position.y = 0;
 			surface.width = minSize.width;
 			surface.height = minSize.height;
-			border.width = 0;
-			border.color = primitive::Color::black;
-			padding.bottom = padding.top = padding.left = padding.right = 0;
+			padding = 0;
 		}
 		virtual Size min() const {
 			return {1, 1};
@@ -227,22 +228,28 @@ namespace cigmar::gui {
 			return Size::max;
 		}
 		virtual Size request(size_t width, size_t height) const {
-			Size current, minSize = min(), maxSize = max();
-			current.width = select(current.width, minSize.width, maxSize.width, fixed.width, minimize.width);
-			current.height = select(current.height, minSize.height, maxSize.height, fixed.height, minimize.height);
-			return current;
+			Size minSize = min(), maxSize = max();
+			return {
+				select(width, minSize.width, maxSize.width, fixed.width, minimize.width),
+				select(height, minSize.height, maxSize.height, fixed.height, minimize.height)
+			};
 		}
 		virtual Size draw(Drawer& drawer) {
 			Size drawn = {0, 0};
 			if (visible) {
-				if(!transparent) {
+				if(!transparent)
 					drawer.drawSurface(surface);
-					for (Widget *node: *this) if (node) node->draw(drawer);
-				}
-				drawn.width = surface.width;
-				drawn.height = surface.height;
+				drawn = surface.box();
 			}
 			return drawn;
+		}
+		virtual Size drawInterface(Drawer& drawer) {
+			Size drawn = draw(drawer);
+			for (Widget* node: *this) if (node) node->draw(drawer);
+			return drawn;
+		}
+		const Coordinate& position() const {
+			return surface.position;
 		}
 		size_t width() const {
 			return fixed.width ? fixed.width : surface.width;
@@ -250,26 +257,37 @@ namespace cigmar::gui {
 		size_t height() const {
 			return fixed.height ? fixed.height : surface.height;
 		};
-		Size occupiedSpace() const {
-			size_t occupiedWidth = width() + 2 * border.width;
-			size_t occupiedHeight = height() + 2 * border.width;
-			return {occupiedWidth, occupiedHeight};
+		Size box() const {
+			return surface.box();
 		}
-		const Coordinate& position() const {
-			return surface.position;
+		primitive::Border& border() {
+			return surface.border;
 		}
-		void setWidth(size_t newWidth) {
-			/** To reset width, call setWidth(0); **/
-			fixed.width = newWidth;
+		primitive::Background& background() {
+			return surface.background;
 		}
-		void setHeight(size_t newHeight) {
-			/** To reset height, call setHeight(0); **/
-			fixed.height = newHeight;
+		const primitive::Border& border() const {
+			return surface.border;
+		}
+		const primitive::Background& background() const {
+			return surface.background;
 		}
 		void setPosition(const Coordinate& newPosition) {
 			/** Position of the top-left space occupied by object
 			 * (including padding, border and margin). **/
 			surface.position = newPosition;
+		}
+		void setWidth(size_t newWidth) {
+			fixed.width = newWidth;
+		}
+		void setHeight(size_t newHeight) {
+			fixed.height = newHeight;
+		}
+		void resetWidth() {
+			fixed.width = 0;
+		}
+		void resetHeight() {
+			fixed.height = 0;
 		}
 		void update(size_t width, size_t height) {
 			Size requested = request(width, height);
@@ -280,6 +298,7 @@ namespace cigmar::gui {
 			return point.x >= surface.position.x && point.x < surface.position.x + width()
 				   && point.y >= surface.position.y && point.y < surface.position.y + height();
 		}
+		//////////////////////////////////////////////////
 		bool onClosedAfter() override {
 			bool close = true;
 			for (Widget* node: *this) if (node) close *= node->onClosed();
