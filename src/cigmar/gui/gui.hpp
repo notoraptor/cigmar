@@ -20,6 +20,14 @@ namespace cigmar::gui {
 		return fixed ? fixed : (minimize ? min : clip(value, min, max));
 	}
 
+	template <typename T, typename E> inline bool in(T value, E a, E b) {
+		return a <= value and value <= b;
+	}
+
+	inline bool in(const Coordinate& point, const Coordinate& origin, const Size& size) {
+		return in(point.x, origin.x, origin.x + size.width) && in(point.y, origin.y, origin.y + size.height);
+	}
+
 	namespace Orientation {
 		enum class Horizontal {LEFT, CENTER, RIGHT};
 		enum class Vertical {TOP, CENTER, BOTTOM};
@@ -29,8 +37,11 @@ namespace cigmar::gui {
 	template<typename T>
 	struct Directions {
 		T top, left, bottom, right;
-		void operator=(const T& value) {
+		Directions(): top(), left(), bottom(), right() {}
+		Directions(const T& value): top(value), left(value), bottom(value), right(value) {}
+		Directions& operator=(const T& value) {
 			top = left = bottom = right = value;
+			return *this;
 		}
 	};
 
@@ -212,14 +223,14 @@ namespace cigmar::gui {
 	public:
 		bool visible;
 		bool transparent;
-		SizeState minimize;
-		Widget(): Node(), surface(), padding(), fixed{0, 0},
-				  visible(true), transparent(false), minimize{false, false} {
+		struct {
+			bool width = false;
+			bool height = false;
+		} minimize;
+		Widget(): Node(), surface(), padding(0), fixed{0, 0}, visible(true), transparent(false) {
 			Size minSize = min();
-			surface.position.x = surface.position.y = 0;
 			surface.width = minSize.width;
 			surface.height = minSize.height;
-			padding = 0;
 		}
 		virtual Size min() const {
 			return {1, 1};
@@ -237,15 +248,10 @@ namespace cigmar::gui {
 		virtual Size draw(Drawer& drawer) {
 			Size drawn = {0, 0};
 			if (visible) {
+				drawn = surface.box();
 				if(!transparent)
 					drawer.drawSurface(surface);
-				drawn = surface.box();
 			}
-			return drawn;
-		}
-		virtual Size drawInterface(Drawer& drawer) {
-			Size drawn = draw(drawer);
-			for (Widget* node: *this) if (node) node->draw(drawer);
 			return drawn;
 		}
 		const Coordinate& position() const {
@@ -295,6 +301,7 @@ namespace cigmar::gui {
 			surface.height = requested.height;
 		}
 		bool contains(const Coordinate& point) const {
+			Size widgetBox = box();
 			return point.x >= surface.position.x && point.x < surface.position.x + width()
 				   && point.y >= surface.position.y && point.y < surface.position.y + height();
 		}

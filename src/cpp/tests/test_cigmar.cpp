@@ -1,7 +1,7 @@
 #include <cigmar/unittests.hpp>
 #include <cigmar/classes/TreeSet.hpp>
 #include <cigmar/classes/HashSet.hpp>
-#include <cigmar/whirlpool.hpp>
+#include <cigmar/cigmar.hpp>
 using namespace cigmar;
 utt_begin(TestCigmar);
 

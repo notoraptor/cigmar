@@ -5,8 +5,8 @@
 #include <string>
 #include <direct.h>
 #include <windows.h>
-#include <cigmar/filesystem.hpp>
 #include <cigmar/classes/String.hpp>
+#include <cigmar/cigmar.hpp>
 
 namespace cigmar {
 

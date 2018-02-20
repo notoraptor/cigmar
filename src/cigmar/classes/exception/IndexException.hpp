@@ -5,7 +5,7 @@
 #ifndef SRC_CIGMAR_INDEXEXCEPTION_HPP
 #define SRC_CIGMAR_INDEXEXCEPTION_HPP
 
-#include <cigmar/exception/Exception.hpp>
+#include <cigmar/classes/exception/Exception.hpp>
 
 namespace cigmar {
 	struct IndexException: public Exception {

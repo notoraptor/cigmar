@@ -5,7 +5,6 @@
 #ifndef SRC_CIGMAR_MANAGER_HPP
 #define SRC_CIGMAR_MANAGER_HPP
 
-#include <cigmar/utils/Initializable.hpp>
 #include <cigmar/video/manager/Database.hpp>
 #include <cigmar/video/manager/DbVideo.hpp>
 

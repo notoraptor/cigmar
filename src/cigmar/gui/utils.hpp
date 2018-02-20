@@ -27,12 +27,7 @@ namespace cigmar::gui {
 	struct Size {
 		size_t width;
 		size_t height;
-		static Size max;
-	};
-
-	struct SizeState {
-		bool width;
-		bool height;
+		static const Size max;
 	};
 
 	struct Coordinate {

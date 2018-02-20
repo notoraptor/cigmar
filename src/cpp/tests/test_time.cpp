@@ -1,4 +1,4 @@
-#include <cigmar/time.hpp>
+#include <cigmar/cigmar.hpp>
 #include <cigmar/unittests.hpp>
 using namespace cigmar;
 

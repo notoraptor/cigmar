@@ -1,13 +1,16 @@
-#ifndef CIGMAR_PRIMITIVE_SYMBOLS
-#define CIGMAR_PRIMITIVE_SYMBOLS
+//
+// Created by notoraptor on 20/02/2018.
+//
 
+#ifndef SRC_CIGMAR_INTERNAL_DEFINITIONS_HPP
+#define SRC_CIGMAR_INTERNAL_DEFINITIONS_HPP
+#include <iostream>
 #include <cstdint>
 #include <type_traits>
 #include <iterator>
 #include <ostream>
 
 namespace cigmar {
-
 	using byte_t = int8_t;
 	using short_t = int16_t;
 	using int_t = int32_t;
@@ -27,7 +30,7 @@ namespace cigmar {
 	class LinkedList; // Double linked list.
 	class Tensor; // Sophisticated N-D array.
 
-	#define dtypeof(variable) decltype(variable)::dtype
+#define dtypeof(variable) decltype(variable)::dtype
 
 	class last_t {};
 	class max_t {};
@@ -37,9 +40,9 @@ namespace cigmar {
 
 	#define EMPTY_CHARACTERS " \f\n\r\t\v"
 	#ifdef WIN32
-		#define ENDL "\r\n"
+	#define ENDL "\r\n"
 	#elif defined(__APPLE__)
-		#define ENDL "\r"
+	#define ENDL "\r"
 	#else
 		#define ENDL "\n"
 	#endif
@@ -102,8 +105,48 @@ namespace cigmar {
 	template <> struct is_char_type<char16_t>: std::true_type {};
 	template <> struct is_char_type<char32_t>: std::true_type {};
 
-	#define ASSERT_CHARTYPE(type) static_assert(is_char_type<type>{}, "A character type is required (see type trait is_char_tyepe<T>).")
+#define ASSERT_CHARTYPE(type) static_assert(is_char_type<type>{}, "A character type is required (see type trait is_char_tyepe<T>).")
 
+	namespace sys {
+		/// Definitions for print(ln)/write(ln) functions.
+		inline void writeElement(std::ostream& o) {}
+		template<typename T, typename... Args> void writeElement(std::ostream& o, T variable, Args&&... args) {
+			AutoStreamer::print(o, variable);
+			writeElement(o, std::forward<Args>(args)...);
+		}
+		inline void printElement(std::ostream& o) {}
+		template<typename T, typename... Args> void printElement(std::ostream& o, T variable, Args&&... args) {
+			o << ' ';
+			AutoStreamer::print(o, variable);
+			printElement(o, std::forward<Args>(args)...);
+		}
+		inline void printFirstElement(std::ostream& o) {}
+		template<typename T, typename... Args> void printFirstElement(std::ostream& o, T variable, Args&&... args) {
+			AutoStreamer::print(o, variable);
+			printElement(o, std::forward<Args>(args)...);
+		}
+		namespace path {
+			extern const char* const separator;
+			bool isRooted(const char* pathname);
+			namespace {
+				inline void concatenate(std::ostringstream &o) {}
+				template<typename T, typename... Args>
+				void concatenate(std::ostringstream &o, T variable, Args... args) {
+					std::ostringstream temp;
+					temp << variable;
+					if (isRooted(temp.str().c_str()))
+						throw Exception("Cannot build path with rooted element inside.");
+					o << separator << temp.str();
+					concatenate(o, args...);
+				}
+				template<typename T, typename... Args>
+				void concatenateFirst(std::ostringstream &o, T variable, Args... args) {
+					o << variable;
+					concatenate(o, args...);
+				}
+			}
+		}
+	}
 }
 
-#endif // CIGMAR_PRIMITIVE_SYMBOLS
+#endif //SRC_CIGMAR_INTERNAL_DEFINITIONS_HPP

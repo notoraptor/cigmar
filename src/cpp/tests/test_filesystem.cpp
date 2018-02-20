@@ -1,5 +1,5 @@
 #include <iostream>
-#include <cigmar/filesystem.hpp>
+#include <cigmar/cigmar.hpp>
 #include <cigmar/unittests.hpp>
 
 using std::cerr;

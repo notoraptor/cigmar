@@ -7,7 +7,7 @@
 
 #include <fstream>
 #include <cigmar/classes/String.hpp>
-#include <cigmar/exception/Exception.hpp>
+#include <cigmar/classes/exception/Exception.hpp>
 
 namespace cigmar::file {
 	class Lines {

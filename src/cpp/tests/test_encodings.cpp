@@ -2,9 +2,7 @@
 // Created by notoraptor on 09/11/2017.
 //
 #include <cigmar/unittests.hpp>
-#include <cigmar/hex.hpp>
-#include <cigmar/print.hpp>
-#include <cigmar/base64.hpp>
+#include <cigmar/cigmar.hpp>
 
 using namespace cigmar;
 

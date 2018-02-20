@@ -10,7 +10,7 @@
 #include <libraries/sqlite/sqlite3.h>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/ArrayList.hpp>
-#include <cigmar/base64.hpp>
+#include <cigmar/cigmar.hpp>
 #include <cigmar/exception/Exception.hpp>
 
 namespace cigmar::sqlite {
@@ -40,7 +40,6 @@ namespace cigmar::sqlite {
 	};
 
 	class Query {
-	private:
 		sqlite3* db;
 		sqlite3_stmt* stmt;
 		bool done;
@@ -168,13 +167,11 @@ namespace cigmar::sqlite {
 				case SQLITE_TEXT:
 					return String((const char*)sqlite3_column_text(stmt, col));
 					break;
-				case SQLITE_BLOB:
-					{
+				case SQLITE_BLOB: {
 						const byte_t *data = (const byte_t *) sqlite3_column_blob(stmt, col);
 						int dataSize = sqlite3_column_bytes(stmt, col);
 						return base64::bytes::encode(data, (size_t) dataSize);
-					}
-					break;
+					}; break;
 				case SQLITE_NULL:
 					return String();
 					break;
@@ -186,7 +183,6 @@ namespace cigmar::sqlite {
 	};
 
 	class Database {
-	private:
 		sqlite3* db;
 		void open(const char* dbname) {
 			if (db) throw Exception("This database object is already used.");

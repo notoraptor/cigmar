@@ -6,7 +6,7 @@
 
 namespace cigmar::gui {
 
-	Size Size::max{std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
+	const Size Size::max{std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
 
 	namespace primitive {
 		Color Color::white = {255, 255, 255};

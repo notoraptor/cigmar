@@ -34,7 +34,7 @@ namespace cigmar::gui {
 		struct Gradient {
 			ArrayList<Color> points;
 			Gradient(): points() {}
-			explicit Gradient(std::initializer_list<Color> il): points(il) {}
+			Gradient(std::initializer_list<Color> il): points(il) {}
 			explicit Gradient(const ArrayList<Color>& gradPoints): points(gradPoints) {}
 			explicit Gradient(ArrayList<Color>&& gradPoints) noexcept : points(std::move(gradPoints)) {}
 			bool isTransparent() const {
@@ -161,14 +161,14 @@ namespace cigmar::gui {
 		};
 
 		struct Border {
-			size_t width;
+			size_t width = 0;
 			Color color;
 		};
 
 		struct Primitive {
 			Border border;
 			Background background;
-			Coordinate position;	// Position of the top-left point of the surrounding box.
+			Coordinate position = {0, 0};	// Position of the top-left point of the surrounding box.
 			/** Must return width and height of the primitive box (smallest rectangle surrounding the primitive).
 			 * NB; Should take border into account. **/
 			virtual Size box() const = 0;
@@ -184,6 +184,7 @@ namespace cigmar::gui {
 		};
 
 		struct Surface: public Primitive, public Size {
+			Surface(): Size{0, 0} {}
 			Size box() const override {
 				return {width + 2 * border.width, height + 2 * border.width};
 			}

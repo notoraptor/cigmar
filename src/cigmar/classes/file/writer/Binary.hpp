@@ -8,7 +8,7 @@
 #include <fstream>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
-#include <cigmar/exception/Exception.hpp>
+#include <cigmar/classes/exception/Exception.hpp>
 
 namespace cigmar::file::writer {
 	class Binary {

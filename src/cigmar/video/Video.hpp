@@ -8,12 +8,11 @@
 #include <cstdint>
 #include <cmath>
 #include <chrono>
-#include <cigmar/filesystem.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/HashMap.hpp>
-#include <cigmar/exception/Exception.hpp>
+#include <cigmar/classes/exception/Exception.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
-#include <cigmar/whirlpool.hpp>
+#include <cigmar/cigmar.hpp>
 #include <cigmar/video/ffmpeg.hpp>
 
 // TODO: PNG: http://lodev.org/lodepng/

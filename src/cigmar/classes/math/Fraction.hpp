@@ -18,7 +18,6 @@ namespace cigmar::math {
 
 	template<typename T>
 	class AbstractFraction: public Streamable {
-	private:
 		char s;
 		T num;
 		T den;

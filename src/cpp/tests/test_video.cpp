@@ -1,14 +1,8 @@
 #include <cigmar/unittests.hpp>
 #include <cigmar/classes/String.hpp>
-#include <cigmar/filesystem.hpp>
-#include <cigmar/print.hpp>
+#include <cigmar/cigmar.hpp>
 #include <cigmar/video/Video.hpp>
 using namespace cigmar;
-
-/*
-Tested file: tests/Lion.ogv
- - 2017/11/03: https://commons.wikimedia.org/wiki/File:Lion.ogv
-*/
 
 utt_begin(TestVideo);
 

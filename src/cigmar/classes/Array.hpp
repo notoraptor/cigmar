@@ -6,7 +6,7 @@
 #include <cigmar/symbols.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/interfaces/Collection.hpp>
-#include <cigmar/exception/Exception.hpp>
+#include <cigmar/classes/exception/Exception.hpp>
 #include <cigmar/classes/StaticCollection.hpp>
 
 namespace cigmar {

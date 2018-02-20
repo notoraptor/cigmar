@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cigmar/unittests.hpp>
 #include <cigmar/video/manager/manager.hpp>
-#include <cigmar/print.hpp>
 #include <cigmar/tree.hpp>
 #include <cigmar/file/writer/Binary.hpp>
 #include <bitset>

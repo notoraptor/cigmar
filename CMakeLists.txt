@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-pthread")
 include_directories(${PROJECT_SOURCE_DIR}/src)
 set(SOURCE_FILES
-        src/cigmar/base64.hpp
+        src/cigmar/cigmar.hpp
         src/cigmar/classes/AbstractString.hpp
         src/cigmar/classes/Array.hpp
         src/cigmar/classes/ArrayList.hpp
@@ -19,47 +19,34 @@ set(SOURCE_FILES
         src/cigmar/classes/TreeMap.hpp
         src/cigmar/classes/TreeSet.hpp
         src/cigmar/classes/UnicodeString.hpp
-        src/cigmar/exception/Exception.hpp
-        src/cigmar/exception/IndexException.hpp
-        src/cigmar/file/Lines.hpp
-        src/cigmar/file/text/read.hpp
-        src/cigmar/file/writer/Binary.hpp
-        src/cigmar/file/writer/Text.hpp
-        src/cigmar/filesystem.hpp
-        src/cigmar/format/Tsv.hpp
+        src/cigmar/classes/exception/Exception.hpp
+        src/cigmar/classes/exception/IndexException.hpp
+        src/cigmar/classes/file/Lines.hpp
+        src/cigmar/classes/file/writer/Binary.hpp
+        src/cigmar/classes/file/writer/Text.hpp
+        src/cigmar/classes/format/writer/Tsv.hpp
         src/cigmar/gui/backend.hpp
         src/cigmar/gui/gui.cpp
         src/cigmar/gui/gui.hpp
         src/cigmar/gui/primitive.hpp
         src/cigmar/gui/utils.hpp
-        src/cigmar/hex.hpp
-        src/cigmar/init.hpp
         src/cigmar/interfaces/Collection.hpp
         src/cigmar/interfaces/Comparable.hpp
         src/cigmar/interfaces/CrossComparable.hpp
         src/cigmar/interfaces/Hashable.hpp
         src/cigmar/interfaces/Streamable.hpp
-        src/cigmar/math/Fraction.hpp
+        src/cigmar/classes/math/Fraction.hpp
         src/cigmar/numbers.hpp
-        src/cigmar/print.hpp
         src/cigmar/sqlite.hpp
-        src/cigmar/symbols.hpp
-        src/cigmar/time.hpp
         src/cigmar/tree.hpp
         src/cigmar/types/pos_t.hpp
         src/cigmar/unicode.hpp
         src/cigmar/unittests.hpp
         src/cigmar/utils/Hasher.hpp
-        src/cigmar/utils/Initializable.hpp
-        src/cigmar/video/ffmpeg.cpp
         src/cigmar/video/ffmpeg.hpp
-        src/cigmar/video/manager/Database.cpp
         src/cigmar/video/manager/Database.hpp
-        src/cigmar/video/manager/DbVideo.cpp
         src/cigmar/video/manager/DbVideo.hpp
-        src/cigmar/video/manager/Folder.cpp
         src/cigmar/video/manager/Folder.hpp
-        src/cigmar/video/manager/Library.cpp
         src/cigmar/video/manager/Library.hpp
         src/cigmar/video/manager/manager.hpp
         src/cigmar/video/manager/MultipleProperties.hpp
@@ -71,9 +58,8 @@ set(SOURCE_FILES
         src/cigmar/video/manager/TableRow.hpp
         src/cigmar/video/manager/UniqueProperties.hpp
         src/cigmar/video/manager/UniqueProperty.hpp
-        src/cigmar/video/Video.cpp
         src/cigmar/video/Video.hpp
-        src/cigmar/whirlpool.hpp
+        src/cigmar/wip/wip.hpp
         src/cpp/cigmar.cpp
         src/cpp/filesystem_unix.cpp
         src/cpp/filesystem_windows.cpp
@@ -91,13 +77,19 @@ set(SOURCE_FILES
         src/cpp/tests/test_video.cpp
         src/cpp/tests/testString.cpp
         src/cpp/tests/testUnicodeString.cpp
+        src/cpp/video/Database.cpp
+        src/cpp/video/DbVideo.cpp
+        src/cpp/video/ffmpeg.cpp
+        src/cpp/video/Folder.cpp
+        src/cpp/video/Library.cpp
+        src/cpp/video/Video.cpp
         src/libraries/base64/base64.hpp
         src/libraries/sqlite/sqlite3.c
         src/libraries/sqlite/sqlite3.h
         src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        src/cigmar/wip/wip.hpp)
+        src/cigmar/symbols.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 

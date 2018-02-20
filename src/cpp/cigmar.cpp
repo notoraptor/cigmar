@@ -3,16 +3,14 @@
 #include <thread>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/String.hpp>
-#include <cigmar/time.hpp>
 #include <cigmar/classes/TreeMap.hpp>
-#include <cigmar/init.hpp>
 #include <cigmar/numbers.hpp>
 #include <cigmar/classes/HashSet.hpp>
-#include <cigmar/file/Lines.hpp>
+#include <cigmar/classes/file/Lines.hpp>
 #include <libraries/base64/base64.hpp>
 #include <libraries/whirlpool/nessie.h>
 #include <cigmar/unittests.hpp>
-#include <cigmar/filesystem.hpp>
+#include <cigmar/cigmar.hpp>
 
 /* NB:
  * To have all C++11 thread functionalities available, compiler must be POSIX compliant.
@@ -45,7 +43,6 @@ const char* jstring = R"(
 namespace cigmar {
 	/// Local definitons.
 	static std::locale loc;
-	static const char* const hexDigits = "0123456789ABCDEF";
 	#define CIGMAR_SYS_RUN_BUFFER_LENGTH 1025
 
 	/// Global variables.
@@ -72,6 +69,7 @@ namespace cigmar {
 	char Char::upper(char c) {
 		return std::toupper(c, loc);
 	}
+	const char* const hex::digits = "0123456789ABCDEF";
 
 	/// Namespace definitions.
 	namespace base64 {
@@ -103,8 +101,8 @@ namespace cigmar {
 		static String toHex(const u8 array[], size_t length) {
 			String hexString(2 * length, '0');
 			for (size_t i = 0; i < length; ++i) {
-				hexString[2 * i] = hexDigits[array[i] >> 4];
-				hexString[2 * i + 1] = hexDigits[array[i] & ((1 << 4) - 1)];
+				hexString[2 * i] = hex::digit(hex::up(array[i]));
+				hexString[2 * i + 1] = hex::digit(hex::down(array[i]));
 			}
 			return hexString;
 		}
@@ -122,25 +120,21 @@ namespace cigmar {
 		};
 	}
 	namespace file::text {
-		String read(const char* filename) {
-			String text;
-			file::Lines file(filename);
-			for (const String& line : file) {
-				text << line;
-			}
-			return text;
-		};
-		String read(const std::string& filename){
+		template<typename T>
+		String _read(const T& filename) {
 			String text;
 			file::Lines file(filename);
 			for (const String& line : file) text << line;
 			return text;
+		}
+		String read(const char* filename) {
+			return _read(filename);
+		};
+		String read(const std::string& filename) {
+			return _read(filename);
 		};
 		String read(const String& filename) {
-			String text;
-			file::Lines file(filename);
-			for (const String& line : file) text << line;
-			return text;
+			return _read(filename);
 		};
 	}
 	namespace numbers::random {
