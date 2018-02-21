@@ -141,6 +141,8 @@ namespace cigmar {
 		};
 	public:
 		ASSERT_CHARTYPE(Character);
+		const Character empty_characters[];
+		const Character* endl[];
 		typedef Character char_t;
 		typedef std::basic_string<Character> string_t;
 		typedef typename string_t::iterator iterator_t;
@@ -458,15 +460,15 @@ namespace cigmar {
 			member.erase(pos, len);
 			return *this;
 		}
-		size_t leftTrimmable(const AbstractString &characters = EMPTY_CHARACTERS) const {
+		size_t leftTrimmable(const AbstractString &characters = empty_characters) const {
 			size_t pos = member.find_first_not_of(characters.member);
 			return pos == string_t::npos ? length() : pos;
 		}
-		size_t rightTrimmable(const AbstractString &characters = EMPTY_CHARACTERS) const {
+		size_t rightTrimmable(const AbstractString &characters = empty_characters) const {
 			size_t pos = member.find_last_not_of(characters.member);
 			return pos == string_t::npos ? length() : (member.length() - pos - 1);
 		}
-		AbstractString& trimLeft(const AbstractString &characters = EMPTY_CHARACTERS) {
+		AbstractString& trimLeft(const AbstractString &characters = empty_characters) {
 			size_t pos = member.find_first_not_of(characters.member);
 			if (pos == string_t::npos)
 				member.clear();
@@ -474,7 +476,7 @@ namespace cigmar {
 				member.erase(0, pos);
 			return *this;
 		}
-		AbstractString& trimRight(const AbstractString &characters = EMPTY_CHARACTERS) {
+		AbstractString& trimRight(const AbstractString &characters = empty_characters) {
 			size_t pos = member.find_last_not_of(characters.member);
 			if (pos == string_t::npos)
 				member.clear();
@@ -482,7 +484,7 @@ namespace cigmar {
 				member.erase(pos + 1);
 			return *this;
 		}
-		AbstractString& trim(const AbstractString& characters = EMPTY_CHARACTERS) {
+		AbstractString& trim(const AbstractString& characters = empty_characters) {
 			trimLeft(characters);
 			trimRight(characters);
 			return *this;
@@ -592,8 +594,9 @@ namespace cigmar {
 		}
 
 		Lines lines() const {return Lines(*this);}
-		Split splits(const AbstractString& delimiter, bool skipEscaped = false) const {return Split(*this, delimiter, skipEscaped);}
-
+		Split splits(const AbstractString& delimiter, bool skipEscaped = false) const {
+			return Split(*this, delimiter, skipEscaped);
+		}
 		void toStream(std::ostream& o) const override {
 			std::string out;
 			unicode::convert(member, out);
@@ -614,6 +617,11 @@ namespace cigmar {
 			return compare(other);
 		}
 	};
+
+	template <typename Character>
+	const Character AbstractString<Character>::empty_characters[] = EMPTY_CHARACTERS;
+	template <typename Character>
+	const Character AbstractString<Character>::endl[] = ENDL;
 
 	template <typename A, typename B> bool operator==(const AbstractString<A>& a, const B* b) { return a.compareString(b) == 0; };
 	template <typename A, typename B> bool operator!=(const AbstractString<A>& a, const B* b) { return a.compareString(b) != 0; };

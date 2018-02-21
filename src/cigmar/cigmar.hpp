@@ -2,12 +2,11 @@
 // Created by notoraptor on 31/10/2017.
 //
 
-#ifndef CIGMAR_BASE64_HPP
-#define CIGMAR_BASE64_HPP
+#ifndef CIGMAR_HPP
+#define CIGMAR_HPP
 
 #include <cstddef>
 #include <chrono>
-#include <cigmar/classes/String.hpp>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/exception/Exception.hpp>
 #include <cigmar/classes/String.hpp>
@@ -21,7 +20,6 @@
 #endif
 
 namespace cigmar {
-
 	namespace base64 {
 		String encode(const String& in);
 		String decode(const String& in);
@@ -30,40 +28,14 @@ namespace cigmar {
 			ArrayList<byte_t> decode(const String& in);
 		}
 	}
-
 	namespace crypto::hash {
 		String whirlpool(const String& in);
 	}
-
-	struct CigmarInit {
-		CigmarInit() noexcept {
-			std::set_terminate(CigmarInit::terminate);
-		}
-		static void terminate() {
-			std::exception_ptr current_exception = std::current_exception();
-			if (current_exception) {
-				try {
-					std::rethrow_exception(current_exception);
-				} catch (std::exception& ex) {
-					std::cerr << "Exception not caught: " << ex.what() << std::endl;
-				}
-			}
-			std::cerr << "Unexpected program end." << std::endl;
-			exit(EXIT_FAILURE);
-		}
-	};
-
-	extern CigmarInit cigmar_init;
-	/**< Instantiation of library initialization class CigmarInit,
-	to automatically initialize library before call to main() function.
-	**/
-
 	namespace file::text {
 		String read(const char* filename);
 		String read(const std::string& filename);
 		String read(const String& filename);
 	}
-
 	struct hex {
 		static const char* const digits;
 		static unsigned int up(unsigned char c) {
@@ -100,7 +72,6 @@ namespace cigmar {
 			return out;
 		}
 	};
-
 	namespace sys {
 		template<typename... Args> void println(Args&&... args) {
 			printFirstElement(std::cout, std::forward<Args>(args)...);
@@ -190,12 +161,11 @@ namespace cigmar {
 
 		String run(const char* command);
 		int makeDirectory(const char* pathname);
+		/** Remove empty directory. **/
 		int removeDirectory(const char* pathname);
-		/**< Remove empty directory. **/
 		bool isWindows();
 		bool isUnix();
 	}
-
 	namespace time {
 		namespace nanoseconds {
 			void sleep(size_t count);
@@ -216,7 +186,23 @@ namespace cigmar {
 			void sleep(size_t count);
 		}
 	}
-
+	struct CigmarInit {
+		CigmarInit() noexcept {
+			std::set_terminate(CigmarInit::terminate);
+		}
+		static void terminate() {
+			std::exception_ptr current_exception = std::current_exception();
+			if (current_exception) {
+				try {
+					std::rethrow_exception(current_exception);
+				} catch (std::exception& ex) {
+					std::cerr << "Exception not caught: " << ex.what() << std::endl;
+				}
+			}
+			std::cerr << "Unexpected program end." << std::endl;
+			exit(EXIT_FAILURE);
+		}
+	};
 	struct Timer {
 		std::chrono::steady_clock::time_point base;
 		Timer() {start();}
@@ -234,9 +220,12 @@ namespace cigmar {
 			return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - base).count();
 		}
 	};
-
+	extern CigmarInit cigmar_init;
+	/**< Instantiation of library initialization class CigmarInit,
+	to automatically initialize library before call to main() function.
+	**/
 }
 
 
 
-#endif //CIGMAR_BASE64_HPP_HPP
+#endif //CIGMAR_HPP

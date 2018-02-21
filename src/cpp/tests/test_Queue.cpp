@@ -82,7 +82,7 @@ utt(test_Queue) {
 	utt_assert(vs.size() == 1);
 	utt_assert((*vs)[1] == 8);
 	vs << (std::vector<long>){1, 2, 3, 4};
-	vs << (dtypeof(vs)){-1, -2, 3, -4};
+	vs << (Queue<std::vector<long>>::dtype){-1, -2, 3, -4};
 }
 
 utt_end();

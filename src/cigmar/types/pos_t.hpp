@@ -5,8 +5,8 @@
 #include <limits>
 #include <cigmar/interfaces/Comparable.hpp>
 #include <cigmar/interfaces/CrossComparable.hpp>
-#include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/interfaces/Hashable.hpp>
+#include <cigmar/interfaces/Streamable.hpp>
 
 namespace cigmar {
 

@@ -10,8 +10,15 @@ set(SOURCE_FILES
         src/cigmar/classes/Array.hpp
         src/cigmar/classes/ArrayList.hpp
         src/cigmar/classes/Char.hpp
+        src/cigmar/classes/exception/Exception.hpp
+        src/cigmar/classes/exception/IndexException.hpp
+        src/cigmar/classes/file/Lines.hpp
+        src/cigmar/classes/file/writer/Binary.hpp
+        src/cigmar/classes/file/writer/Text.hpp
+        src/cigmar/classes/format/writer/Tsv.hpp
         src/cigmar/classes/HashMap.hpp
         src/cigmar/classes/HashSet.hpp
+        src/cigmar/classes/math/Fraction.hpp
         src/cigmar/classes/Queue.hpp
         src/cigmar/classes/Stack.hpp
         src/cigmar/classes/StaticCollection.hpp
@@ -19,25 +26,14 @@ set(SOURCE_FILES
         src/cigmar/classes/TreeMap.hpp
         src/cigmar/classes/TreeSet.hpp
         src/cigmar/classes/UnicodeString.hpp
-        src/cigmar/classes/exception/Exception.hpp
-        src/cigmar/classes/exception/IndexException.hpp
-        src/cigmar/classes/file/Lines.hpp
-        src/cigmar/classes/file/writer/Binary.hpp
-        src/cigmar/classes/file/writer/Text.hpp
-        src/cigmar/classes/format/writer/Tsv.hpp
-        src/cigmar/gui/backend.hpp
-        src/cigmar/gui/gui.cpp
-        src/cigmar/gui/gui.hpp
-        src/cigmar/gui/primitive.hpp
-        src/cigmar/gui/utils.hpp
         src/cigmar/interfaces/Collection.hpp
         src/cigmar/interfaces/Comparable.hpp
         src/cigmar/interfaces/CrossComparable.hpp
         src/cigmar/interfaces/Hashable.hpp
         src/cigmar/interfaces/Streamable.hpp
-        src/cigmar/classes/math/Fraction.hpp
         src/cigmar/numbers.hpp
         src/cigmar/sqlite.hpp
+        src/cigmar/symbols.hpp
         src/cigmar/tree.hpp
         src/cigmar/types/pos_t.hpp
         src/cigmar/unicode.hpp
@@ -59,7 +55,6 @@ set(SOURCE_FILES
         src/cigmar/video/manager/UniqueProperties.hpp
         src/cigmar/video/manager/UniqueProperty.hpp
         src/cigmar/video/Video.hpp
-        src/cigmar/wip/wip.hpp
         src/cpp/cigmar.cpp
         src/cpp/filesystem_unix.cpp
         src/cpp/filesystem_windows.cpp
@@ -89,7 +84,7 @@ set(SOURCE_FILES
         src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        src/cigmar/symbols.hpp)
+        )
 
 add_executable(cigmar ${SOURCE_FILES})
 

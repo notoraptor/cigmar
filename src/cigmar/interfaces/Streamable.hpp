@@ -8,39 +8,10 @@
 
 namespace cigmar {
 
-	class Streamable {
-	public:
+	struct Streamable {
 		virtual void toStream(std::ostream& o) const = 0;
 		virtual ~Streamable() = default;
 	};
-
-	namespace {
-
-		struct AutoStreamer {
-			template<typename E>
-			static void print(std::ostream& o, const E& value) {
-				o << value;
-			}
-			static void print(std::ostream& o, bool value) {
-				o << (value ? "true" : "false");
-			}
-			static void print(std::ostream& o, const wchar_t* s) {
-				unicode::convert(s, o);
-			}
-			static void print(std::ostream& o, const char16_t* s) {
-				unicode::convert(s, o);
-			}
-			static void print(std::ostream& o, const char32_t* s) {
-				unicode::convert(s, o);
-			}
-		};
-		struct DefaultStreamer {
-			template<typename E>
-			static void print(std::ostream& o, const E& value) {
-				o << "{object&" << (void*)(&value) << '}';
-			}
-		};
-	}
 
 	template<typename T>
 	struct Streamer {

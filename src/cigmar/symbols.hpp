@@ -4,13 +4,17 @@
 
 #ifndef SRC_CIGMAR_INTERNAL_DEFINITIONS_HPP
 #define SRC_CIGMAR_INTERNAL_DEFINITIONS_HPP
-#include <iostream>
 #include <cstdint>
 #include <type_traits>
 #include <iterator>
 #include <ostream>
+#include <sstream>
+#include <iostream>
+#include <cigmar/classes/exception/Exception.hpp>
+#include <cigmar/unicode.hpp>
 
 namespace cigmar {
+	/** Primitive types. **/
 	using byte_t = int8_t;
 	using short_t = int16_t;
 	using int_t = int32_t;
@@ -20,31 +24,32 @@ namespace cigmar {
 	using uint_t = uint32_t;
 	using ulong_t = uint64_t;
 
-	std::ostream &operator<<(std::ostream &o, byte_t b);
-
-	std::ostream &operator<<(std::ostream &o, ubyte_t b);
-
+	/** Advanced classes. **/
+	class LinkedList; // Double linked list.
+	class Tensor; // Sophisticated N-D array.
 	// class AbstractList;
 	// class AbstractMap;
 	// class AbstractSet;
-	class LinkedList; // Double linked list.
-	class Tensor; // Sophisticated N-D array.
 
-#define dtypeof(variable) decltype(variable)::dtype
-
+	/** Classes for unique special symbols. **/
 	class last_t {};
 	class max_t {};
 
+	/** Global methods. **/
+	std::ostream &operator<<(std::ostream &o, byte_t b);
+	std::ostream &operator<<(std::ostream &o, ubyte_t b);
+
+	/** Special symbols. **/
 	extern last_t LAST;
 	extern max_t MAX;
 
-	#define EMPTY_CHARACTERS " \f\n\r\t\v"
+	#define EMPTY_CHARACTERS {' ', '\f', '\n', '\r', '\t', '\v', '\0'}
 	#ifdef WIN32
-	#define ENDL "\r\n"
+		#define ENDL {'\r', '\n', '\0'}
 	#elif defined(__APPLE__)
-	#define ENDL "\r"
+		#define ENDL {'\r', '\0'}
 	#else
-		#define ENDL "\n"
+		#define ENDL {'\n', '\0'}
 	#endif
 
 	namespace {
@@ -105,7 +110,34 @@ namespace cigmar {
 	template <> struct is_char_type<char16_t>: std::true_type {};
 	template <> struct is_char_type<char32_t>: std::true_type {};
 
-#define ASSERT_CHARTYPE(type) static_assert(is_char_type<type>{}, "A character type is required (see type trait is_char_tyepe<T>).")
+	#define ASSERT_CHARTYPE(type) static_assert(is_char_type<type>{}, "A character type is required (see type trait is_char_tyepe<T>).")
+
+	namespace {
+		struct AutoStreamer {
+			template<typename E>
+			static void print(std::ostream& o, const E& value) {
+				o << value;
+			}
+			static void print(std::ostream& o, bool value) {
+				o << (value ? "true" : "false");
+			}
+			static void print(std::ostream& o, const wchar_t* s) {
+				unicode::convert(s, o);
+			}
+			static void print(std::ostream& o, const char16_t* s) {
+				unicode::convert(s, o);
+			}
+			static void print(std::ostream& o, const char32_t* s) {
+				unicode::convert(s, o);
+			}
+		};
+		struct DefaultStreamer {
+			template<typename E>
+			static void print(std::ostream& o, const E& value) {
+				o << "{object&" << (void*)(&value) << '}';
+			}
+		};
+	}
 
 	namespace sys {
 		/// Definitions for print(ln)/write(ln) functions.

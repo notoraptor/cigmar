@@ -3,6 +3,7 @@
 #include <thread>
 #include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/String.hpp>
+#include <cigmar/classes/UnicodeString.hpp>
 #include <cigmar/classes/TreeMap.hpp>
 #include <cigmar/numbers.hpp>
 #include <cigmar/classes/HashSet.hpp>
