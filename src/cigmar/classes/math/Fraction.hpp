@@ -7,7 +7,7 @@
 
 #include <cassert>
 #include <cstdint>
-#include <cigmar/interfaces/Streamable.hpp>
+#include <ostream>
 
 namespace cigmar::math {
 	// Greatest common divisor ([fr] Plus Grand Commun Diviseur)
@@ -17,7 +17,7 @@ namespace cigmar::math {
 	};
 
 	template<typename T>
-	class AbstractFraction: public Streamable {
+	class AbstractFraction {
 		char s;
 		T num;
 		T den;
@@ -44,20 +44,26 @@ namespace cigmar::math {
 			assert(den != 0);
 			update();
 		};
+		const char sign() const {return s;}
+		const T& numerator() const {return num;}
+		const T& denominator() const {return den;}
 		explicit operator double() const {return s * (double)num/den;};
-		void toStream(std::ostream& o) const override {
-			if (num) {
-				if (s == -1) o << '-';
-				o << num;
-				if (den != 1) o << '/' << den;
-			} else {
-				// num == 0.
-				o << 0;
-			}
-		};
 	};
 
 	typedef AbstractFraction<uint64_t> Fraction;
+
+	template <typename C, typename T>
+	std::basic_ostream<C>& operator<<(std::basic_ostream<C>& o, const AbstractFraction<T>& f) {
+		if (f.numerator()) {
+			if (f.sign() == -1) o << '-';
+			o << f.numerator();
+			if (f.denominator() != 1) o << '/' << f.denominator();
+		} else {
+			// num == 0.
+			o << 0;
+		}
+		return o;
+	}
 }
 
 

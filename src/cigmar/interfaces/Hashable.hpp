@@ -4,8 +4,7 @@
 #include <cstddef>
 
 namespace cigmar {
-	class Hashable {
-	public:
+	struct Hashable {
 		virtual size_t hash() const = 0;
 	};
 }

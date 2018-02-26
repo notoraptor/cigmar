@@ -8,19 +8,19 @@
 #include <cstring>
 #include <sstream>
 #include <algorithm>
-#include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/interfaces/Hashable.hpp>
 #include <cigmar/interfaces/Comparable.hpp>
 #include <cigmar/interfaces/CrossComparable.hpp>
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/classes/Char.hpp>
 #include <cigmar/unicode.hpp>
+#include <cigmar/symbols.hpp>
 
 // TODO: Unicode empty characters, unicoe class characters ...
 
 namespace cigmar {
 	template <typename Character>
-	class AbstractString: public Streamable, public Hashable, public Comparable<AbstractString<Character>> {
+	class AbstractString: public public Hashable, public Comparable<AbstractString<Character>> {
 		class LinesIterator {
 			const AbstractString* ptr;
 			AbstractString line;
@@ -597,11 +597,6 @@ namespace cigmar {
 		Split splits(const AbstractString& delimiter, bool skipEscaped = false) const {
 			return Split(*this, delimiter, skipEscaped);
 		}
-		void toStream(std::ostream& o) const override {
-			std::string out;
-			unicode::convert(member, out);
-			o << out;
-		}
 		size_t hash() const override {
 			return std::hash<string_t>()(member);
 		}
@@ -636,6 +631,12 @@ namespace cigmar {
 	template <typename A, typename B> bool operator>=(const A* a, const AbstractString<B>& b) { return b.compareString(a) <= 0; };
 	template <typename A, typename B> bool operator<(const A* a, const AbstractString<B>& b) { return b.compareString(a) > 0; };
 	template <typename A, typename B> bool operator>(const A* a, const AbstractString<B>& b) { return b.compareString(a) < 0; };
+
+	template<typename C1, typename C2>
+	std::basic_ostream<C1>& operator<<(std::basic_ostream<C1>& o, const AbstractString<C2>& s) {
+		unicode::convert(s.cppstring(), o);
+		return o;
+	};
 }
 
 #endif //SRC_CIGMAR_ABSTRACTSTRING_HPP

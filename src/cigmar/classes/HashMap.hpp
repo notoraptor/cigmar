@@ -3,12 +3,11 @@
 
 #include <initializer_list>
 #include <unordered_map>
-#include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/utils/Hasher.hpp>
 
 namespace cigmar {
 	template<typename K, typename V>
-	class HashMap: public Streamable {
+	class HashMap {
 		template<typename Iterator, typename Key>
 		class key_iterator {
 			Iterator it;
@@ -71,19 +70,6 @@ namespace cigmar {
 			m.clear();
 			return *this;
 		}
-		void toStream(std::ostream& o) const override {
-			o << '{';
-			if (m.size()) {
-				auto it = m.begin();
-				o << Streamer<K>(it->first) << ':' << Streamer<V>(it->second);
-				++it;
-				while(it != m.end()) {
-					o << "; " << Streamer<K>(it->first) << ':' << Streamer<V>(it->second);
-					++it;
-				}
-			}
-			o << '}';
-		}
 
 		iterator_t begin() {return m.begin();}
 		iterator_t end() {return m.end();}
@@ -108,6 +94,19 @@ namespace cigmar {
 		explicit operator bool() const {return !m.empty();}
 		V& operator[](const K& key) {return m[key];}
 		V& operator[](K&& key) {return m[std::move(key)];}
+	};
+
+	template <typename C, typename K, typename V>
+	std::basic_ostream<C>& operator<<(std::basic_ostream<C>& o, const HashMap<K, V>& m) {
+		o << '{';
+		if (m.size()) {
+			auto it = m.begin();
+			o << streamer(it->first) << ':' << streamer(it->second);
+			while((++it) != m.end())
+				o << "; " << streamer << ':' << streamer(it->second);
+		}
+		o << '}';
+		return o;
 	};
 }
 

@@ -3,13 +3,11 @@
 
 #include <unordered_set>
 #include <initializer_list>
-#include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/utils/Hasher.hpp>
-#include <cigmar/interfaces/Collection.hpp>
 
 namespace cigmar {
 	template<typename T>
-	class HashSet: public Streamable, public Collection<std::unordered_set<T, Hasher>> {
+	class HashSet {
 	public:
 		typedef std::unordered_set<T, Hasher> set_type;
 		typedef typename set_type::iterator iterator_t;
@@ -18,8 +16,8 @@ namespace cigmar {
 		set_type s;
 	public:
 		HashSet() noexcept : s() {}
-		template<typename E>
-		HashSet(const Collection<E>& container): s(container.begin(), container.end()) {}
+		template <typename Iterator>
+		HashSet(Iterator firstIncluded, Iterator lastExcluded): s(firstIncluded, lastExcluded) {}
 		HashSet(std::initializer_list<T> il): s(il) {}
 		HashSet(const HashSet& other): s(other.s) {}
 		HashSet(HashSet&&) noexcept = default;
@@ -46,19 +44,6 @@ namespace cigmar {
 			s.clear();
 			return *this;
 		}
-		void toStream(std::ostream& o) const override {
-			o << '{';
-			if (s.size()) {
-				auto it = s.begin();
-				o << Streamer<T>(*it);
-				++it;
-				while(it != s.end()) {
-					o << "; " << Streamer<T>(*it);
-					++it;
-				}
-			}
-			o << '}';
-		}
 		iterator_t begin() {return s.begin();}
 		iterator_t end() {return s.end();}
 		const_iterator_t begin() const {return s.begin();}
@@ -76,6 +61,19 @@ namespace cigmar {
 			s.insert(val);
 			return *this;
 		}
+	};
+
+	template <typename C, typename T>
+	std::basic_ostream<C>& operator<<(std::basic_ostream<C>& o, const HashSet<T>& s) {
+		o << '{';
+		if (s.size()) {
+			auto it = s.begin();
+			o << streamer(*it);
+			while((++it) != s.end())
+				o << "; " << streamer(*it);
+		}
+		o << '}';
+		return o;
 	};
 }
 

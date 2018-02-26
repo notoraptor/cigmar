@@ -6,11 +6,9 @@
 #define SRC_CIGMAR_INTERNAL_DEFINITIONS_HPP
 #include <cstdint>
 #include <type_traits>
-#include <iterator>
 #include <ostream>
 #include <sstream>
 #include <iostream>
-#include <cigmar/classes/exception/Exception.hpp>
 #include <cigmar/unicode.hpp>
 
 namespace cigmar {
@@ -34,86 +32,38 @@ namespace cigmar {
 	/** Classes for unique special symbols. **/
 	class last_t {};
 	class max_t {};
-
-	/** Global methods. **/
-	std::ostream &operator<<(std::ostream &o, byte_t b);
-	std::ostream &operator<<(std::ostream &o, ubyte_t b);
-
-	/** Special symbols. **/
 	extern last_t LAST;
 	extern max_t MAX;
 
-	#define EMPTY_CHARACTERS {' ', '\f', '\n', '\r', '\t', '\v', '\0'}
-	#ifdef WIN32
-		#define ENDL {'\r', '\n', '\0'}
-	#elif defined(__APPLE__)
-		#define ENDL {'\r', '\0'}
-	#else
-		#define ENDL {'\n', '\0'}
-	#endif
-
-	namespace {
-		/* Definition of static trait `is_iterable<type>::value`
-	 * https://stackoverflow.com/a/29634934
-	 * https://ideone.com/ExTsEO
-	 * (2017/09/24) */
-
-		// To allow ADL with custom begin/end
-		using std::begin;
-		using std::end;
+	namespace special_traits {
+		/* Definition of static traits. Inspired from:
+		 * https://stackoverflow.com/a/29634934
+		 * https://ideone.com/ExTsEO
+		 * (2017/09/24) */
 
 		template<typename T>
-		auto is_iterable_impl(int)
-		-> decltype(
-		begin(std::declval<T &>()) != end(std::declval<T &>()), // begin/end and operator !=
-				++std::declval<decltype(begin(std::declval<T &>())) & >(), // operator ++
-				*begin(std::declval<T &>()), // operator*
-				std::true_type{});
+		auto is_iterable(int)
+		-> decltype(std::begin(std::declval<T &>()) != std::end(std::declval<T &>()), // begin/end and operator !=
+					++std::declval<decltype(std::begin(std::declval<T &>())) & >(), // operator ++
+					*std::begin(std::declval<T &>()), // operator*
+					std::true_type{});
+		template<typename T>
+		std::false_type is_iterable(...);
 
 		template<typename T>
-		std::false_type is_iterable_impl(...);
-
-		//////////
+		auto has_method_toStream(int)
+		-> decltype(static_cast<void(T::*)(std::ostream&)>(&T::toStream), std::true_type{});
+		template<typename T>
+		std::false_type has_method_toStream(...);
 
 		template<typename T>
-		auto is_streamable_impl(int)
+		auto is_directly_streamable(int)
 		-> decltype(std::declval<std::ostream&>() << std::declval<T&>(), std::true_type{});
-
 		template<typename T>
-		std::false_type is_streamable_impl(...);
+		std::false_type is_directly_streamable(...);
 	}
-
-	template<typename T>
-	using is_iterable = decltype(is_iterable_impl<T>(0));
-	/**<
-	~~~~
-	cigmar::is_iterable<MyType>::value
-	~~~~
-
-	Type trait to statically check if a symbol T
-	is iterable according to C++ standard library
-	iteration model (ie. with `begin()` and `end()`
-	methods/functions.
-
-	Reference (2017/09/24):
-	- https://stackoverflow.com/a/29634934
-	- https://ideone.com/ExTsEO
-	**/
-
-	template<typename T>
-	using is_streamable = decltype(is_streamable_impl<T>(0));
-
-	template <typename T> struct is_char_type: std::false_type {};
-
-	template <> struct is_char_type<char>: std::true_type {};
-	template <> struct is_char_type<wchar_t>: std::true_type {};
-	template <> struct is_char_type<char16_t>: std::true_type {};
-	template <> struct is_char_type<char32_t>: std::true_type {};
-
-	#define ASSERT_CHARTYPE(type) static_assert(is_char_type<type>{}, "A character type is required (see type trait is_char_tyepe<T>).")
-
-	namespace {
-		struct AutoStreamer {
+	namespace special_classes {
+		struct AutoStream {
 			template<typename E>
 			static void print(std::ostream& o, const E& value) {
 				o << value;
@@ -131,53 +81,117 @@ namespace cigmar {
 				unicode::convert(s, o);
 			}
 		};
-		struct DefaultStreamer {
+		struct ToStream {
+			template <typename T>
+			static void print(std::ostream& o, const T& value) {
+				value.toStream(o);
+			}
+		};
+		struct DefaultStream {
 			template<typename E>
 			static void print(std::ostream& o, const E& value) {
 				o << "{object&" << (void*)(&value) << '}';
 			}
 		};
+		template<typename T>
+		struct Streamer {
+			const T& value;
+			explicit Streamer(const T& v): value(v) {};
+		};
+	}
+	namespace special_functions {
+		template <typename C>
+		void writeElement(std::basic_ostream<C>& o) {}
+		template <typename C, typename T, typename... Args>
+		void writeElement(std::basic_ostream<C>& o, const T& variable, Args&&... args) {
+			o << special_classes::Streamer<T>(variable);
+			writeElement(o, std::forward<Args>(args)...);
+		};
+		template <typename C>
+		void printElement(std::basic_ostream<C>& o) {}
+		template <typename C, typename T, typename... Args>
+		void printElement(std::basic_ostream<C>& o, const T& variable, Args&&... args) {
+			o << ' ';
+			o << special_classes::Streamer<T>(variable);
+			printElement(o, std::forward<Args>(args)...);
+		};
+		template <typename C>
+		void printFirstElement(std::basic_ostream<C>& o) {}
+		template <typename C, typename T, typename... Args>
+		void printFirstElement(std::basic_ostream<C>& o, const T& variable, Args&&... args) {
+			o << special_classes::Streamer<T>(variable);
+			printElement(o, std::forward<Args>(args)...);
+		};
 	}
 
-	namespace sys {
-		/// Definitions for print(ln)/write(ln) functions.
-		inline void writeElement(std::ostream& o) {}
-		template<typename T, typename... Args> void writeElement(std::ostream& o, T variable, Args&&... args) {
-			AutoStreamer::print(o, variable);
-			writeElement(o, std::forward<Args>(args)...);
-		}
-		inline void printElement(std::ostream& o) {}
-		template<typename T, typename... Args> void printElement(std::ostream& o, T variable, Args&&... args) {
-			o << ' ';
-			AutoStreamer::print(o, variable);
-			printElement(o, std::forward<Args>(args)...);
-		}
-		inline void printFirstElement(std::ostream& o) {}
-		template<typename T, typename... Args> void printFirstElement(std::ostream& o, T variable, Args&&... args) {
-			AutoStreamer::print(o, variable);
-			printElement(o, std::forward<Args>(args)...);
-		}
-		namespace path {
-			extern const char* const separator;
-			bool isRooted(const char* pathname);
-			namespace {
-				inline void concatenate(std::ostringstream &o) {}
-				template<typename T, typename... Args>
-				void concatenate(std::ostringstream &o, T variable, Args... args) {
-					std::ostringstream temp;
-					temp << variable;
-					if (isRooted(temp.str().c_str()))
-						throw Exception("Cannot build path with rooted element inside.");
-					o << separator << temp.str();
-					concatenate(o, args...);
-				}
-				template<typename T, typename... Args>
-				void concatenateFirst(std::ostringstream &o, T variable, Args... args) {
-					o << variable;
-					concatenate(o, args...);
-				}
-			}
-		}
+	/**
+	~~~~
+	cigmar::is_iterable<MyType>::value
+	~~~~
+
+	Type trait to statically check if a symbol T
+	is iterable according to C++ standard library
+	iteration model (ie. with `begin()` and `end()`
+	methods/functions.
+
+	Reference (2017/09/24):
+	- https://stackoverflow.com/a/29634934
+	- https://ideone.com/ExTsEO
+	**/
+	template<typename T> using is_iterable = decltype(special_traits::is_iterable<T>(0));
+	template<typename T> using has_method_toStream = decltype(special_traits::has_method_toStream<T>(0));
+	template<typename T> using is_directly_streamable = decltype(special_traits::is_directly_streamable<T>(0));
+	template<typename T> using is_streamable = typename std::conditional<
+			is_directly_streamable<T>{},
+			std::true_type, typename std::conditional<has_method_toStream<T>{}, std::true_type, std::false_type>::type
+	>::type;
+
+	template <typename A, typename B, typename... Types>
+	struct isinstance: public std::conditional<std::is_same<A, B>{}, std::true_type, isinstance<A, Types...>>::type {};
+	template <typename A, typename B>
+	struct isinstance<A, B>: public std::conditional<std::is_same<A, B>{}, std::true_type, std::false_type>::type {};
+
+	template <typename T> using is_char_type = isinstance<T, char, wchar_t, char16_t, char32_t>;
+
+	#define ASSERT_CHARTYPE(type) static_assert(is_char_type<type>{}, "A character type is required.")
+
+	#define EMPTY_CHARACTERS {' ', '\f', '\n', '\r', '\t', '\v', '\0'}
+
+	#ifdef WIN32
+		#define ENDL {'\r', '\n', '\0'}
+	#elif defined(__APPLE__)
+		#define ENDL {'\r', '\0'}
+	#else
+		#define ENDL {'\n', '\0'}
+	#endif
+
+	#define TO_STREAM(o, type, v) \
+	template<typename C> std::basic_ostream<C>& operator<<(std::basic_ostream<C>& o, type v)
+
+	/** Global methods. **/
+	TO_STREAM(o, byte_t, b) {
+		return (o << (int)b);
+	}
+	TO_STREAM(o, ubyte_t, b) {
+		return (o << (unsigned int)b);
+	}
+	template <typename C, typename T>
+	std::basic_ostream<C>& operator<<(std::basic_ostream<C>& o, const special_classes::Streamer<T>& streamer) {
+		typedef typename std::conditional<
+				is_directly_streamable<T>{},
+				special_classes::AutoStream,
+				typename std::conditional<
+						has_method_toStream<T>{},
+						special_classes::ToStream,
+						special_classes::DefaultStream
+				>::type
+		>::type streamer_t;
+		streamer_t::print(o, streamer.value);
+		return o;
+	}
+	template <typename T>
+	special_classes::Streamer<T> streamer(const T& v) {
+		return special_classes::Streamer<T>(v);
 	}
 }
 

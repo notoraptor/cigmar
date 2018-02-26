@@ -6,12 +6,13 @@
 #include <random>
 #include <functional>
 #include <type_traits>
-#include <cigmar/interfaces/Collection.hpp>
+#include <cigmar/symbols.hpp>
 
 namespace cigmar::numbers {
 
-	template<typename T>
-	Collection<T>& arange(Collection<T>& arr) {
+	template<typename Iterable>
+	Iterable& arange(Iterable& arr) {
+		static_assert(is_iterable<Iterable>{});
 		size_t c = 0;
 		for (auto& x: arr) {
 			x = c;
@@ -20,69 +21,80 @@ namespace cigmar::numbers {
 		return arr;
 	}
 
-	template<typename T>
-	Collection<T>& zeros(Collection<T>& arr) {
+	template<typename Iterable>
+	Iterable& zeros(Iterable& arr) {
+		static_assert(is_iterable<Iterable>{});
 		for (auto& x: arr) x = 0;
 		return arr;
 	}
 
-	template<typename T>
-	Collection<T>& ones(Collection<T>& arr) {
+	template<typename Iterable>
+	Iterable& ones(Iterable& arr) {
+		static_assert(is_iterable<Iterable>{});
 		for (auto& x: arr) x = 1;
 		return arr;
 	}
 
-	template<typename T, typename V>
-	Collection<T>& fill(Collection<T>& arr, V value) {
+	template<typename Iterable, typename V>
+	Iterable& fill(Iterable& arr, V value) {
+		static_assert(is_iterable<Iterable>{});
 		for (auto& x: arr) x = value;
 		return arr;
 	}
 
-	template<typename T, typename V>
-	Collection<T>& add(Collection<T>& arr, V value) {
+	template<typename Iterable, typename V>
+	Iterable& add(Iterable& arr, V value) {
+		static_assert(is_iterable<Iterable>{});
 		for (auto& x: arr) x += value;
 		return arr;
 	}
 
-	template<typename T, typename V>
-	Collection<T>& sub(Collection<T>& arr, V value) {
+	template<typename Iterable, typename V>
+	Iterable& sub(Iterable& arr, V value) {
+		static_assert(is_iterable<Iterable>{});
 		for (auto& x: arr) x -= value;
 		return arr;
 	}
 
-	template<typename T, typename V>
-	Collection<T>& mul(Collection<T>& arr, V value) {
+	template<typename Iterable, typename V>
+	Iterable& mul(Iterable& arr, V value) {
+		static_assert(is_iterable<Iterable>{});
 		for (auto& x: arr) x *= value;
 		return arr;
 	}
 
-	template<typename T, typename V>
-	Collection<T>& div(Collection<T>& arr, V value) {
+	template<typename Iterable, typename V>
+	Iterable& div(Iterable& arr, V value) {
+		static_assert(is_iterable<Iterable>{});
 		for (auto& x: arr) x /= value;
 		return arr;
 	}
 
-	template<typename T, typename V>
-	Collection<T>& mod(Collection<T>& arr, V value) {
+	template<typename Iterable, typename V>
+	Iterable& mod(Iterable& arr, V value) {
+		static_assert(is_iterable<Iterable>{});
 		for (auto& x: arr) x %= value;
 		return arr;
 	}
 
-	template<typename T, typename O = typename Collection<T>::dtype>
-	void sum(const Collection<T>& arr, O& out, bool reset = true) {
+	template<typename Iterable, typename O>
+	void sum(const Iterable& arr, O& out, bool reset = true) {
+		static_assert(is_iterable<Iterable>{});
 		if (reset) out = 0;
 		for(auto& x: arr) out += x;
 	}
 
-	template<typename T, typename O = typename Collection<T>::dtype>
-	O sum(const Collection<T>& arr) {
+	template<typename Iterable, typename O = decltype(*std::begin(std::declval<Iterable&>()))>
+	O sum(const Iterable& arr) {
+		static_assert(is_iterable<Iterable>{});
 		O out = 0;
 		for (auto& x: arr) out += x;
 		return out;
 	}
 
-	template<typename T, typename O = typename Collection<T>::dtype>
-	O prod(const Collection<T>& arr) {
+	template<typename Iterable, typename O = decltype(*std::begin(std::declval<Iterable&>()))>
+	O prod(const Iterable& arr) {
+		static_assert(is_iterable<Iterable>{});
 		O out = 1;
 		for (auto& x: arr) out *= x;
 		return out;
@@ -91,7 +103,6 @@ namespace cigmar::numbers {
 	namespace random {
 
 		class RNG {
-		private:
 			unsigned int m_seed;
 			std::default_random_engine generator;
 		public:
@@ -112,9 +123,10 @@ namespace cigmar::numbers {
 
 		extern RNG rng;
 
-		template<typename T, typename A, typename B>
-		Collection<T>& uniform(Collection<T>& arr, A a, B b) {
-			typedef typename Collection<T>::dtype dtype;
+		template<typename Iterable, typename A, typename B>
+		Iterable& uniform(Iterable& arr, A a, B b) {
+			static_assert(is_iterable<Iterable>{});
+			typedef typename decltype(*std::begin(std::declval<Iterable&>())) dtype;
 			typedef typename std::conditional<
 				std::is_integral<dtype>::value,
 				std::uniform_int_distribution<dtype>,
@@ -125,24 +137,23 @@ namespace cigmar::numbers {
 			return arr;
 		}
 
-		template<typename T, typename N>
-		Collection<T>& binomial(Collection<T>& arr, N n, double p) {
-			typedef typename Collection<T>::dtype dtype;
-			static_assert(
-				std::is_integral<N>{},
-				"binomial distribution: parameter 'n' must be an integer type."
-			);
+		template<typename Iterable, typename N>
+		Iterable& binomial(Iterable& arr, N n, double p) {
+			static_assert(is_iterable<Iterable>{});
+			static_assert(std::is_integral<N>{}, "binomial distribution: parameter 'n' must be an integer type.");
+			typedef typename decltype(*std::begin(std::declval<Iterable&>())) dtype;
 			std::binomial_distribution<N> distribution(n, p);
 			for (dtype& x: arr) x = distribution(rng.get());
 			return arr;
 		}
 
-		template<typename T>
-		Collection<T>& normal(Collection<T>& arr, double mu, double sigma) {
-			typedef typename Collection<T>::dtype dtype;
+		template<typename Iterable>
+		Iterable& normal(Iterable& arr, double mu, double sigma) {
+			static_assert(is_iterable<Iterable>{});
+			typedef typename decltype(*std::begin(std::declval<Iterable&>())) dtype;
 			static_assert(
-				std::is_signed<dtype>{},
-				"normal distribution is forbidden for non-signed types, as it may generate negative values."
+					std::is_signed<dtype>{},
+					"normal distribution is forbidden for non-signed types, as it may generate negative values."
 			);
 			std::normal_distribution<double> distribution(mu, sigma);
 			for (dtype& x: arr) x = (dtype)distribution(rng.get());
@@ -176,14 +187,24 @@ namespace cigmar::numbers {
 		}
 	}
 
-	template<typename T, typename dtype = typename Collection<T>::dtype, typename F = std::function<bool(dtype)>>
-	bool all(const Collection<T>& arr, F elemwiseChecker) {
+	template<
+			typename Iterable,
+			typename dtype = typename decltype(*std::begin(std::declval<Iterable&>())),
+			typename F = std::function<bool(dtype)>
+	>
+	bool all(const Iterable& arr, F elemwiseChecker) {
+		static_assert(is_iterable<Iterable>{});
 		for (const dtype& x: arr) if (!elemwiseChecker(x)) return false;
 		return true;
 	}
 
-	template<typename T, typename dtype = typename Collection<T>::dtype, typename F = std::function<bool(dtype)>>
-	bool any(const Collection<T>& arr, F elemwiseChecker) {
+	template<
+			typename Iterable,
+			typename dtype = typename decltype(*std::begin(std::declval<Iterable&>())),
+			typename F = std::function<bool(dtype)>
+	>
+	bool any(const Iterable& arr, F elemwiseChecker) {
+		static_assert(is_iterable<Iterable>{});
 		for (const dtype& x: arr) if (elemwiseChecker(x)) return true;
 		return false;
 	}

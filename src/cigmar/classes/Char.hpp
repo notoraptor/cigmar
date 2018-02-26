@@ -2,8 +2,7 @@
 #define CIGMAR_CHAR
 
 namespace cigmar {
-	class Char {
-	public:
+	struct Char {
 		static char lower(char c);
 		static char upper(char c);
 		template <typename Character>

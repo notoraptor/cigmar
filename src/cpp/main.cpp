@@ -2,7 +2,7 @@
 #include <cigmar/unittests.hpp>
 #include <cigmar/video/manager/manager.hpp>
 #include <cigmar/tree.hpp>
-#include <cigmar/file/writer/Binary.hpp>
+#include <cigmar/classes/file/writer/Binary.hpp>
 #include <bitset>
 
 using std::cout;

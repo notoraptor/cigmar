@@ -4,12 +4,10 @@
 #include <functional>
 #include <set>
 #include <initializer_list>
-#include <cigmar/interfaces/Streamable.hpp>
-#include <cigmar/interfaces/Collection.hpp>
 
 namespace cigmar {
 	template<typename T>
-	class TreeSet: public Streamable, public Collection<std::set<T, std::function<bool(const T&, const T&)>>> {
+	class TreeSet {
 	public:
 		typedef std::function<bool(const T&, const T&)> less_type;
 		typedef std::set<T, less_type> set_type;
@@ -20,8 +18,8 @@ namespace cigmar {
 		set_type s;
 	public:
 		explicit TreeSet(less_type c = less_than): s(c) {}
-		template<typename E>
-		explicit TreeSet(const Collection<E>& arr, less_type c = less_than): s(arr.begin(), arr.end(), c) {}
+		template <typename Iterator>
+		TreeSet(Iterator firstIncluded, Iterator lastExcluded, less_type c = less_than): s(firstIncluded, lastExcluded, c) {}
 		TreeSet(std::initializer_list<T> il, less_type c = less_than): s(il, c) {}
 		TreeSet(const TreeSet& other): s(other.s) {}
 		TreeSet(TreeSet&&) noexcept = default;
@@ -84,20 +82,18 @@ namespace cigmar {
 		iterator_t end() {return s.end();}
 		const_iterator_t begin() const {return s.begin();}
 		const_iterator_t end() const {return s.end();}
-
-		void toStream(std::ostream& o) const override {
-			o << '{';
-			if (s.size()) {
-				auto it = s.begin();
-				o << Streamer<T>(*it);
-				++it;
-				while(it != s.end()) {
-					o << "; " << Streamer<T>(*it);
-					++it;
-				}
-			}
-			o << '}';
+	};
+	template <typename C, typename T>
+	std::basic_ostream<C>& operator<<(std::basic_ostream<C>& o, const TreeSet<T>& s) {
+		o << '{';
+		if (s.size()) {
+			auto it = s.begin();
+			o << streamer(*it);
+			while((++it) != s.end())
+				o << "; " << streamer(*it);
 		}
+		o << '}';
+		return o;
 	};
 }
 

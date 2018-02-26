@@ -7,7 +7,6 @@ include_directories(${PROJECT_SOURCE_DIR}/src)
 set(SOURCE_FILES
         src/cigmar/cigmar.hpp
         src/cigmar/classes/AbstractString.hpp
-        src/cigmar/classes/Array.hpp
         src/cigmar/classes/ArrayList.hpp
         src/cigmar/classes/Char.hpp
         src/cigmar/classes/exception/Exception.hpp
@@ -21,16 +20,13 @@ set(SOURCE_FILES
         src/cigmar/classes/math/Fraction.hpp
         src/cigmar/classes/Queue.hpp
         src/cigmar/classes/Stack.hpp
-        src/cigmar/classes/StaticCollection.hpp
         src/cigmar/classes/String.hpp
         src/cigmar/classes/TreeMap.hpp
         src/cigmar/classes/TreeSet.hpp
         src/cigmar/classes/UnicodeString.hpp
-        src/cigmar/interfaces/Collection.hpp
         src/cigmar/interfaces/Comparable.hpp
         src/cigmar/interfaces/CrossComparable.hpp
         src/cigmar/interfaces/Hashable.hpp
-        src/cigmar/interfaces/Streamable.hpp
         src/cigmar/numbers.hpp
         src/cigmar/sqlite.hpp
         src/cigmar/symbols.hpp

@@ -7,7 +7,6 @@
 
 #include <cstddef>
 #include <chrono>
-#include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/exception/Exception.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/symbols.hpp>
@@ -74,33 +73,33 @@ namespace cigmar {
 	};
 	namespace sys {
 		template<typename... Args> void println(Args&&... args) {
-			printFirstElement(std::cout, std::forward<Args>(args)...);
+			special_functions::printFirstElement(std::cout, std::forward<Args>(args)...);
 			std::cout << std::endl;
 		};
 		template<typename... Args> void print(Args&&... args) {
-			printFirstElement(std::cout, std::forward<Args>(args)...);
+			special_functions::printFirstElement(std::cout, std::forward<Args>(args)...);
 		};
 		template<typename... Args> void writeln(Args&&... args) {
-			writeElement(std::cout, std::forward<Args>(args)...);
+			special_functions::writeElement(std::cout, std::forward<Args>(args)...);
 			std::cout << std::endl;
 		};
 		template<typename... Args> void write(Args&&... args) {
-			writeElement(std::cout, std::forward<Args>(args)...);
+			special_functions::writeElement(std::cout, std::forward<Args>(args)...);
 		};
 		namespace err {
 			template<typename... Args> void println(Args&&... args) {
-				printFirstElement(std::cerr, std::forward<Args>(args)...);
+				special_functions::printFirstElement(std::cerr, std::forward<Args>(args)...);
 				std::cerr << std::endl;
 			};
 			template<typename... Args> void print(Args&&... args) {
-				printFirstElement(std::cerr, std::forward<Args>(args)...);
+				special_functions::printFirstElement(std::cerr, std::forward<Args>(args)...);
 			};
 			template<typename... Args> void writeln(Args&&... args) {
-				writeElement(std::cerr, std::forward<Args>(args)...);
+				special_functions::writeElement(std::cerr, std::forward<Args>(args)...);
 				std::cerr << std::endl;
 			};
 			template<typename... Args> void write(Args&&... args) {
-				writeElement(std::cerr, std::forward<Args>(args)...);
+				special_functions::writeElement(std::cerr, std::forward<Args>(args)...);
 			};
 		}
 
@@ -152,10 +151,19 @@ namespace cigmar {
 			bool isRelative(const char* pathname);
 			bool exists(const char* pathname);
 			bool hasExtension(const char* pathname);
-			template<typename... Args> String join(Args... args) {
-				std::ostringstream o;
-				concatenateFirst(o, args...);
-				return String(o.str());
+			class join: public String {
+				join(std::initializer_list<String> il) {
+					std::ostringstream o;
+					if (il.size()) {
+						auto it = il.begin(), end = il.end();
+						o << Streamer<String>(*it);
+						while((++it) != end) {
+							if (isRooted(it->cstring()))
+								throw Exception("Cannot build path with rooted element inside.");
+							o << Streamer<String>(separator) << Streamer<String>(*it);
+						}
+					}
+				}
 			};
 		}
 

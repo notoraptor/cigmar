@@ -4,11 +4,10 @@
 #include <forward_list>
 #include <initializer_list>
 #include <cigmar/symbols.hpp>
-#include <cigmar/interfaces/Collection.hpp>
 
 namespace cigmar {
 	template<typename T>
-	class Stack: public Collection<std::forward_list<T>> {
+	class Stack {
 		template<typename E>
 		struct StackElementPusher {
 			void push(Stack& stack, const E& element) {
@@ -18,7 +17,7 @@ namespace cigmar {
 		template<typename E>
 		struct StackIterablePusher {
 			void push(Stack& stack, const E& iterable) {
-				stack.pushAll(iterable);
+				stack.pushAll(std::begin(iterable), std::end(iterable));
 			};
 		};
 	public:
@@ -30,9 +29,9 @@ namespace cigmar {
 		size_t length;
 	public:
 		Stack() : content(), length(0) {}
-		template<typename E>
-		explicit Stack(const Collection<E>& arr): content(), length(0) {pushAll(arr);}
-		Stack(std::initializer_list<T> il): content(), length(0) {pushAll(il);}
+		template <typename Iterator>
+		Stack(Iterator firstIncluded, Iterator lastExcluded): Stack() {pushAll(firstIncluded, lastExcluded);}
+		Stack(std::initializer_list<T> il): Stack() {pushAll(std::begin(il), std::end(il));}
 		Stack(const Stack& other): content(other.content), length(other.length) {}
 		Stack(Stack&&) noexcept = default;
 
@@ -48,10 +47,13 @@ namespace cigmar {
 			++length;
 			return *this;
 		}
-		template<typename C>
-		Stack& pushAll(const C& arr) {
-			for (auto& x:arr) content.push_front(x);
-			length += arr.size();
+		template<typename Iterator>
+		Stack& pushAll(Iterator iterator, Iterator endIterator) {
+			while (iterator != endIterator) {
+				content.push_front(*iterator);
+				++iterator;
+				++length;
+			}
 			return *this;
 		}
 		Stack& pop() {
@@ -86,7 +88,7 @@ namespace cigmar {
 		Stack& operator=(std::initializer_list<T> il) {
 			content.clear();
 			length = 0;
-			pushAll(il);
+			pushAll(std::begin(il), std::end(il));
 			return *this;
 		}
 		template<typename C>
@@ -94,7 +96,7 @@ namespace cigmar {
 			static_assert(is_iterable<C>::value, "Only an iterable can be affected to a stack.");
 			content.clear();
 			length = 0;
-			pushAll(arr);
+			pushAll(std::begin(arr), std::end(arr));
 			return *this;
 		}
 		explicit operator bool() const {return !content.empty();}

@@ -11,7 +11,6 @@
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/HashMap.hpp>
 #include <cigmar/classes/exception/Exception.hpp>
-#include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/cigmar.hpp>
 #include <cigmar/video/ffmpeg.hpp>
 
@@ -19,7 +18,7 @@
 // TODO: https://en.wikipedia.org/wiki/Netpbm#PAM_graphics_format
 
 namespace cigmar::video {
-	class Video: public Streamable {
+	class Video {
 	private:
 		String absolutePath;
 		String format;
@@ -166,16 +165,17 @@ namespace cigmar::video {
 			return crypto::hash::whirlpool(absolutePath);
 		}
 
-		void toStream(std::ostream& o) const override {
-			o << "Video(" << absolutePath << ")";
-		}
-
 		// For tree sets.
 		bool operator<(const Video& other) const {
 			return absolutePath < other.absolutePath;
 		}
-
 	};
+
+	template <typename C>
+	std::basic_ostream<C>& operator<<(std::basic_ostream<C>& o, const Video& v) {
+		o << "Video(" << v.getAbsolutePath() << ")";
+		return o;
+	}
 }
 
 #endif //CIGMAR_VIDEO_HPP

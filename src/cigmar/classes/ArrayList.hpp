@@ -5,8 +5,6 @@
 #include <vector>
 #include <initializer_list>
 #include <cigmar/symbols.hpp>
-#include <cigmar/interfaces/Streamable.hpp>
-#include <cigmar/interfaces/Collection.hpp>
 #include <cigmar/types/pos_t.hpp>
 
 namespace cigmar {
@@ -33,7 +31,7 @@ namespace cigmar {
 
 	// Motion fully-defined.
 	template<typename T, typename Type = typename std::conditional<std::is_pointer<T>{}, Pointer<T>, T>::type>
-	class ArrayList: public Streamable, public Collection<std::vector<Type>> {
+	class ArrayList {
 		typedef std::vector<Type> vector_t;
 		vector_t vec;
 	public:
@@ -42,8 +40,8 @@ namespace cigmar {
 
 		ArrayList(): vec() {}
 		explicit ArrayList(size_t n, Type val = Type()): vec(n, val) {}
-		template<typename E>
-		explicit ArrayList(const Collection<E>& arr): vec(arr.begin(), arr.end()) {}
+		template <typename Iterator>
+		ArrayList(Iterator firstIncluded, Iterator lastExcluded): vec(firstIncluded, lastExcluded) {}
 		ArrayList(std::initializer_list<Type> il): vec(il) {}
 		ArrayList(const ArrayList& copied): vec(copied.vec) {}
 		ArrayList(ArrayList&&) noexcept = default;
@@ -160,17 +158,18 @@ namespace cigmar {
 		iterator_t end() {return vec.end();}
 		const_iterator_t begin() const {return vec.begin();}
 		const_iterator_t end() const {return vec.end();}
+	};
 
-		void toStream(std::ostream& o) const override {
-			o << '[';
-			if (vec.size()) {
-				o << Streamer<Type>(vec[0]);
-				for (size_t i = 1; i < size(); ++i) {
-					o << "; " << Streamer<Type>(vec[i]);
-				}
-			}
-			o << ']';
+	template <typename C, typename T>
+	std::basic_ostream<C>& operator<<(std::basic_ostream<C>& o, const ArrayList<T>& vec) {
+		o << '[';
+		if (vec.size()) {
+			o << streamer(vec[0]);
+			for (size_t i = 1; i < vec.size(); ++i)
+				o << "; " << streamer(vec[i]);
 		}
+		o << ']';
+		return o;
 	};
 }
 

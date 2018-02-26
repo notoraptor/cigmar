@@ -7,8 +7,7 @@
 
 namespace cigmar {
 	template<typename T>
-	class CrossComparable {
-	public:
+	struct CrossComparable {
 		virtual int crossCompare(T other) const = 0;
 	};
 

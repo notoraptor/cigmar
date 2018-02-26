@@ -1,7 +1,6 @@
 #include <locale>
 #include <chrono>
 #include <thread>
-#include <cigmar/interfaces/Streamable.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/classes/UnicodeString.hpp>
 #include <cigmar/classes/TreeMap.hpp>
@@ -58,10 +57,6 @@ namespace cigmar {
 	std::ostream& operator<<(std::ostream& o, ubyte_t b) {
 		return (o << (unsigned int)b);
 	}
-	std::ostream& operator<<(std::ostream& o, const Streamable& s) {
-		s.toStream(o);
-		return o;
-	};
 
 	/// Classes static methods.
 	char Char::lower(char c) {

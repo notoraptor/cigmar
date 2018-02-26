@@ -15,8 +15,8 @@ namespace cigmar::unicode {
 		template <typename T>
 		struct StreamPusher {
 			typedef T value_type;
-			std::ostream& stream;
-			explicit StreamPusher(std::ostream& outputStream): stream(outputStream) {}
+			std::basic_ostream<T>& stream;
+			explicit StreamPusher(std::basic_ostream<T>& outputStream): stream(outputStream) {}
 			void push_back(const T& value) {
 				stream << value;
 			}
