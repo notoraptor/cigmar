@@ -7,7 +7,7 @@
 
 #include <iterator>
 #include <libraries/utf/utf.hpp>
-#include <cigmar/classes/Char.hpp>
+#include "cigmar.hpp"
 
 namespace cigmar::unicode {
 
@@ -73,7 +73,7 @@ namespace cigmar::unicode {
 		>::type unicode_out_type;
 		static_assert(!std::is_same<Character, bool>{}, "unicode: cannot handle bool type as input type.");
 		static_assert(!std::is_same<unicode_out_type, bool>{}, "unicode: cannot handle bool type as output type.");
-		inLength = std::min(inLength, Char::stringlength(in));
+		inLength = std::min(inLength, characters::stringLength(in));
 		auto sv = utf::make_stringview(in, in + inLength);
 		sv.template to<unicode_out_type>(std::back_inserter(out));
 	};
@@ -93,7 +93,7 @@ namespace cigmar::unicode {
 		>::type unicode_out_type;
 		static_assert(!std::is_same<Character, bool>{}, "unicode: cannot handle bool type as input type.");
 		static_assert(!std::is_same<unicode_out_type, bool>{}, "unicode: cannot handle bool type as output type.");
-		inLength = std::min(inLength, Char::stringlength(in));
+		inLength = std::min(inLength, characters::stringLength(in));
 		auto sv = utf::make_stringview(in, in + inLength);
 		StreamPusher<out_element_type> streamPusher(out);
 		sv.template to<unicode_out_type>(std::back_inserter(streamPusher));

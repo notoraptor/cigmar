@@ -12,11 +12,11 @@
 #include <cigmar/interfaces/Comparable.hpp>
 #include <cigmar/interfaces/CrossComparable.hpp>
 #include <cigmar/classes/ArrayList.hpp>
-#include <cigmar/classes/Char.hpp>
 #include <cigmar/unicode.hpp>
 #include <cigmar/symbols.hpp>
+#include <cigmar/cigmar.hpp>
 
-// TODO: Unicode empty characters, unicoe class characters ...
+// TODO: Unicode empty characters, unicode class characters ...
 
 namespace cigmar {
 	template <typename Character>
@@ -68,7 +68,7 @@ namespace cigmar {
 							pos = next_position;
 						} else {
 							line.assign(*ptr, pos, next_position - pos);
-							pos = next_position + Char::stringlength(newline);
+							pos = next_position + characters::stringLength(newline);
 						}
 					}
 				}
@@ -142,7 +142,7 @@ namespace cigmar {
 	public:
 		ASSERT_CHARTYPE(Character);
 		const Character empty_characters[];
-		const Character* endl[];
+		const Character endl[];
 		typedef Character char_t;
 		typedef std::basic_string<Character> string_t;
 		typedef typename string_t::iterator iterator_t;
@@ -227,7 +227,7 @@ namespace cigmar {
 		}
 		AbstractString(const Character* s) noexcept : member(s) {}
 		AbstractString(const Character* s, size_t pos, size_t len = string_t::npos): member() {
-			len = std::min(len, Char::stringlength(s + pos));
+			len = std::min(len, characters::stringLength(s + pos));
 			member.assign(s + pos, len);
 		}
 		AbstractString(size_t length, Character c): member(length, c) {}
@@ -415,7 +415,7 @@ namespace cigmar {
 		}
 		AbstractString& replace(const AbstractString& from, const Character* to) {
 			size_t from_len = from.member.length();
-			size_t to_len = Char::stringlength(to);
+			size_t to_len = characters::stringLength(to);
 			size_t pos = 0;
 			do {
 				pos = member.find(from.member, pos);
@@ -427,7 +427,7 @@ namespace cigmar {
 			return *this;
 		}
 		AbstractString& replace(const Character* from, const AbstractString& to) {
-			size_t from_len = Char::stringlength(from);
+			size_t from_len = characters::stringLength(from);
 			size_t to_len = to.member.length();
 			size_t pos = 0;
 			do {
@@ -440,8 +440,8 @@ namespace cigmar {
 			return *this;
 		}
 		AbstractString& replace(const Character* from, const Character* to) {
-			size_t from_len = Char::stringlength(from);
-			size_t to_len = Char::stringlength(to);
+			size_t from_len = characters::stringLength(from);
+			size_t to_len = characters::stringLength(to);
 			size_t pos = 0;
 			do {
 				pos = member.find(from, pos);
@@ -490,11 +490,13 @@ namespace cigmar {
 			return *this;
 		}
 		AbstractString& lower() {
-			std::transform(member.begin(), member.end(), member.begin(), Char::lower);
+			if (member.length())
+				characters::lower(member.data(), member.length());
 			return *this;
 		}
 		AbstractString& upper() {
-			std::transform(member.begin(), member.end(), member.begin(), Char::upper);
+			if (member.length())
+				characters::upper(member.data(), member.length());
 			return *this;
 		}
 		size_t substringInto(Character* out, size_t pos, size_t len = string_t::npos) const {
@@ -523,7 +525,7 @@ namespace cigmar {
 		}
 		ArrayList<AbstractString> split(const Character* delimiter) const {
 			ArrayList<AbstractString> pieces;
-			size_t sep_len = Char::stringlength(delimiter);
+			size_t sep_len = characters::stringLength(delimiter);
 			if (sep_len) {
 				size_t piece_start = 0;
 				size_t next_start = 0;
@@ -562,7 +564,7 @@ namespace cigmar {
 			return member.compare(0, s.member.length(), s.member) == 0;
 		}
 		bool startsWith(const Character* s) const {
-			return member.compare(0, Char::stringlength(s), s) == 0;
+			return member.compare(0, characters::stringLength(s), s) == 0;
 		}
 		bool endsWith(const AbstractString& s) const {
 			size_t len_m = member.length();
@@ -571,7 +573,7 @@ namespace cigmar {
 		}
 		bool endsWith(const Character* s) const {
 			size_t len_m = member.length();
-			size_t len_s = Char::stringlength(s);
+			size_t len_s = characters::stringLength(s);
 			return len_m >= len_s && member.compare(len_m - len_s, len_s, s) == 0;
 		}
 		pos_t indexOf(const AbstractString& s, size_t start = 0) const {

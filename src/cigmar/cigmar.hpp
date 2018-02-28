@@ -1,16 +1,15 @@
 //
 // Created by notoraptor on 31/10/2017.
 //
-
 #ifndef CIGMAR_HPP
 #define CIGMAR_HPP
 
 #include <cstddef>
 #include <chrono>
+#include <locale>
 #include <cigmar/classes/exception/Exception.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/symbols.hpp>
-
 #ifndef WIN32
 #include <dirent.h>
 #else
@@ -27,6 +26,34 @@ namespace cigmar {
 			ArrayList<byte_t> decode(const String& in);
 		}
 	}
+	struct characters {
+		static std::locale loc;
+		template <typename Character>
+		static Character lower(Character c) {
+			return tolower(c, loc);
+		};
+		template <typename Character>
+		static Character upper(Character c) {
+			return toupper(c, loc);
+		};
+		template <typename Character>
+		static void lower(Character* s, size_t len) {
+			std::use_facet<std::ctype<Character>>(loc).tolower(s, s + len);
+		}
+		template <typename Character>
+		static void upper(Character* s, size_t len) {
+			std::use_facet<std::ctype<Character>>(loc).toupper(s, s + len);
+		}
+		template <typename Character>
+		static size_t stringLength(const Character *s) {
+			size_t len = 0;
+			while (*s) {
+				++len;
+				++s;
+			}
+			return len;
+		}
+	};
 	namespace crypto::hash {
 		String whirlpool(const String& in);
 	}
@@ -228,10 +255,9 @@ namespace cigmar {
 			return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - base).count();
 		}
 	};
+	/** Instantiation of library initialization class CigmarInit,
+	to automatically initialize library before call to main() function. **/
 	extern CigmarInit cigmar_init;
-	/**< Instantiation of library initialization class CigmarInit,
-	to automatically initialize library before call to main() function.
-	**/
 }
 
 

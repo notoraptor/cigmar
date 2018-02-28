@@ -8,7 +8,6 @@ set(SOURCE_FILES
         src/cigmar/cigmar.hpp
         src/cigmar/classes/AbstractString.hpp
         src/cigmar/classes/ArrayList.hpp
-        src/cigmar/classes/Char.hpp
         src/cigmar/classes/exception/Exception.hpp
         src/cigmar/classes/exception/IndexException.hpp
         src/cigmar/classes/file/Lines.hpp

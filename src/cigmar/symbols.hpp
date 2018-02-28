@@ -111,8 +111,7 @@ namespace cigmar {
 		void printElement(std::basic_ostream<C>& o) {}
 		template <typename C, typename T, typename... Args>
 		void printElement(std::basic_ostream<C>& o, const T& variable, Args&&... args) {
-			o << ' ';
-			o << special_classes::Streamer<T>(variable);
+			o << ' ' << special_classes::Streamer<T>(variable);
 			printElement(o, std::forward<Args>(args)...);
 		};
 		template <typename C>

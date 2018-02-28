@@ -1,28 +1,26 @@
 #include <locale>
 #include <chrono>
 #include <thread>
+#include <cigmar/cigmar.hpp>
+#include <cigmar/classes/file/Lines.hpp>
 #include <cigmar/classes/String.hpp>
-#include <cigmar/classes/UnicodeString.hpp>
 #include <cigmar/classes/TreeMap.hpp>
 #include <cigmar/numbers.hpp>
-#include <cigmar/classes/HashSet.hpp>
-#include <cigmar/classes/file/Lines.hpp>
+#include <cigmar/unittests.hpp>
 #include <libraries/base64/base64.hpp>
 #include <libraries/whirlpool/nessie.h>
-#include <cigmar/unittests.hpp>
-#include <cigmar/cigmar.hpp>
 
 /* NB:
  * To have all C++11 thread functionalities available, compiler must be POSIX compliant.
  * Got it from mingw-w64: https://sourceforge.net/projects/mingw-w64/
- * (Default mingw32 is not POSIX for threads).
- * To check POSIX compliance, run `gcc -v`.
+ * (Default mingw32 is not POSIX for threads). To check POSIX compliance, run `gcc -v`.
  * If you read: "Thread model: Win32", then thread is not well supported, you must see "POSIX".
  * http://www.programering.com/q/MTM5UzNwATg.html
-*/
+ * TODO: Optimization:  Virtual methods increase class size.
+ * Let's try to reduce usage of virtual methods, for ex.  everywhere we could use templates instead of inheritance.
+ * */
 
 /* Notes: write a long multi-lines raw string in C++11+:
-
 const char* jstring = R"(
 {
 "a": true,
@@ -31,18 +29,10 @@ const char* jstring = R"(
 "hello": "merci"
 }
 )";
-
 */
-
-/* TODO: Optimization.
- * Virtual methods increase class size.
- * Let's try to reduce usage of virtual methods, for ex.
- * everywhere we could use templates instead of inheritance.
- * */
 
 namespace cigmar {
 	/// Local definitons.
-	static std::locale loc;
 	#define CIGMAR_SYS_RUN_BUFFER_LENGTH 1025
 
 	/// Global variables.
@@ -50,21 +40,8 @@ namespace cigmar {
 	max_t MAX;
 	CigmarInit cigmar_init;
 
-	/// Global functions.
-	std::ostream& operator<<(std::ostream& o, byte_t b) {
-		return (o << (int)b);
-	}
-	std::ostream& operator<<(std::ostream& o, ubyte_t b) {
-		return (o << (unsigned int)b);
-	}
-
 	/// Classes static methods.
-	char Char::lower(char c) {
-		return std::tolower(c, loc);
-	}
-	char Char::upper(char c) {
-		return std::toupper(c, loc);
-	}
+	std::locale characters::loc;
 	const char* const hex::digits = "0123456789ABCDEF";
 
 	/// Namespace definitions.
