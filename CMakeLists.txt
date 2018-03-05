@@ -23,9 +23,6 @@ set(SOURCE_FILES
         src/cigmar/classes/TreeMap.hpp
         src/cigmar/classes/TreeSet.hpp
         src/cigmar/classes/UnicodeString.hpp
-        src/cigmar/interfaces/Comparable.hpp
-        src/cigmar/interfaces/CrossComparable.hpp
-        src/cigmar/interfaces/Hashable.hpp
         src/cigmar/numbers.hpp
         src/cigmar/sqlite.hpp
         src/cigmar/symbols.hpp
@@ -79,7 +76,7 @@ set(SOURCE_FILES
         src/libraries/utf/utf.hpp
         src/libraries/whirlpool/nessie.h
         src/libraries/whirlpool/Whirlpool.cpp
-        )
+        src/cigmar/utils/macro_utils.hpp src/cigmar/utils/trait_utils.hpp src/cigmar/utils/string_utils.hpp src/cigmar/utils/character_utils.hpp)
 
 add_executable(cigmar ${SOURCE_FILES})
 

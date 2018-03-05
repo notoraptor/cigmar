@@ -16,7 +16,7 @@ namespace cigmar {
 	namespace sys {
 
 		struct PlatformDir {
-			String internal;
+			String trait_utils;
 		};
 
 		class PlatformDirent {
@@ -40,7 +40,7 @@ namespace cigmar {
 			handler = nullptr;
 		}
 		Dirent::Dirent(Dir& dir) {
-			handler = new PlatformDirent(dir.handler->internal);
+			handler = new PlatformDirent(dir.handler->trait_utils);
 		}
 		Dirent::~Dirent() {
 			delete handler;
@@ -71,7 +71,7 @@ namespace cigmar {
 				throw Exception("cigmar::sys::Dir: error opening directory ", pathname);
 			closedir(directory);
 			handler = new PlatformDir();
-			handler->internal = pathname;
+			handler->trait_utils = pathname;
 		}
 		Dir::~Dir() {
 			delete handler;

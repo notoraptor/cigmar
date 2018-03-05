@@ -182,12 +182,13 @@ namespace cigmar {
 			}
 
 			bool isDirectory(const char* pathname) {
+				bool is = true;
 				try {
 					Dir d(pathname);
-					return true;
 				} catch (...) {
-					return false;
+					is = false;
 				}
+				return is;
 			};
 
 			bool isFile(const char* pathname) {

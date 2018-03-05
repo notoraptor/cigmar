@@ -160,24 +160,19 @@ namespace cigmar::sqlite {
 			switch (sqlite3_column_type(stmt, col)) {
 				case SQLITE_INTEGER:
 					return String::write(sqlite3_column_int64(stmt, col));
-					break;
 				case SQLITE_FLOAT:
 					return String::write(sqlite3_column_double(stmt, col));
-					break;
 				case SQLITE_TEXT:
 					return String((const char*)sqlite3_column_text(stmt, col));
-					break;
 				case SQLITE_BLOB: {
 						const byte_t *data = (const byte_t *) sqlite3_column_blob(stmt, col);
 						int dataSize = sqlite3_column_bytes(stmt, col);
 						return base64::bytes::encode(data, (size_t) dataSize);
-					}; break;
+					};
 				case SQLITE_NULL:
 					return String();
-					break;
 				default:
 					throw Exception("Unknown type for SQL column ", col, ".");
-					break;
 			}
 		};
 	};

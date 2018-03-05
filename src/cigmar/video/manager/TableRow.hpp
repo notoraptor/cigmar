@@ -8,7 +8,7 @@
 #include <cigmar/classes/String.hpp>
 
 namespace cigmar::video::manager {
-	class TableRow: public Hashable {
+	class TableRow {
 	private:
 		int64_t m_id;
 		String m_key;
@@ -25,7 +25,7 @@ namespace cigmar::video::manager {
 	public:
 		int64_t id() const {return m_id;}
 		virtual const String& key() const {return m_key;}
-		size_t hash() const override {
+		size_t hash() const {
 			return (size_t)m_id;
 		}
 	};

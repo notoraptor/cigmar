@@ -3,7 +3,7 @@
 
 #include <initializer_list>
 #include <unordered_map>
-#include <cigmar/utils/Hasher.hpp>
+#include <cigmar/internal/Hasher.hpp>
 
 namespace cigmar {
 	template<typename K, typename V>

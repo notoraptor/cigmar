@@ -5,16 +5,17 @@
 #define CIGMAR_HPP
 
 #include <cstddef>
+#include <thread>
 #include <chrono>
 #include <locale>
 #include <cigmar/classes/exception/Exception.hpp>
 #include <cigmar/classes/String.hpp>
 #include <cigmar/symbols.hpp>
-#ifndef WIN32
-#include <dirent.h>
-#else
+#ifdef WIN32
 #define popen _popen
 #define pclose _pclose
+#else
+#include <dirent.h>
 #endif
 
 namespace cigmar {
@@ -26,34 +27,6 @@ namespace cigmar {
 			ArrayList<byte_t> decode(const String& in);
 		}
 	}
-	struct characters {
-		static std::locale loc;
-		template <typename Character>
-		static Character lower(Character c) {
-			return tolower(c, loc);
-		};
-		template <typename Character>
-		static Character upper(Character c) {
-			return toupper(c, loc);
-		};
-		template <typename Character>
-		static void lower(Character* s, size_t len) {
-			std::use_facet<std::ctype<Character>>(loc).tolower(s, s + len);
-		}
-		template <typename Character>
-		static void upper(Character* s, size_t len) {
-			std::use_facet<std::ctype<Character>>(loc).toupper(s, s + len);
-		}
-		template <typename Character>
-		static size_t stringLength(const Character *s) {
-			size_t len = 0;
-			while (*s) {
-				++len;
-				++s;
-			}
-			return len;
-		}
-	};
 	namespace crypto::hash {
 		String whirlpool(const String& in);
 	}
@@ -97,6 +70,7 @@ namespace cigmar {
 			}
 			return out;
 		}
+		static String fromarray(const unsigned char array[], size_t length);
 	};
 	namespace sys {
 		template<typename... Args> void println(Args&&... args) {
@@ -183,11 +157,11 @@ namespace cigmar {
 					std::ostringstream o;
 					if (il.size()) {
 						auto it = il.begin(), end = il.end();
-						o << Streamer<String>(*it);
+						o << streamer(*it);
 						while((++it) != end) {
 							if (isRooted(it->cstring()))
 								throw Exception("Cannot build path with rooted element inside.");
-							o << Streamer<String>(separator) << Streamer<String>(*it);
+							o << separator << streamer(*it);
 						}
 					}
 				}
@@ -255,9 +229,6 @@ namespace cigmar {
 			return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - base).count();
 		}
 	};
-	/** Instantiation of library initialization class CigmarInit,
-	to automatically initialize library before call to main() function. **/
-	extern CigmarInit cigmar_init;
 }
 
 

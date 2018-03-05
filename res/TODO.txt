@@ -1,0 +1,11 @@
+TODO
+
+Advanced classes:
+    class LinkedList;
+        Double linked list
+    class Tensor
+        Sophisticated N-D array
+Advanced types traites:
+    is_list_class<T>
+    is_map_class<T>
+    is_set_class<T>

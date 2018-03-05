@@ -7,7 +7,7 @@
 
 #include <iterator>
 #include <libraries/utf/utf.hpp>
-#include "cigmar.hpp"
+#include <cigmar/symbols.hpp>
 
 namespace cigmar::unicode {
 

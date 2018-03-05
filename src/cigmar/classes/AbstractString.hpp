@@ -8,138 +8,13 @@
 #include <cstring>
 #include <sstream>
 #include <algorithm>
-#include <cigmar/interfaces/Hashable.hpp>
-#include <cigmar/interfaces/Comparable.hpp>
-#include <cigmar/interfaces/CrossComparable.hpp>
 #include <cigmar/classes/ArrayList.hpp>
 #include <cigmar/unicode.hpp>
 #include <cigmar/symbols.hpp>
-#include <cigmar/cigmar.hpp>
-
-// TODO: Unicode empty characters, unicode class characters ...
 
 namespace cigmar {
 	template <typename Character>
-	class AbstractString: public public Hashable, public Comparable<AbstractString<Character>> {
-		class LinesIterator {
-			const AbstractString* ptr;
-			AbstractString line;
-			Character newline[3];
-			size_t pos = 0;
-			void defineNewline(size_t pos) {
-				switch((*ptr)[pos]) {
-					case '\r':
-						if (pos == ptr->length() - 1 || (*ptr)[pos + 1] != '\n')
-							newline[1] = '\0';
-						break;
-					case '\n':
-						newline[0] = '\n';
-						newline[1] = '\0';
-						break;
-					default: break;
-				}
-			}
-		public:
-			LinesIterator(): ptr(nullptr), line(), newline() {}
-			explicit LinesIterator(const AbstractString& s): ptr(&s), line(), newline() {
-				newline[0] = '\r';
-				newline[1] = '\n';
-				newline[2] = '\0';
-				this->operator++();
-			}
-			bool operator==(const LinesIterator& o) const {return ptr == o.ptr;}
-			bool operator!=(const LinesIterator& o) const {return ptr != o.ptr;}
-			AbstractString& operator*() {return line;}
-			LinesIterator& operator++() {
-				if (ptr) {
-					if (pos == string_t::npos)
-						ptr = nullptr;
-					else {
-						size_t next_position;
-						if (pos) {
-							next_position = ptr->cppstring().find(newline, pos);
-						} else {
-							next_position = ptr->cppstring().find_first_of(newline, pos);
-							if (next_position != string_t::npos)
-								defineNewline(next_position);
-						}
-						if (next_position == string_t::npos) {
-							line.assign(*ptr, pos);
-							pos = next_position;
-						} else {
-							line.assign(*ptr, pos, next_position - pos);
-							pos = next_position + characters::stringLength(newline);
-						}
-					}
-				}
-				return *this;
-			}
-		};
-		class Lines {
-			const AbstractString& s;
-		public:
-			explicit Lines(const AbstractString& str): s(str) {}
-			LinesIterator begin() const {return LinesIterator(s);}
-			LinesIterator end() const {return LinesIterator();}
-		};
-		class SplitIterator {
-			const AbstractString* ptr;
-			AbstractString sep;
-			AbstractString piece;
-			bool skip_escaped;
-			size_t pos;
-		public:
-			SplitIterator(): ptr(nullptr), sep(), piece(), skip_escaped(false), pos(0) {}
-			explicit SplitIterator(const AbstractString& str, const AbstractString& delimiter, bool skipEscaped):
-					ptr(nullptr), sep(), piece(), skip_escaped(skipEscaped), pos(0) {
-				if (delimiter) {
-					ptr = &str;
-					sep = delimiter;
-					this->operator++();
-				}
-			}
-			bool operator==(const SplitIterator& o) const {return ptr == o.ptr;}
-			bool operator!=(const SplitIterator& o) const {return ptr != o.ptr;}
-			AbstractString& operator*() {return piece;}
-			AbstractString* operator->() {return &piece;}
-			SplitIterator& operator++() {
-				if (ptr) {
-					if (pos == string_t::npos)
-						ptr = nullptr;
-					else {
-						size_t next_position = ptr->cppstring().find(sep.cppstring(), pos);
-						if (next_position && next_position != string_t::npos && skip_escaped) {
-							bool found = false;
-							do {
-								if ((*ptr)[next_position - 1] == '\\')
-									next_position = ptr->cppstring().find(sep.cppstring(), next_position + 1);
-								else
-									found = true;
-							} while (!found && next_position != string_t::npos);
-						}
-						if (next_position == string_t::npos) {
-							piece.assign(*ptr, pos);
-							pos = next_position;
-						} else {
-							piece.assign(*ptr, pos, next_position - pos);
-							pos = next_position + sep.length();
-						}
-					}
-				}
-				return *this;
-			}
-		};
-		class Split {
-			const AbstractString& s;
-			AbstractString sep;
-			bool skip_escape;
-		public:
-			explicit Split(const AbstractString& str, const AbstractString& delimiter, bool skipEscape):
-					s(str), sep(delimiter), skip_escape(skipEscape) {}
-			SplitIterator begin() const {return SplitIterator(s, sep, skip_escape);}
-			SplitIterator end() const {return SplitIterator();}
-		};
-	public:
+	struct AbstractString {
 		ASSERT_CHARTYPE(Character);
 		const Character empty_characters[];
 		const Character endl[];
@@ -594,51 +469,163 @@ namespace cigmar {
 		pos_t lastIndexOf(Character c, size_t start = string_t::npos) const {
 			return strpos(member.rfind(c, start));
 		}
-
-		Lines lines() const {return Lines(*this);}
-		Split splits(const AbstractString& delimiter, bool skipEscaped = false) const {
-			return Split(*this, delimiter, skipEscaped);
-		}
-		size_t hash() const override {
+		size_t hash() const {
 			return std::hash<string_t>()(member);
 		}
-		int compare(const AbstractString& other) const override {
+		int compare(const AbstractString& other) const {
 			return member.compare(other.member);
 		}
-		int compareString(const Character* other) const {
+		int compare(const Character* other) const {
 			return member.compare(other);
 		}
-		template <typename OtherCharacter> int compareString(const OtherCharacter* other) const {
+		template <typename OtherCharacter>
+		int compare(const OtherCharacter* other) const {
 			ASSERT_CHARTYPE(OtherCharacter);
 			// TODO: Improve unicode handling by using iterations.
 			return compare(other);
 		}
 	};
-
-	template <typename Character>
-	const Character AbstractString<Character>::empty_characters[] = EMPTY_CHARACTERS;
-	template <typename Character>
-	const Character AbstractString<Character>::endl[] = ENDL;
-
-	template <typename A, typename B> bool operator==(const AbstractString<A>& a, const B* b) { return a.compareString(b) == 0; };
-	template <typename A, typename B> bool operator!=(const AbstractString<A>& a, const B* b) { return a.compareString(b) != 0; };
-	template <typename A, typename B> bool operator<=(const AbstractString<A>& a, const B* b) { return a.compareString(b) <= 0; };
-	template <typename A, typename B> bool operator>=(const AbstractString<A>& a, const B* b) { return a.compareString(b) >= 0; };
-	template <typename A, typename B> bool operator<(const AbstractString<A>& a, const B* b) { return a.compareString(b) < 0; };
-	template <typename A, typename B> bool operator>(const AbstractString<A>& a, const B* b) { return a.compareString(b) > 0; };
-
-	template <typename A, typename B> bool operator==(const A* a, const AbstractString<B>& b) { return b.compareString(a) == 0; };
-	template <typename A, typename B> bool operator!=(const A* a, const AbstractString<B>& b) { return b.compareString(a) != 0; };
-	template <typename A, typename B> bool operator<=(const A* a, const AbstractString<B>& b) { return b.compareString(a) >= 0; };
-	template <typename A, typename B> bool operator>=(const A* a, const AbstractString<B>& b) { return b.compareString(a) <= 0; };
-	template <typename A, typename B> bool operator<(const A* a, const AbstractString<B>& b) { return b.compareString(a) > 0; };
-	template <typename A, typename B> bool operator>(const A* a, const AbstractString<B>& b) { return b.compareString(a) < 0; };
-
+	template <typename Character> const Character AbstractString<Character>::empty_characters[] = EMPTY_CHARACTERS;
+	template <typename Character> const Character AbstractString<Character>::endl[] = ENDL;
+	MAKE_TEMPLATE_AUTO_COMPARABLE((template<typename A>), AbstractString<A>);
+	MAKE_TEMPLATE_COMPARABLE((template<typename A, typename B>), AbstractString<A>, const B*);
 	template<typename C1, typename C2>
 	std::basic_ostream<C1>& operator<<(std::basic_ostream<C1>& o, const AbstractString<C2>& s) {
 		unicode::convert(s.cppstring(), o);
 		return o;
 	};
+
+	template <typename C>
+	class AbstractStringLinesIterator {
+		typedef AbstractString<C> abstract_striing_t;
+		typedef typename abstract_striing_t::string_t string_t;
+		const abstract_striing_t* ptr;
+		abstract_striing_t line;
+		C newline[3];
+		size_t pos;
+		void defineNewline(size_t position) {
+			switch((*ptr)[position]) {
+				case '\r':
+					if (position == ptr->length() - 1 || (*ptr)[position + 1] != '\n')
+						newline[1] = '\0';
+					break;
+				case '\n':
+					newline[0] = '\n';
+					newline[1] = '\0';
+					break;
+				default: break;
+			}
+		}
+		void update(size_t next_position) {
+			if (next_position == string_t::npos) {
+				line.assign(*ptr, pos);
+				pos = next_position;
+			} else {
+				line.assign(*ptr, pos, next_position - pos);
+				pos = next_position + characters::stringLength(newline);
+			}
+		}
+	public:
+		AbstractStringLinesIterator(): ptr(nullptr), line(), newline(), pos(0) {}
+		explicit AbstractStringLinesIterator(const AbstractString& s): ptr(&s), line(), newline(), pos(0) {
+			newline[0] = '\r';
+			newline[1] = '\n';
+			newline[2] = '\0';
+			size_t next_position = ptr->cppstring().find_first_of(newline, pos);
+			if (next_position != string_t::npos)
+				defineNewline(next_position);
+			update(next_position);
+		}
+		bool operator==(const AbstractStringLinesIterator& o) const {return ptr == o.ptr && pos == o.pos;}
+		bool operator!=(const AbstractStringLinesIterator& o) const {return ptr != o.ptr || pos != o.pos;}
+		AbstractString& operator*() {return line;}
+		AbstractStringLinesIterator& operator++() {
+			if (ptr) {
+				if (pos == string_t::npos)
+					ptr = nullptr;
+				else
+					update(ptr->cppstring().find(newline, pos));
+			}
+			return *this;
+		}
+	};
+	template <typename C>
+	class AbstractStringLines {
+		const AbstractString<C>& s;
+	public:
+		explicit AbstractStringLines(const AbstractString<C>& str): s(str) {}
+		AbstractStringLinesIterator<C> begin() const {return AbstractStringLinesIterator<C>(s);}
+		AbstractStringLinesIterator<C> end() const {return AbstractStringLinesIterator<C>();}
+	};
+	template <typename C>
+	class AbstractStringSplitIterator {
+		typedef AbstractString<C> abstract_string_t;
+		typedef typename abstract_string_t::string_t string_t;
+		const abstract_string_t* ptr;
+		abstract_string_t sep;
+		abstract_string_t piece;
+		bool skip_escaped;
+		size_t pos;
+	public:
+		AbstractStringSplitIterator(): ptr(nullptr), sep(), piece(), skip_escaped(false), pos(0) {}
+		explicit AbstractStringSplitIterator(const abstract_string_t& str, const abstract_string_t& delimiter, bool skipEscaped):
+				ptr(nullptr), sep(), piece(), skip_escaped(skipEscaped), pos(0) {
+			if (delimiter) {
+				ptr = &str;
+				sep = delimiter;
+				this->operator++();
+			}
+		}
+		bool operator==(const AbstractStringSplitIterator& o) const {return ptr == o.ptr;}
+		bool operator!=(const AbstractStringSplitIterator& o) const {return ptr != o.ptr;}
+		abstract_string_t& operator*() {return piece;}
+		abstract_string_t* operator->() {return &piece;}
+		AbstractStringSplitIterator& operator++() {
+			if (ptr) {
+				if (pos == string_t::npos)
+					ptr = nullptr;
+				else {
+					size_t next_position = ptr->cppstring().find(sep.cppstring(), pos);
+					if (next_position && next_position != string_t::npos && skip_escaped) {
+						bool found = false;
+						do {
+							if ((*ptr)[next_position - 1] == '\\')
+								next_position = ptr->cppstring().find(sep.cppstring(), next_position + 1);
+							else
+								found = true;
+						} while (!found && next_position != string_t::npos);
+					}
+					if (next_position == string_t::npos) {
+						piece.assign(*ptr, pos);
+						pos = next_position;
+					} else {
+						piece.assign(*ptr, pos, next_position - pos);
+						pos = next_position + sep.length();
+					}
+				}
+			}
+			return *this;
+		}
+	};
+	template <typename C>
+	class AbstractStringSplit {
+		const AbstractString<C>& s;
+		AbstractString<C> sep;
+		bool skip_escape;
+	public:
+		explicit AbstractStringSplit(const AbstractString<C>& str, const AbstractString<C>& delimiter, bool skipEscape):
+				s(str), sep(delimiter), skip_escape(skipEscape) {}
+		AbstractStringSplitIterator begin() const {return AbstractStringSplitIterator<C>(s, sep, skip_escape);}
+		AbstractStringSplitIterator end() const {return AbstractStringSplitIterator<C>();}
+	};
+	template <typename C>
+	AbstractStringLines<C> lines(const AbstractString<C>& s) {
+		return AbstractStringLines<C>(&s);
+	}
+	template <typename C>
+	AbstractStringSplit<C> split(const AbstractString<C>& s, const AbstractString<C>& delimiter, bool skipEscaped = false) {
+		return AbstractStringSplit(&s, delimiter, skipEscaped);
+	}
 }
 
 #endif //SRC_CIGMAR_ABSTRACTSTRING_HPP

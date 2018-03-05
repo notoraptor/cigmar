@@ -1,14 +1,12 @@
 #include <locale>
 #include <chrono>
 #include <thread>
-#include <cigmar/cigmar.hpp>
+#include <libraries/base64/base64.hpp>
+#include <libraries/whirlpool/nessie.h>
 #include <cigmar/classes/file/Lines.hpp>
-#include <cigmar/classes/String.hpp>
 #include <cigmar/classes/TreeMap.hpp>
 #include <cigmar/numbers.hpp>
 #include <cigmar/unittests.hpp>
-#include <libraries/base64/base64.hpp>
-#include <libraries/whirlpool/nessie.h>
 
 /* NB:
  * To have all C++11 thread functionalities available, compiler must be POSIX compliant.
@@ -36,12 +34,11 @@ namespace cigmar {
 	#define CIGMAR_SYS_RUN_BUFFER_LENGTH 1025
 
 	/// Global variables.
-	last_t LAST;
-	max_t MAX;
+	/** Instantiation of library initialization class CigmarInit,
+	to automatically initialize library before call to main() function. **/
 	CigmarInit cigmar_init;
 
 	/// Classes static methods.
-	std::locale characters::loc;
 	const char* const hex::digits = "0123456789ABCDEF";
 
 	/// Namespace definitions.
@@ -69,16 +66,10 @@ namespace cigmar {
 			};
 		}
 	}
+	namespace characters {
+		std::locale loc;
+	}
 	namespace crypto::hash {
-		// TODO: Move it in cigmar hex module.
-		static String toHex(const u8 array[], size_t length) {
-			String hexString(2 * length, '0');
-			for (size_t i = 0; i < length; ++i) {
-				hexString[2 * i] = hex::digit(hex::up(array[i]));
-				hexString[2 * i + 1] = hex::digit(hex::down(array[i]));
-			}
-			return hexString;
-		}
 		String whirlpool(const String& in) {
 			if (in.length() > std::numeric_limits<unsigned long>::max() / 8) {
 				throw Exception("Current implementation of Whirlpool hashing algorithm supports maximum input size ",
@@ -89,7 +80,7 @@ namespace cigmar {
 			NESSIEinit(&w);
 			NESSIEadd((const unsigned char*)in.cstring(), 8 * (unsigned long)in.length(), &w);
 			NESSIEfinalize(&w, digest);
-			return toHex(digest, DIGESTBYTES);
+			return hex::fromarray(digest, DIGESTBYTES);
 		};
 	}
 	namespace file::text {
@@ -109,6 +100,16 @@ namespace cigmar {
 		String read(const String& filename) {
 			return _read(filename);
 		};
+	}
+	namespace hex {
+		static String fromarray(const unsigned char array[], size_t length) {
+			String hexString(2 * length, '0');
+			for (size_t i = 0; i < length; ++i) {
+				hexString[2 * i] = hex::digit(hex::up(array[i]));
+				hexString[2 * i + 1] = hex::digit(hex::down(array[i]));
+			}
+			return hexString;
+		}
 	}
 	namespace numbers::random {
 		RNG rng;
@@ -336,13 +337,14 @@ namespace cigmar {
 			}
 			double elapsedSeconds = timer.microseconds() * 1e-6;
 			size_t testsCount = treemap.size();
-			std::cerr << std::endl << "Ran " << testsCount << " test" << (testsCount == 1 ? "" : "s") << " in " << elapsedSeconds << 's' << std::endl;
+			std::cerr << std::endl << "Ran " << testsCount << " test" << (testsCount == 1 ? "" : "s");
+			std::cerr << " in " << elapsedSeconds << 's' << std::endl;
 			std::cerr << std::endl << "OK" << std::endl;
 		}
 	}
 	namespace time {
 		namespace nanoseconds {
-			void sleep(size_t count) {std::this_thread::sleep_for (std::chrono::nanoseconds(count));};
+			void sleep(size_t count) {std::this_thread::sleep_for (std::chrono::nanoseconds(count));}
 		}
 		namespace microseconds {
 			void sleep(size_t count) {std::this_thread::sleep_for (std::chrono::microseconds(count));};

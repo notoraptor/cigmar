@@ -3,13 +3,9 @@
 #include <string>
 #include <ostream>
 #include <limits>
-#include <cigmar/interfaces/Comparable.hpp>
-#include <cigmar/interfaces/CrossComparable.hpp>
-#include <cigmar/interfaces/Hashable.hpp>
 
 namespace cigmar {
-	class pos_t: public Comparable<pos_t>, public CrossComparable<size_t>, public Hashable {
-	private:
+	class pos_t {
 		bool valid;
 		size_t value;
 	public:
@@ -18,14 +14,14 @@ namespace cigmar {
 		pos_t(bool ok, size_t v): valid(ok), value(ok ? v : -1) {}
 		explicit operator bool() const {return valid;}
 		explicit operator size_t() const {return value;}
-		size_t hash() const override {
+		size_t hash() const {
 			std::hash<size_t> h;
 			return h(valid) ^ h(value);
 		}
-		int compare(const pos_t& other) const override {
+		int compare(const pos_t& other) const {
 			return (!valid && !other.valid) ? 0 : ( value < other.value ? -1 : value - other.value );
 		}
-		int crossCompare(size_t other) const override {
+		int compare(size_t other) const {
 			return (!valid || value < other) ? -1 : value - other;
 		}
 		pos_t& operator=(size_t v) {
@@ -181,6 +177,8 @@ namespace cigmar {
 			o << "-1";
 		return o;
 	}
+	MAKE_AUTO_COMPARABLE(pos_t);
+	MAKE_COMPARABLE(pos_t, size_t);
 }
 
 #endif // CIGMAR_POS_T
